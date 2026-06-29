@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 def main():
+    with open("log.txt", "w", encoding="utf-8") as log_file:
+        log_file.write("Plugin started\n")
+
     logging.basicConfig(
         level=logging.DEBUG,
         stream=sys.stderr,

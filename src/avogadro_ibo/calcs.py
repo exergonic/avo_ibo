@@ -20,7 +20,11 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     psi4.set_output_file(str(log_path), append=False)
 
     atoms = cjson["atoms"]
-    coords = atoms["coords"]
+    coords_raw = atoms["coords"]
+    if isinstance(coords_raw, dict):
+        coords = coords_raw["3d"]
+    else:
+        coords = coords_raw
     elem = atoms["elements"]["number"]
     charge_val = int(cjson.get("properties", {}).get("totalCharge", charge))
     spin_val = int(cjson.get("properties", {}).get("totalSpinMultiplicity", spin))

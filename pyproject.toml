@@ -19,9 +19,6 @@ platforms = ["win-64"]
 [tool.pixi.dependencies]
 psi4 = ">=1.10.2,<2"
 
-[tool.pixi.pypi-dependencies]
-avogadro_ibo = { path = ".", editable = true }
-
 [tool.pixi.tasks]
 
 [tool.avogadro]
