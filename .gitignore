@@ -5,3 +5,10 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# Debug log
+debug_log/
+_last_output.json
+
+# Psi4 timer
+timer.dat

@@ -3,9 +3,13 @@ import json
 import logging
 import sys
 import traceback
+from pathlib import Path
 
 # Make sure stdout stream is always Unicode, as Avogadro expects
 sys.stdout.reconfigure(encoding="utf-8")
+
+_PLUGIN_DIR = Path(__file__).resolve().parent.parent.parent
+_DEBUG_DIR = _PLUGIN_DIR / "debug_log"
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +35,8 @@ def main():
     logger.debug(f"Read {len(raw)} bytes from stdin")
     data = json.loads(raw)
     logger.debug(f"Input keys: {list(data.keys())}")
+    _DEBUG_DIR.mkdir(parents=True, exist_ok=True)
+    (_DEBUG_DIR / "input.json").write_text(raw, encoding="utf-8")
 
     cjson = data.get("cjson", {})
     options = data.get("options", {})
@@ -52,8 +58,9 @@ def main():
     json.dump(result, sys.stdout, indent=2)
     sys.stdout.flush()
     logger.debug(f"Output keys: {list(result.keys())}")
-    with open("_last_output.json", "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
+    (_DEBUG_DIR / "output.json").write_text(
+        json.dumps(result, indent=2), encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":
