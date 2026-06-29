@@ -23,29 +23,21 @@ nocc = wfn.doccpi()[0] + wfn.soccpi()[0]
 
 mints = psi4.core.MintsHelper(wfn.basisset())
 
-if "{loc_type}" == "iao":
-    bas_min = psi4.core.BasisSet.build(mol, "BASIS", "STO-3G", puream=0)
-    bas_full = wfn.basisset()
-    S_full = mints.ao_overlap().np
-    S_mixed = mints.ao_overlap(bas_full, bas_min).np
-    S_min = mints.ao_overlap(bas_min, bas_min).np
-    C_occ = Ca.np[:, :nocc]
-    S_min_inv = np.linalg.inv(S_min)
-    X = S_mixed @ S_min_inv @ S_mixed.T @ C_occ
-    XtSX = X.T @ S_full @ X
-    evals, evecs = np.linalg.eigh(XtSX)
-    X_ortho = X @ (evecs @ np.diag(evals ** -0.5) @ evecs.T)
-    new_Ca = Ca.np.copy()
-    new_Ca[:, :nocc] = X_ortho
-    Ca = psi4.core.Matrix.from_array(new_Ca)
-    wfn.Ca().copy(Ca)
-elif "{loc_type}" == "pm":
-    C_occ = psi4.core.Matrix.from_array(Ca.np[:, :nocc])
-    localizer = psi4.core.Localizer.build("PIPEK_MEZEY", wfn.basisset(), C_occ)
-    localizer.localize()
-    Ca_new = Ca.np.copy()
-    Ca_new[:, :nocc] = Ca.np[:, :nocc] @ localizer.U.np
-    wfn.Ca().copy(psi4.core.Matrix.from_array(Ca_new))
+bas_min = psi4.core.BasisSet.build(mol, "BASIS", "STO-3G", puream=0)
+bas_full = wfn.basisset()
+S_full = mints.ao_overlap().np
+S_mixed = mints.ao_overlap(bas_full, bas_min).np
+S_min = mints.ao_overlap(bas_min, bas_min).np
+C_occ = Ca.np[:, :nocc]
+S_min_inv = np.linalg.inv(S_min)
+X = S_mixed @ S_min_inv @ S_mixed.T @ C_occ
+XtSX = X.T @ S_full @ X
+evals, evecs = np.linalg.eigh(XtSX)
+X_ortho = X @ (evecs @ np.diag(evals ** -0.5) @ evecs.T)
+new_Ca = Ca.np.copy()
+new_Ca[:, :nocc] = X_ortho
+Ca = psi4.core.Matrix.from_array(new_Ca)
+wfn.Ca().copy(Ca)
 
 psi4.molden(wfn, "{molden_path}")
 print("MOLDEN_OK")'''
@@ -74,7 +66,6 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     geometry = _make_p4_geometry(cjson)
     basis = _option(options, "basis", "def2-SVP")
     method = _option(options, "method", "hf")
-    loc_type = _option(options, "loc_type", "iao")
     charge_val = int(cjson.get("properties", {}).get("totalCharge", charge))
     spin_val = int(cjson.get("properties", {}).get("totalSpinMultiplicity", spin))
 
@@ -90,7 +81,6 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
             basis=basis,
             method=method,
             reference=ref,
-            loc_type=loc_type,
             molden_path="{molden_path}",
         )
         f_script.write(script)
@@ -136,5 +126,5 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     return {
         "moldenData": molden_text,
-        "message": f"Computed {loc_type.upper()} orbitals ({method}/{basis})",
+        "message": f"Computed IAO orbitals ({method}/{basis})",
     }
