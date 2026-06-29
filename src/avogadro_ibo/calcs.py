@@ -69,6 +69,9 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
             pass
 
     return {
-        "moldenData": molden_text,
+        "readProperties": True,
+        "moleculeFormat": "molden",
+        "molden": molden_text,
+        "cjson": cjson,
         "message": f"Computed IAO orbitals ({method}/{basis})",
     }
