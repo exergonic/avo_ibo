@@ -30,9 +30,10 @@ interactive isosurface viewing with a full IAO-basis analysis table.
 - Per-calculation directory (`calcs/last/`, avo_xtb-style): cleared before
   each `"ibo"` run; contains `psi4.log`, `ibo.molden`, `canonical.molden`,
   `ibos.txt`.
-- **No donor/acceptor delocalisation analysis**: IAO orthogonality prohibits
-  occ-vir cross-projection for individual canonical MOs; the feature was
-  removed per user request to keep the plugin focused.
+- **No donor/acceptor delocalisation analysis**: The occupied block
+  diagonalises $\mathbf{F}^{\rm IAO}$ (spectral theorem ⇒ $\mathbf{F}^{\rm IAO}_{ov}=0$),
+  making both overlap-based and Fock-based occ-vir analysis structurally
+  impossible.  See `MATHEMATICS.md §9` for proof.
 - Signal discipline: all debug output before final `print(json.dumps(...))`.
 
 ### Tested Molecules (hf/cc-pVDZ)
@@ -97,14 +98,24 @@ interactive isosurface viewing with a full IAO-basis analysis table.
 13. **Nondeterministic on-atom mixing**: Without the Fock fix, water/def2-SVP
     produces different O 2s/O 2p mixtures each run (random QR seed).  The
     Fock diagonalisation makes the output deterministic.
-14. **Canonical MO delocalisation analysis removed (2026-06-30)**: A
-    donor/acceptor cross-reference between occ and vir IBOs proved impossible
-    because occupied canonical MOs have EXACTLY zero overlap with virtual IBOs
-    in the IAO subspace (IAO orthogonality).  The plugin now focuses on the
-    core IBO/Molden pipeline; `canonical.molden` is kept as a reference for
-    Avogadro's MO surface dialog.  The attempted approaches (atom-set density,
-    anti* pairing, within-subspace top-2) were each too noisy or chemically
-    misleading for a focused plugin.
+14. **Canonical MO delocalisation analysis removed (2026-06-30)**:  The
+    occupied block $\mathbf{C}^{\rm IAO,occ}$ diagonalises
+    $\mathbf{F}^{\rm IAO}$ (it is a unitary rotation of the canonical
+    occupied MOs).  By the spectral theorem, the off-diagonal occ-vir
+    block of $\mathbf{F}^{\rm IAO}$ is identically zero.  This kills
+    **both** overlap-based and Fock-based donor/acceptor analysis
+    (including NBO-style E2).  It is not a numerical artifact — it is a
+    mathematical identity proven in `MATHEMATICS.md §9`.  The plugin now
+    focuses on the core IBO/Molden pipeline; `canonical.molden` is kept
+    as a reference for Avogadro's MO surface dialog.  The attempted
+    approaches (atom-set density, anti* pairing, within-subspace top-2)
+    were each too noisy or chemically misleading for a focused plugin.
+15. **IAO vs NBO: exactness forbids E(2)**: NBO gets non-zero E(2)
+    because Lewis NBOs are NOT exact eigenvectors of F (occupancies
+    1.90–1.99, not exactly 2.0) — the leakage creates genuine off-diag
+    Fock elements.  IAO/IBO was designed for exact, lossless occupied
+    representation, so F_ov = 0 by theorem.  No bug, no missing trick —
+    a feature of the IAO design goal.  See `MATHEMATICS.md §9.5`.
 
 ## Relevant Files
 

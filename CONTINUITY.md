@@ -317,6 +317,14 @@ Remove-Item -Recurse -Force calcs\last\ && pixi run python ...
    Fock diagonalisation), but the warm-start p=2 path is convex and
    deterministic.
 
+6. **IAO basis kills occ-vir delocalization analysis**: The occupied block
+   $\mathbf{C}^{\rm IAO,occ}$ is a unitary rotation of the canonical occupied
+   MOs and therefore diagonalises $\mathbf{F}^{\rm IAO}$.  By the spectral
+   theorem, the off-diagonal occ-vir block $\mathbf{F}^{\rm IAO}_{ov} = 0$.
+   This makes both overlap-based and Fock-based donor/acceptor analysis
+   (including NBO-style E2) structurally zero — not a numerical artifact.
+   See `MATHEMATICS.md §9` for the full proof.
+
 ---
 
 ## 7. Open Items

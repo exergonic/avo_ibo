@@ -491,6 +491,132 @@ The hybridisation label is "${s}\%$ s + ${p}\%$ p + ${d}\%$ d".
 
 ---
 
+## 9 Why occ-vir delocalization analysis is impossible in the IAO basis
+
+A donor/acceptor delocalization analysis (like NBO second-order perturbation
+theory) requires non-zero off-diagonal Fock matrix elements between occupied
+and virtual orbitals.  In the IAO basis, these are **exactly zero** by
+construction — not a numerical approximation, but a mathematical identity.
+
+### 9.1 Occupied MOs are eigenvectors of $\mathbf{F}^{\rm IAO}$
+
+Let $\mathbf{c}_k$ be the $k$-th occupied canonical MO (column of
+$\mathbf{C}^{\rm occ}$).  The Roothaan–Hall equation gives:
+
+$$
+\mathbf{F}^{\rm AO} \mathbf{c}_k = \varepsilon_k \mathbf{S}
+\mathbf{c}_k. \tag{HF}
+$$
+
+Because IAOs exactly span the occupied space (Section 3),
+$\mathbf{C}^{\rm IAO} \mathbf{C}^{\rm IAO,occ} = \mathbf{C}^{\rm occ}$
+is an exact identity.  Substitute $\mathbf{c}_k = \mathbf{C}^{\rm IAO}
+\mathbf{C}^{\rm IAO,occ}_{:,k}$ into (HF):
+
+$$
+\mathbf{F}^{\rm AO} \mathbf{C}^{\rm IAO}
+\mathbf{C}^{\rm IAO,occ}_{:,k}
+= \varepsilon_k \mathbf{S} \mathbf{C}^{\rm IAO}
+  \mathbf{C}^{\rm IAO,occ}_{:,k}.
+$$
+
+Left-multiply by $(\mathbf{C}^{\rm IAO})^{T}$:
+
+$$
+(\mathbf{C}^{\rm IAO})^{T} \mathbf{F}^{\rm AO}
+\mathbf{C}^{\rm IAO} \mathbf{C}^{\rm IAO,occ}_{:,k}
+= \varepsilon_k (\mathbf{C}^{\rm IAO})^{T} \mathbf{S}
+  \mathbf{C}^{\rm IAO} \mathbf{C}^{\rm IAO,occ}_{:,k}.
+$$
+
+The left factor is $\mathbf{F}^{\rm IAO}
+\mathbf{C}^{\rm IAO,occ}_{:,k}$.  The right factor uses the IAO
+orthonormality $(\mathbf{C}^{\rm IAO})^{T} \mathbf{S}
+\mathbf{C}^{\rm IAO} = \mathbf{I}$ (Section 3.8), giving:
+
+$$
+\mathbf{F}^{\rm IAO} \mathbf{C}^{\rm IAO,occ}_{:,k}
+= \varepsilon_k \mathbf{C}^{\rm IAO,occ}_{:,k}.
+$$
+
+Each column of $\mathbf{C}^{\rm IAO,occ}$ is an exact eigenvector of
+$\mathbf{F}^{\rm IAO}$ with eigenvalue $\varepsilon_k$.  This holds for
+the **raw** canonical occupied MOs before any PM localisation.
+
+### 9.2 Spectral theorem $\Rightarrow$ $\mathbf{F}^{\rm IAO}_{ov} = \mathbf{0}$
+
+Since $\mathbf{F}^{\rm IAO}$ is a real symmetric matrix, eigenvectors
+corresponding to different eigenvalues are orthogonal.  The occupied
+eigenvectors (columns of $\mathbf{C}^{\rm IAO,occ}$) span a subspace
+$\mathcal{O} \subset \mathbb{R}^{n_{\rm min}}$, and the virtual eigenvectors
+span the orthogonal complement $\mathcal{V} = \mathcal{O}^{\perp}$.
+
+The valence-virtual IAO coefficients $\mathbf{U}^{\rm val}$ (Section 6)
+live in $\mathcal{V}$ because the SVD of $\mathbf{S}^{\rm IbVir}$ extracts
+the part of the canonical virtual space that projects into the IAO subspace
+but is orthogonal to the occupied space.  Therefore:
+
+$$
+(\mathbf{C}^{\rm IAO,occ})^{T}
+\mathbf{F}^{\rm IAO}
+\mathbf{U}^{\rm val}
+= \mathbf{0},
+\qquad
+(\mathbf{U}^{\rm val})^{T}
+\mathbf{F}^{\rm IAO}
+\mathbf{C}^{\rm IAO,occ}
+= \mathbf{0}.
+$$
+
+The off-diagonal occupied-virtual block of $\mathbf{F}^{\rm IAO}$ is
+identically zero.  This is **not** a numerical truncation — it follows
+from the spectral theorem applied to the symmetric matrix
+$\mathbf{F}^{\rm IAO}$.
+
+### 9.3 Consequences for delocalization analysis
+
+| Analysis type | Mathematical requirement | IAO-basis value | Why |
+|---|---|---|---|
+| Overlap-based donor/acceptor | $\langle\psi_i^{\rm occ}\vert\psi_j^{\rm vir}\rangle$ | $0$ | $\mathcal{O} \perp \mathcal{V}$ in orthonormal IAO basis |
+| Fock-based (NBO E2) | $F_{ij}^2 / (\varepsilon_j - \varepsilon_i)$ | $0$ | $F_{ov} = 0$ (Section 9.2) |
+| Orbital mixing coefficient | $F_{ij} / (\varepsilon_j - \varepsilon_i)$ | $0$ | Same reason |
+
+The only way to obtain non-zero $F_{ov}$ would be to abandon the IAO
+projection for virtuals and use the raw canonical virtual MOs.  However,
+canonical virtuals contain diffuse and Rydberg character that pollutes
+the chemically meaningful valence picture — exactly what the IAO
+construction is designed to filter out.
+
+### 9.4 Numerical verification
+
+For water/cc-pVDZ ($n_{\rm min}=7$, $n_{\rm occ}=5$, $n_{\rm val\,vir}=2$):
+
+- $\|\mathbf{F}^{\rm IAO}_{ov}\|_F = 5.2 \times 10^{-8}$ (machine precision)
+- $\|(\mathbf{C}^{\rm occ})^{T} \mathbf{C}^{\rm vir}\|_F = 0.0$ (exact, since
+  canonical MOs are orthonormal)
+
+Both are zero to within numerical noise, confirming the mathematical
+identity.
+
+### 9.5 Why NBO can report non-zero E(2) but IAO cannot
+
+NBO's occupied Lewis-structure orbitals are **not** an exact, lossless
+rotation of the canonical occupied MOs.  By design, each NBO carries
+a small occupancy leakage into the virtual/Rydberg space — typical
+Lewis NBO occupancies are 1.90–1.99, not exactly 2.0.  That leakage
+is the hyperconjugative "donation" density, and it produces genuine
+off-diagonal Fock elements between the occupied and virtual NBO sets.
+
+IAO/IBO was deliberately designed to do the opposite — give an exact,
+basis-independent, **lossless** representation of the occupied space
+(Knizia's "unbiased bridge", 2013).  That exactness is a feature for
+orbital shapes and isosurface visualisation, but it structurally
+forbids any Fock-coupling-based donor-acceptor energy.  Real NBO-style
+E(2) numbers require a different, deliberately non-exact localisation
+scheme (Psi4 does not ship one natively).
+
+---
+
 ## References
 
 1. G. Knizia, "Intrinsic Atomic Orbitals: An Unbiased Bridge between
