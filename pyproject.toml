@@ -32,3 +32,21 @@ menu = "Extensions"
 submenu = "Intrinsic Bond Orbitals"
 item = "Compute IBOs"
 menu-priorities = [100, 800]
+
+[[tool.avogadro.menu-commands]]
+identifier = "test-molden"
+input-format = "xyz"
+input-cjson = true
+menu = "Extensions"
+submenu = "Intrinsic Bond Orbitals"
+item = "TEST: hardcoded molden (no Psi4)"
+menu-priorities = [100, 700]
+
+[[tool.avogadro.menu-commands]]
+identifier = "test-energy"
+input-format = "xyz"
+input-cjson = true
+menu = "Extensions"
+submenu = "Intrinsic Bond Orbitals"
+item = "TEST: set energy only (no Psi4)"
+menu-priorities = [100, 600]

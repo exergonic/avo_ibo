@@ -43,6 +43,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     psi4.set_options({
         "basis": basis, "scf_type": "df", "reference": ref,
         "e_convergence": 1e-8, "d_convergence": 1e-8,
+        "puream": 0,
     })
     energy, wfn = psi4.energy(method, return_wfn=True)
 

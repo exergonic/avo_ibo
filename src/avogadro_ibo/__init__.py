@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    with open("log.txt", "w", encoding="utf-8") as log_file:
-        log_file.write("Plugin started\n")
-
     logging.basicConfig(
         level=logging.DEBUG,
         stream=sys.stderr,
@@ -51,6 +48,14 @@ def main():
             from .calcs import compute_ibo
 
             result = compute_ibo(cjson, options, charge, spin, debug=args.debug)
+        elif args.feature == "test-molden":
+            from .test_plugins import test_molden
+
+            result = test_molden(cjson, options, charge, spin)
+        elif args.feature == "test-energy":
+            from .test_plugins import test_energy
+
+            result = test_energy(cjson, options, charge, spin)
         else:
             result = {"error": f"Unknown feature: {args.feature}"}
     except Exception as e:
@@ -58,12 +63,10 @@ def main():
         result = {"error": "".join(traceback.format_exception(e, limit=limit))}
         logger.exception("Unhandled exception")
 
-    json.dump(result, sys.stdout, indent=2)
-    sys.stdout.flush()
-    logger.debug(f"Output keys: {list(result.keys())}")
     (_DEBUG_DIR / "output.json").write_text(
         json.dumps(result, indent=2), encoding="utf-8"
     )
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":
