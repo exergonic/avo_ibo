@@ -403,12 +403,7 @@ def _d_char(c, am_of, atom, atom_of):
     return float(np.sum(c[idx] ** 2)) if len(idx) else 0.0
 
 
-# ---------------------------------------------------------------------------
-# Canonical MO delocalization analysis (atom-density matching in AO basis)
-# ---------------------------------------------------------------------------
-
-# -- (canonical MO delocalization analysis removed per user request in 2026-06-30;
-# -- the canonical.molden file is written below for reference in Avogadro)--
+# -- (canonical MO deloc analysis removed 2026-06-30; canonical.molden below)--
 
 
 # ---------------------------------------------------------------------------
@@ -557,8 +552,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     )
 
     # -- Valence-virtual IAOs via SVD  (IboView MakeValenceVirtuals) -------
-    C_all = Ca.np
-    C_vir = C_all[:, nocc:]                         # (n_AO, n_vir)
+    C_vir = Ca.np[:, nocc:]                         # (n_AO, n_vir)
     SIbVir = C_IAO.T @ S_full @ C_vir               # (n_min, n_vir)
     U_svd, Sigma, _ = np.linalg.svd(SIbVir, full_matrices=False)
     n_val_vir = int(np.sum(Sigma > 1e-8))

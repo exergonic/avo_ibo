@@ -125,7 +125,7 @@ interactive isosurface viewing with a full IAO-basis analysis table.
 - `C:\Users\mccan\Documents\Code\avo_ibo\MATHEMATICS.md` — full mathematical derivation with 2013 paper references
 - `C:\Users\mccan\Documents\Code\avo_ibo\tutorial.md` — Avogadro 2 plugin architecture and gotchas
 - `C:\Users\mccan\Documents\Code\avo_ibo\calcs\last\` — Runtime artifacts
-  (psi4.log, result.molden, ibos.txt)
+  (psi4.log, ibo.molden, canonical.molden, ibos.txt)
 - `C:\Users\mccan\AppData\Local\OpenChemistry\Avogadro\plugins\avo_ibo` → symlink
 
 ### External Paths
