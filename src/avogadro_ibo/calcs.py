@@ -279,6 +279,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     n_atoms = len(elem)
 
     lines = []
+    orbid_labels = [""] * n_orb
     lines.append(f"IBO Analysis  ({method}/{basis}, {ref.upper()})")
     lines.append("")
     header = (
@@ -350,6 +351,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             else:
                 orbid = "Virt"
 
+        orbid_labels[orb] = orbid
+
         comp_parts = []
         for A in order[:4]:
             if pop[A] > 0.02:
@@ -372,7 +375,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
 
     lines.append("")
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
-    return "\n".join(lines)
+    return "\n".join(lines), orbid_labels
 
 
 def _elem_symbol(Z):
@@ -398,6 +401,98 @@ def _d_char(c, am_of, atom, atom_of):
     """Fraction of d-orbital (am=2) contribution on the given atom."""
     idx = np.where((atom_of == atom) & (am_of == 2))[0]
     return float(np.sum(c[idx] ** 2)) if len(idx) else 0.0
+
+
+# ---------------------------------------------------------------------------
+# Spatial donor-acceptor pairs (occupied-virtual sharing common atoms)
+# ---------------------------------------------------------------------------
+
+def _spatial_donor_acceptor(C_IAO_all, occ_all, labels, nocc,
+                            atom_of, elem):
+    """
+    Find occupied-virtual IBO pairs that share common atoms.
+
+    For each orbital, compute per-atom populations from squared IAO
+    coefficients.  An occupied-vs-virtual pair that shares at least one
+    atom with DOM > 0.05 on both sides is flagged as a candidate
+    donor-acceptor pair for hyperconjugation viewing.
+
+    Parameters
+    ----------
+    C_IAO_all  : (n_min, n_orb)     occ+vir IBOs in IAO basis, energy-sorted
+    occ_all    : (n_orb,)           occupancies
+    labels     : list[str]          IBO type labels
+    nocc       : int                number of occupied orbitals
+    atom_of    : (n_min,)           atom index for each IAO
+    elem       : list[int]          atomic numbers
+
+    Returns
+    -------
+    str  formatted table (or "" if no pairs found)
+    """
+    import numpy as np
+    n_orb = C_IAO_all.shape[1]
+    n_atoms = int(np.max(atom_of)) + 1
+
+    occ_idx = [i for i in range(n_orb) if occ_all[i] > 1.5]
+    vir_idx = [i for i in range(n_orb) if occ_all[i] < 0.5]
+
+    # Per-orbital: list of (atom, weight) pairs with weight > 0.05
+    orb_atoms = []
+    for orb in range(n_orb):
+        sq = C_IAO_all[:, orb] ** 2
+        pop = np.zeros(n_atoms, dtype=np.float64)
+        np.add.at(pop, atom_of, sq)
+        atoms = [(a, pop[a]) for a in range(n_atoms) if pop[a] > 0.05]
+        orb_atoms.append(atoms)
+
+    pairs = []
+    for i in occ_idx:
+        o_atoms = dict(orb_atoms[i])
+        for a in vir_idx:
+            v_atoms = dict(orb_atoms[a])
+            shared = [at for at in o_atoms if at in v_atoms]
+            if not shared:
+                continue
+            weight = sum(o_atoms[at] * v_atoms[at] for at in shared)
+            pairs.append((i, a, weight, shared))
+
+    pairs.sort(key=lambda x: -x[2])
+
+    # Filter: exclude core orbitals (too compact, uninteresting)
+    def _is_core(label):
+        return label.endswith("(Core)") or label.endswith("Core")
+    pairs = [p for p in pairs
+             if not _is_core(labels[p[0]]) and not _is_core(labels[p[1]])]
+
+    if not pairs:
+        return ""
+
+    lines = []
+    lines.append("")
+    lines.append("Donor-Acceptor pairs (shared-atom matching)")
+    lines.append("  (render these IBO pairs together in Avogadro to see hyperconjugation)")
+    lines.append("")
+    header = (
+        f"  {'Donor IBO':<24}  {'Acceptor IBO':<24}  "
+        f"{'Shared':>6}  {'Overlap':>8}"
+    )
+    lines.append(header)
+    lines.append("  " + "-" * 66)
+
+    def fmt_atoms(shared, elem):
+        return "{" + ",".join(_elem_symbol(elem[a]) for a in shared[:3]) + "}"
+
+    for i, a, weight, shared in pairs[:20]:
+        dlab = labels[i][:18] if len(labels[i]) > 18 else labels[i]
+        vlab = labels[a][:18] if len(labels[a]) > 18 else labels[a]
+        atom_str = fmt_atoms(shared, elem)
+        lines.append(
+            f"  #{i+1:<3d} {dlab:<18}  #{a+1:<3d} {vlab:<18}  "
+            f"{atom_str:>6}  {weight:>8.4f}"
+        )
+
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -579,9 +674,17 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
                       C_AO_all.shape[1])
     molden_text = molden_path.read_text(encoding="utf-8")
 
-    # -- IBO analysis table ------------------------------------------------
-    msg = _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
-                        atom_of, am_of, elem, method, basis, ref)
+    # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
+    canon_path = TEMP_DIR / "canonical.molden"
+    _psi_molden = __import__("psi4").molden
+    _psi_molden(wfn, str(canon_path))
+
+    # -- IBO analysis table + delocalization cross-reference ----------------
+    msg, labels = _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
+                                atom_of, am_of, elem, method, basis, ref)
+    msg += _spatial_donor_acceptor(
+        C_IAO_all, occ_all, labels, nocc, atom_of, elem
+    )
     analysis_path = TEMP_DIR / "ibos.txt"
     analysis_path.write_text(msg, encoding="utf-8")
 
@@ -591,5 +694,5 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         "molden": molden_text,
         "cjson": cjson,
         "message":
-            "IBO analysis saved to calcs/last/ibos.txt",
+            "IBO analysis saved to calcs/last/ibos.txt  (canonical MOs: canonical.molden)",
     }

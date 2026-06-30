@@ -63,14 +63,7 @@ def main():
             from .links import open_calcs_dir
 
             result = open_calcs_dir(cjson)
-        elif args.feature == "test-molden":
-            from .test_plugins import test_molden
 
-            result = test_molden(cjson, options, charge, spin)
-        elif args.feature == "test-energy":
-            from .test_plugins import test_energy
-
-            result = test_energy(cjson, options, charge, spin)
         else:
             result = {"error": f"Unknown feature: {args.feature}"}
     except Exception as e:
