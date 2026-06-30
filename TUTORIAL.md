@@ -50,7 +50,7 @@ my_plugin/
 ├── pixi.toml               # pixi environment (optional if using bundled pixi)
 ├── pixi.lock               # lock file (v6!)
 ├── README.md               # project overview
-├── tutorial.md             # this tutorial
+├── TUTORIAL.md             # this tutorial
 ├── MATHEMATICS.md          # mathematical derivation
 ├── AGENTS.md               # session context for LLMs
 ├── calcs/
@@ -565,7 +565,7 @@ def test_energy(cjson, options, charge, spin):
 To give an LLM full context for continuing work on this plugin, share
 **these files**:
 
-1. **`tutorial.md`** — explains the architecture and gotchas.
+1. **`TUTORIAL.md`** — explains the architecture and gotchas.
 2. **`MATHEMATICS.md`** — full mathematical derivation with paper references.
 3. **`AGENTS.md`** — session context: current status, pending items,
    key decisions, gotchas hit.
@@ -595,11 +595,11 @@ Briefly: what are we building?
 ## Relevant Files
 - MATHEMATICS.md — mathematical derivation
 - README.md — usage
-- tutorial.md — architecture and gotchas
+- TUTORIAL.md — architecture and gotchas
 ```
 
 When starting a new session, present `AGENTS.md` + relevant snippets
-from `tutorial.md` and `MATHEMATICS.md` as context. The LLM will be up
+from `TUTORIAL.md` and `MATHEMATICS.md` as context. The LLM will be up
 to speed in one read.
 
 ---

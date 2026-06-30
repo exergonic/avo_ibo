@@ -123,7 +123,7 @@ interactive isosurface viewing with a full IAO-basis analysis table.
     Fock resolve, Fock energies, Molden write, analysis table
 - `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\links.py` — `open_calcs_dir()` (Explorer)
 - `C:\Users\mccan\Documents\Code\avo_ibo\MATHEMATICS.md` — full mathematical derivation with 2013 paper references
-- `C:\Users\mccan\Documents\Code\avo_ibo\tutorial.md` — Avogadro 2 plugin architecture and gotchas
+- `C:\Users\mccan\Documents\Code\avo_ibo\TUTORIAL.md` — Avogadro 2 plugin architecture and gotchas
 - `C:\Users\mccan\Documents\Code\avo_ibo\calcs\last\` — Runtime artifacts
   (psi4.log, ibo.molden, canonical.molden, ibos.txt)
 - `C:\Users\mccan\AppData\Local\OpenChemistry\Avogadro\plugins\avo_ibo` → symlink

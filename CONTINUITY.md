@@ -7,7 +7,7 @@ needed to make changes and run tests without rediscovery.
 Related files:
 - `AGENTS.md` — goal, status, key decisions, gotchas
 - `MATHEMATICS.md` — full mathematical derivation with paper references
-- `tutorial.md` — Avogadro 2 plugin architecture and gotchas (generic)
+- `TUTORIAL.md` — Avogadro 2 plugin architecture and gotchas (generic)
 
 ---
 
