@@ -10,8 +10,15 @@ __pycache__/
 debug_log/
 _last_output.json
 
-# Psi4 timer
+# Psi4 artifacts
 timer.dat
+log.txt
+
+# Temporary test scripts
+_test_*.py
+
+# Build artifacts
+*.egg-info/
 
 # calcs/ folder
 calcs/
