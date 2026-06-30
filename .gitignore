@@ -12,3 +12,6 @@ _last_output.json
 
 # Psi4 timer
 timer.dat
+
+# calcs/ folder
+calcs/

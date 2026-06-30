@@ -144,7 +144,7 @@ entry point.
 After `pixi install`, run:
 
 ```powershell
-pixi run pip install -e .
+pixi run python -m pip install -e .
 ```
 
 This creates the `.exe` shim under `.pixi\envs\default\Scripts\avogadro-ibo.exe`.

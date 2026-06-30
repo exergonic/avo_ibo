@@ -2,26 +2,46 @@
 
 ## Goal
 Build a Pixi-based Avogadro 2 Python script plugin that computes Intrinsic
-Atomic Orbitals (IAOs / Knizia IBOs) using Psi4 and returns them as Molden
-data for interactive isosurface viewing.
+Atomic Orbitals (IAOs / Knizia IBOs) via Psi4 and returns Molden data for
+interactive isosurface viewing with a full IAO-basis analysis table.
 
 ## Status
 
 ### What Works
-- **test-molden**: Menu command displays hardcoded STO-3G methane orbitals
-  (Molecular Orbitals menu appears, isosurfaces renderable)
-- **test-energy**: Menu command returns input CJSON with `totalEnergy: -39.5`,
-  `readProperties: true` enables energy display in Avogadro
-- **Compute IBOs (real Psi4)**: Menu command runs Psi4 HF → IAO projection →
-  Molden output end-to-end; orbitals appear in Avogadro's MO menu
-- All three menu commands show message popups on completion
-- Manual CLI pipeline (`pixi run --as-is avogadro-ibo ibo`) works with exit 0
+- **Compute IBOs**: IAO/2014 construction + Pipek-Mezey localization (p=4,
+  Jacobi sweeps, conv 1e-12, max 2048 iter, random symmetry breaking).
+  Produces localized bond orbitals (σ, π, LP, core) for both occupied and
+  **virtual** blocks. Energies from Fock-matrix diagonal elements.
+- **Valence-virtual IAOs**: SVD projection of canonical virtual MOs onto IAO
+  space (IboView `MakeValenceVirtuals`), keeping components with σ > 1e-8,
+  then localized with same PM p=4 procedure.
+- **On-atom degeneracy resolution**: After PM, `_resolve_on_atom_mixing()`
+  diagonalises F_IAO within each same-atom, DOM≈1.0 subspace.  PM cannot
+  separate orbitals on the same atom (it only measures atomic populations),
+  so O 2s + O lone pair mix arbitrarily.  The Fock diagonalisation restores
+  the aufbau ordering (s-rich lowest, p-rich highest).
+- **IAO-basis Molden writer**: `_write_iao_molden()` copies Psi4's [Atoms]/[GTO]
+  headers but replaces [MO] with IAO-basis orbitals, using Fock-diagonal energies.
+  Produces `n_min` orbitals (minimal-basis size).
+- **Analysis table** (`ibos.txt` in `calcs/last/`): per-orbital occupancy,
+  energy, DOM, bond type (σ/π/LP/Core/anti*), composition (top atoms + %),
+  s/p/d hybridization on dominant atom.
+- **Go to files …** menu command opens `calcs/` in Explorer.
+- Per-calculation directory (`calcs/last/`, avo_xtb-style): cleared before
+  each `"ibo"` run; contains `psi4.log`, `result.molden`, `ibos.txt`.
+- Signal discipline: all debug output before final `print(json.dumps(...))`.
 
-### What's Broken / None
-- No known bugs. The plugin is functional for HF/DFT IAO computation.
+### Tested Molecules (hf/cc-pVDZ)
+- **Methane** (9 IAOs): C core + 4 C-H σ (sp³-like) + 4 C-H σ*
+- **Water** (7 IAOs): O core + O 2s (s-rich LP) + O 2p (pure LP) + 2 O-H σ + 2 O-H σ*
+  — on-atom resolution separates O 2s (−0.79 Ha) from O 2p LP (−0.49 Ha) cleanly.
+- **Ethene**: 2 C cores + 4 C-H σ + C-C σ + C-C π.
+- **Ammonia**: N core + 3 N-H σ + N LP.
+- **Formaldehyde**: 2 O/C cores + 2 C-H σ + C-O σ + C-O π + 2 O LPs.
 
 ### What's Next (User's Intent)
-- Expand the plugin with additional features (user mentioned plans to expand)
+- Additional analysis features (bond order, charge decomposition, IRC tracking)
+- Multiple method/basis support
 
 ## Key Decisions
 
@@ -32,42 +52,77 @@ data for interactive isosurface viewing.
 | Package install | `pip install -e .` (manual, not `[tool.pixi.pypi-dependencies]`) | pypi-dependencies requires lock v7 |
 | Plugin discovery | Symlink in `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` | Avogadro scans this directory |
 | Psi4 integration | In-process (`import psi4` in compute function) | Simpler, faster, better error handling than subprocess |
-| Basis for IAO projection | STO-3G | MINAO unavailable in Psi4 |
-| Output format | `{"readProperties": true, "moleculeFormat": "molden", "molden": ..., "cjson": ..., "message": ...}` | Matches avo_xtb reference plugin |
-| Stderr discipline | Absolutely no `{` or `[` on stderr before JSON output | `stripLeadingNonJson` finds first `{`/`[` in merged stdout+stderr channel |
+| SCF basis (default) | cc-pVDZ, `puream=0` (Cartesian) | Better wavefunction than def2-SVP for IBO isosurfaces |
+| Minimal basis for IAO | STO-3G, `puream=0` (Cartesian) | MINAO unavailable in Psi4; STO-3G adequate |
+| IAO construction | IAO/2014 algorithm (IboView's `MakeIaoBasisNew`) | Full depolarized + repolarized IAO build, not simplified |
+| Localization functional | Pipek-Mezey with p=4 (eq 4) | Gives discrete solutions for aromatics; identical to p=2 otherwise |
+| Localization convergence | Gradient norm < 1e-12, max 2048 sweeps | Matches IboView default |
+| Symmetry breaking | Random orthogonal matrix (QR of normal samples) | Breaks near-degeneracies |
+| On-atom degeneracy fix | Post-PM Fock diagonalization (`_resolve_on_atom_mixing`) | PM cannot separate same-atom orbitals; F_IAO eigenvalues restore aufbau |
+| Virtual IAOs via SVD | `C_IAO^T @ S @ C_vir` → SVD → keep σ > 1e-8 | Matches IboView `MakeValenceVirtuals` |
+| Virtual localization | Apply same PM p=4 to virtual block | IboView localizes ALL iCase blocks |
+| Orbital energies | ε_i = C_i^T @ F_AO @ C_i (diagonal of F_IAO) | Matches IboView `MakeOrbitalEnergies_General` |
+| Molden output | Custom [MO] section with IAO-basis orbitals | Psi4 writes canonical MOs; we replace with n_min IAO orbitals |
+| Analysis table destination | Written to `calcs/last/ibos.txt`, message points to file | Avoids blocking popup on every run |
+| Stderr discipline | Absolutely no `{` or `[` on stderr before JSON output | `stripLeadingNonJson` finds first `{`/`[` in merged channel |
+| `_prepare_calc_dir()` call | Only inside `"ibo"` branch | "Go to files" shouldn't wipe previous results |
 
 ## Gotchas Hit
 
 1. **Build backend**: hatchling → Avogadro's pixi can't install. Fix: use `uv_build`.
-2. **Lock file v7**: User pixi creates v7 locks, bundled pixi v0.66.0 reads only v6. Fix: use bundled pixi to install or manually maintain v6 lock.
-3. **Missing entry point**: `pip install -e .` needed to create `.exe` shim under `.pixi/envs/default/Scripts/`. Fix: always run after `pixi install`.
-4. **`logger.debug()` after `print(json.dumps(...))`**: Trailing stderr data after JSON causes `QJsonDocument::fromJson` to fail. Fix: all debug output before final `print()`.
-5. **`logger.debug(f"Input keys: {list(data.keys())}")`**: Produces `['charge', 'cjson', ...]` on stderr — `[` found by `stripLeadingNonJson` before JSON `{`. Fix: use `', '.join(data.keys())`.
-6. **Psi4 INFO logs on stderr**: `keywords={'D_CONVERGENCE': 1e-08, ...}` contains `{` found first by `stripLeadingNonJson`. Fix: redirect psi4 Python logger to file, `propagate=False`.
-7. **CJSON coords as dict**: Sometimes `coords` is `{"3d": [x, y, z, ...]}` instead of flat array. Fix: check `isinstance(coords_raw, dict)` and extract `["3d"]`.
-8. **UTF-8 on Windows**: Avogadro expects UTF-8 stdout. Fix: `sys.stdout.reconfigure(encoding="utf-8")`.
-9. **Wrong plugin directory**: Avogadro scans `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\`, not `%APPDATA%`.
+2. **Lock file v7**: User pixi creates v7 locks, bundled pixi v0.66.0 reads only v6.
+3. **Missing entry point**: `pip install -e .` needed to create `.exe` shim.
+4. **`logger.debug()` after `print(json.dumps(...))`**: Trailing stderr after JSON
+   breaks `QJsonDocument::fromJson`. Fix: all debug before final `print()`.
+5. **`logger.debug(f"Input keys: {list(data.keys())}")`**: Produces `[...]` on stderr
+   → `[` found by `stripLeadingNonJson` before JSON `{`. Fix: use `', '.join()`.
+6. **Psi4 INFO logs on stderr**: Contain `{` chars. Fix: redirect to file,
+   `propagate=False`.
+7. **CJSON coords as dict**: Sometimes `{"3d": [...]}` instead of flat array.
+8. **UTF-8 on Windows**: Avogadro expects UTF-8 stdout.
+9. **Wrong plugin directory**: Avogadro scans `%LOCALAPPDATA%`, not `%APPDATA%`.
+10. **Virtual block: PM localization needed**: SVD-projected virtuals are
+    delocalized without localization. Fix: call `_localize_ibos(U_val, ...)`.
+11. **`n_occ` typo**: Was used instead of `nocc`. Fix: use `nocc` (defined
+    as `wfn.doccpi()[0] + wfn.soccpi()[0]`).
+12. **PM cannot separate same-atom orbitals**: PM functional uses atomic
+    populations n_A(i) only; two orbitals with DOM≈1 on the same atom
+    (e.g. O 2s and O lone pair) are degenerate in the PM functional —
+    any rotation within the subspace gives identical L.  Fix: post-PM
+    Fock diagonalisation within each same-atom DOM≈1 subspace.
+13. **Nondeterministic on-atom mixing**: Without the Fock fix, water/def2-SVP
+    produces different O 2s/O 2p mixtures each run (random QR seed).  The
+    Fock diagonalisation makes the output deterministic.
 
 ## Relevant Files
 
-- `C:\Users\mccan\Documents\Code\avo_ibo\pyproject.toml` — Project config, build system, avogadro metadata, 3 menu-commands
-- `C:\Users\mccan\Documents\Code\avo_ibo\pixi.toml` — Pixi environment (`pixi.toml` not `pixi.toml`)
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\__init__.py` — CLI entry point, stdin/stdout JSON I/O, command dispatch
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\calcs.py` — In-process Psi4 IAO computation + Molden generation
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\test_plugins.py` — test-molden and test-energy (no Psi4 dependency)
-- `C:\Users\mccan\Documents\Code\avo_ibo\AVOGADRO2_PLUGIN_TUTORIAL.md` — Full tutorial with architecture, gotchas, and bootstrap steps
-- `C:\Users\mccan\Documents\Code\avo_ibo\debug_log\` — Runtime artifacts (input.json, output.json, psi4.log, result.molden)
+- `C:\Users\mccan\Documents\Code\avo_ibo\pyproject.toml` — 2 menu-commands (`ibo`, `open`)
+- `C:\Users\mccan\Documents\Code\avo_ibo\pixi.toml` — Pixi environment
+- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\__init__.py` — CLI entry point,
+  stdin/stdout JSON I/O, dispatching for `ibo`/`open`, `_prepare_calc_dir()`
+- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\calcs.py` — All IAO logic:
+  - `_get_basis_maps()` — per-function atom/AM mapping from Psi4 BasisSet
+  - `_build_iao_basis()` — IAO/2014 construction (Appendix C)
+  - `_localize_ibos()` — PM Jacobi sweep with p=4 (eq 4, Appendix D)
+  - `_resolve_on_atom_mixing()` — post-PM Fock diag within same-atom DOM≈1 subspaces
+  - `_analyze_ibos()` — IBO table: occupancy, energy, DOM, type, composition, hybrid
+  - `_write_iao_molden()` — Molden writer using IAO-basis orbitals (Fock energies)
+  - `compute_ibo()` — top-level: Psi4 run, IAO build, occ+vir PM localize, on-atom
+    Fock resolve, Fock energies, Molden write, analysis table
+- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\links.py` — `open_calcs_dir()` (Explorer)
+- `C:\Users\mccan\Documents\Code\avo_ibo\AVOGADRO2_PLUGIN_TUTORIAL.md`
+- `C:\Users\mccan\Documents\Code\avo_ibo\calcs\last\` — Runtime artifacts
+  (psi4.log, result.molden, ibos.txt)
+- `C:\Users\mccan\AppData\Local\OpenChemistry\Avogadro\plugins\avo_ibo` → symlink
 
 ### External Paths
-
 - **Avogadro 2**: `C:\Program Files\Avogadro2\bin\avogadro2.exe`
 - **Bundled pixi**: `C:\Program Files\Avogadro2\bin\pixi.exe` (v0.66.0)
 - **User pixi**: `C:\Users\mccan\.pixi\bin\pixi.exe` (v0.70.2)
-- **Plugin symlink**: `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\avo_ibo` → project dir
+- **IboView source**: `C:\Users\mccan\OneDrive\Downloads\ibo-view.20211019-RevA\`
 - **Reference plugin**: `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\avo_xtb\`
-- **Avogadro source (2.0.0 tag)**: Used to read `pythonscript.cpp`, `interfacescript.cpp`, `packagemanager.cpp`, `command.cpp` for async pipeline understanding
 
-## Avogadro's Async Pipeline (Key Insight)
+## Avogadro Async Pipeline (Key Insight)
 
 ```
 QProcess (MergedChannels) → finished signal
@@ -84,5 +139,5 @@ QProcess (MergedChannels) → finished signal
 ```
 
 `stripLeadingNonJson` finds first `{` or `[` in merged stdout+stderr buffer.
-Any stderr output containing these characters before the JSON on stdout
-will break parsing. This is the single most critical constraint.
+Any stderr containing these characters before the JSON on stdout will break
+parsing. This is the single most critical constraint.
