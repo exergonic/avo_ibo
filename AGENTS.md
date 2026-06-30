@@ -28,7 +28,11 @@ interactive isosurface viewing with a full IAO-basis analysis table.
   s/p/d hybridization on dominant atom.
 - **Go to files …** menu command opens `calcs/` in Explorer.
 - Per-calculation directory (`calcs/last/`, avo_xtb-style): cleared before
-  each `"ibo"` run; contains `psi4.log`, `result.molden`, `ibos.txt`.
+  each `"ibo"` run; contains `psi4.log`, `ibo.molden`, `canonical.molden`,
+  `ibos.txt`.
+- **No donor/acceptor delocalisation analysis**: IAO orthogonality prohibits
+  occ-vir cross-projection for individual canonical MOs; the feature was
+  removed per user request to keep the plugin focused.
 - Signal discipline: all debug output before final `print(json.dumps(...))`.
 
 ### Tested Molecules (hf/cc-pVDZ)
@@ -93,6 +97,14 @@ interactive isosurface viewing with a full IAO-basis analysis table.
 13. **Nondeterministic on-atom mixing**: Without the Fock fix, water/def2-SVP
     produces different O 2s/O 2p mixtures each run (random QR seed).  The
     Fock diagonalisation makes the output deterministic.
+14. **Canonical MO delocalisation analysis removed (2026-06-30)**: A
+    donor/acceptor cross-reference between occ and vir IBOs proved impossible
+    because occupied canonical MOs have EXACTLY zero overlap with virtual IBOs
+    in the IAO subspace (IAO orthogonality).  The plugin now focuses on the
+    core IBO/Molden pipeline; `canonical.molden` is kept as a reference for
+    Avogadro's MO surface dialog.  The attempted approaches (atom-set density,
+    anti* pairing, within-subspace top-2) were each too noisy or chemically
+    misleading for a focused plugin.
 
 ## Relevant Files
 
