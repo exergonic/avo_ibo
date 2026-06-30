@@ -123,6 +123,10 @@ interactive isosurface viewing with a full IAO-basis analysis table.
     appear to load but are chemically incorrect.  Using Cartesian
     (`puream=0`) fixes it.  Ethene B3LYP/cc-pVDZ with `puream=1` was
     the reproduction case.  See `TUTORIAL.md §13`.
+17. **[MO] padding to match [GTO] slot count (2026-06-30)**: Avogadro
+    allocates one MO slot per basis function in [GTO].  If [MO] has fewer
+    entries, the extra slots show uninitialised noise.  Fix: pad [MO] with
+    zero-energy dummy orbitals up to n_AO total entries.
 
 ## Relevant Files
 

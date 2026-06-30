@@ -416,6 +416,10 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
 
     The [Atoms] and [GTO] header sections are copied from Psi4's own Molden
     output; only the [MO] block is replaced with the IAO-basis orbitals.
+
+    The [MO] section is padded with zero-energy dummy orbitals up to n_AO
+    total entries so Avogadro's MO slot count matches the [GTO] basis set
+    size, preventing uninitialised-slot noise.
     """
     import tempfile
     tmp = path.with_suffix(".molden.tmp")
@@ -441,6 +445,13 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
                      f" Occup= {oi:14.10f}\n")
         for j in range(n_AO):
             lines.append(f"  {j + 1:>4d}  {C_AO[j, i]:16.10f}\n")
+
+    # Pad with dummy orbitals so Avogadro's MO slot count matches [GTO]
+    for i in range(n_orb, n_AO):
+        lines.append(f" Sym= A\n Ene= {0.0:15.10f}\n Spin= Alpha\n"
+                     f" Occup= {0.0:14.10f}\n")
+        for j in range(n_AO):
+            lines.append(f"  {j + 1:>4d}  {0.0:16.10f}\n")
 
     path.write_text("".join(lines), encoding="utf-8")
 

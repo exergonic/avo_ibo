@@ -56,7 +56,7 @@ action.  All debug goes to stderr *before* it.  Avogadro merges channels
 and `stripLeadingNonJson()` finds the first `{` or `[` — any stderr
 containing those chars before JSON breaks parsing.
 
-### `src/avogadro_ibo/calcs.py` (595 lines)
+### `src/avogadro_ibo/calcs.py` (~613 lines)
 **All IAO/IBO logic.**  One public function: `compute_ibo()`.
 
 | Function | Lines | Purpose |
@@ -271,6 +271,10 @@ No need to reinstall pixi environment unless dependencies change.
 5. **Avogadro error popup**: If Avogadro shows an error popup rather than
    orbitals, the JSON response likely has an error field.  The debug_log/
    pattern can capture input/output.
+6. **[MO] padding for Avogadro**: Avogadro allocates one MO slot per basis
+   function listed in `[GTO]`.  If the `[MO]` section has fewer entries,
+   the extra slots show uninitialised noise.  The `_write_iao_molden()`
+   function pads with zero-energy dummy orbitals up to `n_AO` to fix this.
 
 ### Useful CLI one-liners
 

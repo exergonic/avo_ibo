@@ -514,14 +514,22 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     idx = text.find(mo_tag)
     header = text[:idx]
 
+    n_AO = C_AO.shape[0]
     lines = [header + "\n[MO]\n"]
     for i in range(n_orb):
         ei = energies[i]
         oi = occ[i]
         lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n"
                      f" Occup= {oi:14.10f}\n")
-        for j in range(C_AO.shape[0]):
+        for j in range(n_AO):
             lines.append(f"  {j + 1:>4d}  {C_AO[j, i]:16.10f}\n")
+
+    # Pad to n_AO orbitals so Avogadro's slot count matches [GTO]
+    for i in range(n_orb, n_AO):
+        lines.append(f" Sym= A\n Ene= {0.0:15.10f}\n Spin= Alpha\n"
+                     f" Occup= {0.0:14.10f}\n")
+        for j in range(n_AO):
+            lines.append(f"  {j + 1:>4d}  {0.0:16.10f}\n")
 
     path.write_text("".join(lines), encoding="utf-8")
 ```
@@ -635,3 +643,4 @@ to speed in one read.
 | 8 | hatchling build backend | pixi can't install | Use `uv_build` |
 | 9 | Plugin not showing up in Avogadro | Wrong plugin directory | Use `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` |
 | 10 | Psi4 Molden with spherical harmonics | Orbitals load but are chemically wrong in Avogadro | Use `puream=0` (Cartesian) |
+| 11 | [MO] entries < [GTO] basis count | Extra MO slots show junk noise in Avogadro | Pad [MO] with zero-energy dummies up to n_AO |
