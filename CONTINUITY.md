@@ -258,7 +258,10 @@ No need to reinstall pixi environment unless dependencies change.
    Files\Avogadro2\bin\pixi.exe" install`
 2. **`puream` mismatch**: The IAO construction assumes Cartesian functions
    (`puream=0`).  Changing this will break the orbital counting in
-   `_get_basis_maps` and the IAO build.
+   `_get_basis_maps` and the IAO build.  Separately, Psi4's `psi4.molden()`
+   with spherical harmonics (`puream=1`) produces files silently misread
+   by Avogadro 2's Molden parser — orbitals appear to load but are wrong.
+   Always use `puream=0` for Avogadro.
 3. **Non-linear dependencies**: `scipy.linalg.cho_factor` and `.cho_solve`
    are used in `_build_iao_basis`.  If you add new linear algebra, keep
    it in the `scipy.linalg` family.

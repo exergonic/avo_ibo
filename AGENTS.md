@@ -116,6 +116,13 @@ interactive isosurface viewing with a full IAO-basis analysis table.
     Fock elements.  IAO/IBO was designed for exact, lossless occupied
     representation, so F_ov = 0 by theorem.  No bug, no missing trick —
     a feature of the IAO design goal.  See `MATHEMATICS.md §9.5`.
+16. **Psi4 Molden output + spherical harmonics silently wrong in
+    Avogadro 2**: Psi4's `psi4.molden()` with default `puream` (spherical
+    5D/7F) produces files where the [GTO] shell layout and [MO]
+    coefficient ordering misalign under Avogadro 2's parser.  Orbitals
+    appear to load but are chemically incorrect.  Using Cartesian
+    (`puream=0`) fixes it.  Ethene B3LYP/cc-pVDZ with `puream=1` was
+    the reproduction case.  See `TUTORIAL.md §13`.
 
 ## Relevant Files
 

@@ -479,6 +479,23 @@ psi4.set_output_file(str(TEMP_DIR / "psi4.log"), append=True)
 This captures Psi4's C++ output (scf iterations, energy, etc.) to a file.
 Combine with the Python logging redirect above for full capture.
 
+### `puream=0` (Cartesian) is required for Avogadro
+
+Psi4's Molden writer (`psi4.molden()`) with the default spherical harmonic
+basis (`puream=1`, or unspecified) produces files whose [GTO] shell layout
+and [MO] coefficient ordering are silently misaligned under Avogadro 2's
+Molden parser.  Orbitals appear to load — they have isosurfaces and energy
+values — but are chemically wrong.  The mismatch is invisible unless you
+already know what shape to expect (e.g. checking that ethene's π orbital
+actually looks like a π orbital).
+
+**Always use Cartesian functions (`puream=0`)** when generating Molden
+files for Avogadro.  Our plugin does this by default for both the SCF and
+minimal IAO basis sets.  Ethene B3LYP/cc-pVDZ is the canonical
+reproduction: run `psi4.molden()` with `puream=1` and load the result
+into Avogadro — the occupied π orbital appears distorted or missing its
+characteristic nodal plane.
+
 ### Psi4 Molden output (IAO basis)
 
 Use a custom Molden writer that replaces the [MO] section with
@@ -617,3 +634,4 @@ to speed in one read.
 | 7 | UTF-8 on Windows | UnicodeDecodeError in Avogadro | `sys.stdout.reconfigure(encoding="utf-8")` |
 | 8 | hatchling build backend | pixi can't install | Use `uv_build` |
 | 9 | Plugin not showing up in Avogadro | Wrong plugin directory | Use `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` |
+| 10 | Psi4 Molden with spherical harmonics | Orbitals load but are chemically wrong in Avogadro | Use `puream=0` (Cartesian) |
