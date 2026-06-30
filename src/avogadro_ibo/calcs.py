@@ -9,15 +9,25 @@ def _option(options, key, default):
 
 
 def compute_ibo(cjson, options, charge, spin, debug=False):
-    import psi4
-    import numpy as np
-
+    import logging
     _plugin_dir = Path(__file__).resolve().parent.parent.parent
     _debug_dir = _plugin_dir / "debug_log"
     _debug_dir.mkdir(parents=True, exist_ok=True)
 
+    _psi_logger = logging.getLogger("psi4")
+    _psi_logger.propagate = False
+    _psi_logger.setLevel(logging.DEBUG if debug else logging.WARNING)
+    _psi_handler = logging.FileHandler(str(_debug_dir / "psi4.log"), mode="w")
+    _psi_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    _psi_logger.addHandler(_psi_handler)
+    for _name in ["psi4.core", "psi4.driver"]:
+        logging.getLogger(_name).setLevel(logging.WARNING)
+
+    import psi4
+    import numpy as np
+
     log_path = _debug_dir / "psi4.log"
-    psi4.set_output_file(str(log_path), append=False)
+    psi4.set_output_file(str(log_path), append=True)
 
     atoms = cjson["atoms"]
     coords_raw = atoms["coords"]

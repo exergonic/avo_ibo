@@ -34,7 +34,7 @@ def main():
     raw = sys.stdin.read()
     logger.debug(f"Read {len(raw)} bytes from stdin")
     data = json.loads(raw)
-    logger.debug(f"Input keys: {list(data.keys())}")
+    logger.debug(f"Input keys: {', '.join(data.keys())}")
     _DEBUG_DIR.mkdir(parents=True, exist_ok=True)
     (_DEBUG_DIR / "input.json").write_text(raw, encoding="utf-8")
 
