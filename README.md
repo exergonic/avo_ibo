@@ -6,7 +6,8 @@ using [Psi4](https://psicode.org).
 IBOs (Knizia, *J. Chem. Theory Comput.* **2013**, *9*, 4834) provide a chemically
 intuitive picture of bonding by localizing occupied molecular orbitals onto
 atoms — revealing σ-bonds, π-bonds, lone pairs, and core orbitals directly
-from first-principles HF/DFT.
+from first-principles HF/DFT.  See [`MATHEMATICS.md`](MATHEMATICS.md) for the
+full mathematical derivation.
 
 ## How it works
 

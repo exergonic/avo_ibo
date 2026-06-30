@@ -3,6 +3,9 @@
 Everything we learned building a working Psi4 IAO/IBO plugin for Avogadro 2
 on Windows. This guide covers the gotchas that aren't in any single doc.
 
+See [`MATHEMATICS.md`](MATHEMATICS.md) for the full mathematical derivation
+of the IAO/IBO pipeline, and [`README.md`](README.md) for usage.
+
 ---
 
 ## Quick Start
@@ -28,7 +31,7 @@ pixi run pip install -e .
 New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\my_plugin" -Target "C:\path\to\my_plugin"
 
 # 6. Test from CLI
-pixi run --as-is avogadro-my-plugin test < debug_log/input.json
+pixi run --as-is avogadro-my-plugin test < debug_log\input.json
 
 # 7. Launch Avogadro and click the menu command
 Start-Process "C:\Program Files\Avogadro2\bin\avogadro2.exe"
@@ -46,14 +49,18 @@ my_plugin/
 ├── pyproject.toml          # build config + avogadro metadata
 ├── pixi.toml               # pixi environment (optional if using bundled pixi)
 ├── pixi.lock               # lock file (v6!)
+├── README.md               # project overview
+├── tutorial.md             # this tutorial
+├── MATHEMATICS.md          # mathematical derivation
+├── AGENTS.md               # session context for LLMs
+├── calcs/
+│   └── last/               # per-run artifacts
 └── src/
     └── my_plugin/
         ├── __init__.py     # main(): CLI entry point + dispatch
         ├── calcs.py        # computation functions
-        └── test_plugins.py # test-only functions (no heavy deps)
+        └── links.py        # auxiliary actions (open directory, etc.)
 ```
-
-The package name (directory under `src/`) must match the name in `[project.scripts]`.
 
 ---
 
@@ -85,9 +92,9 @@ label = "Compute IBOs"
 command = "avogadro-ibo ibo"
 
 [[tool.avogadro.menu-commands]]
-identifier = "test-molden"
-label = "Test Molden output"
-command = "avogadro-ibo test-molden"
+identifier = "open"
+label = "Go to files …"
+command = "avogadro-ibo open"
 ```
 
 ### Critical details
@@ -97,8 +104,10 @@ command = "avogadro-ibo test-molden"
 - **Identifier-prefix**: Short prefix shown in Avogadro's plugin menus.
 - **Each menu-command** gets a unique `identifier` and a `command` string.
   The first word of `command` must match an entry in `[project.scripts]`.
-- **Arguments after the command** (e.g., `ibo`, `test-molden`) are passed as
+- **Arguments after the command** (e.g., `ibo`, `open`) are passed as
   `sys.argv[1]` — dispatch on them in `main()`.
+- Use only the two menu commands you actually need.  Remove boilerplate
+  test commands from the template.
 
 ---
 
@@ -210,9 +219,9 @@ def main():
         if args.feature == "ibo":
             from .calcs import compute_ibo
             result = compute_ibo(cjson, options, charge, spin)
-        elif args.feature == "test-molden":
-            from .test_plugins import test_molden
-            result = test_molden(cjson, options, charge, spin)
+        elif args.feature == "open":
+            from .links import open_calcs_dir
+            result = open_calcs_dir(cjson)
         else:
             result = {"error": f"Unknown feature: {args.feature}"}
     except Exception as e:
@@ -233,10 +242,37 @@ if __name__ == "__main__":
 - **`print(json.dumps(result))`** is the *last* thing that touches stdout
   — no debug prints after it.
 - **Error handling**: Catch all exceptions, return as `{"error": ...}` JSON.
+- **Dispatch by `args.feature`**: Each menu-command's identifier maps to
+  a feature string.  Keep the dispatch table simple — one `elif` per
+  feature.
 
 ---
 
-## 6. The `{` / `[` Stderr Problem (Three Gotchas)
+## 6. Per-Calculation Directory Pattern
+
+For a clean file system, keep per-run artifacts in a dedicated directory
+(e.g. `calcs/last/`).  Clear it before each `"ibo"` run so the user always
+finds the latest result:
+
+```python
+from pathlib import Path
+import shutil
+
+CALCS_DIR = Path(__file__).parent.parent.parent / "calcs"
+TEMP_DIR = CALCS_DIR / "last"
+
+def _prepare_calc_dir():
+    if TEMP_DIR.exists():
+        shutil.rmtree(TEMP_DIR)
+    TEMP_DIR.mkdir(parents=True, exist_ok=True)
+```
+
+Call `_prepare_calc_dir()` **only** inside the `"ibo"` branch — the
+"open" feature should never wipe previous results.
+
+---
+
+## 7. The `{` / `[` Stderr Problem (Three Gotchas)
 
 **This is the single most important thing to understand.**
 
@@ -294,7 +330,7 @@ Psi4 writes INFO-level Python logging messages to stderr like:
 
 ```
 PLANNING Atomic: keywords={'D_CONVERGENCE': 1e-08, ...}
-Compute energy(): method=hf, basis=def2-svp, ...
+Compute energy(): method=hf, basis=cc-pVDZ, ...
 ```
 
 The `{` in `keywords={'D_CONVERGENCE': ...}` is found by
@@ -318,7 +354,7 @@ for name in ["psi4.core", "psi4.driver"]:
 
 ---
 
-## 7. The General Rule
+## 8. The General Rule
 
 > **Nothing on stderr may contain `{` or `[` before the JSON output
 > on stdout.**
@@ -334,7 +370,7 @@ This means:
 
 ---
 
-## 8. Debug Log Pattern
+## 9. Debug Log Pattern
 
 Save `input.json`, `output.json`, and any computation artifacts to a
 `debug_log/` directory. This is invaluable for troubleshooting because
@@ -356,7 +392,7 @@ print(json.dumps(result))
 
 ---
 
-## 9. CJSON Coordinate Format
+## 10. CJSON Coordinate Format
 
 The CJSON coordinates can come in two forms:
 
@@ -376,19 +412,44 @@ Always handle both.
 
 ---
 
-## 10. Manual Pipeline Testing
+## 11. "Go to files …" Feature
+
+Auxiliary menu commands (like opening the output directory) are simpler:
+they don't need Psi4 or heavy computation.
+
+```python
+# links.py
+from pathlib import Path
+from . import CALCS_DIR
+
+def open_calcs_dir(cjson):
+    import subprocess
+    subprocess.Popen(["explorer", str(CALCS_DIR)])
+    return {
+        "readProperties": True,
+        "cjson": cjson,
+        "message": f"Opened {CALCS_DIR} in Explorer",
+    }
+```
+
+This is registered as a second menu-command in `pyproject.toml` with
+`identifier = "open"`.
+
+---
+
+## 12. Manual Pipeline Testing
 
 Test the full pipeline from command line to verify:
 
 ```powershell
 # Run with test input
-pixi run --as-is avogadro-ibo test-molden < debug_log/input.json
+pixi run --as-is avogadro-ibo ibo < debug_log\input.json
 
 # Check exit code (0 = success)
 $LASTEXITCODE
 
 # Check output.json for valid JSON
-Get-Content debug_log/output.json | python -m json.tool
+Get-Content debug_log\output.json | python -m json.tool
 ```
 
 This simulates what Avogadro does (minus the MergedChannels), and
@@ -396,7 +457,7 @@ saves `input.json`/`output.json` for inspection.
 
 ---
 
-## 11. Psi4-Specific Notes
+## 13. Psi4-Specific Notes
 
 ### In-process Psi4 (recommended)
 
@@ -412,17 +473,40 @@ def compute_ibo(...):
 ### Redirect Psi4 output
 
 ```python
-psi4.set_output_file(str(log_path), append=False)
+psi4.set_output_file(str(TEMP_DIR / "psi4.log"), append=True)
 ```
 
 This captures Psi4's C++ output (scf iterations, energy, etc.) to a file.
 Combine with the Python logging redirect above for full capture.
 
-### Psi4 Molden output
+### Psi4 Molden output (IAO basis)
+
+Use a custom Molden writer that replaces the [MO] section with
+IAO-basis orbitals:
 
 ```python
-psi4.molden(wfn, str(molden_path))
-molden_text = molden_path.read_text(encoding="utf-8")
+def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
+    import tempfile
+    tmp = path.with_suffix(".molden.tmp")
+    psi4_molden = __import__("psi4").molden
+    psi4_molden(wfn, str(tmp))
+    text = tmp.read_text(encoding="utf-8")
+    tmp.unlink()
+
+    mo_tag = "[MO]"
+    idx = text.find(mo_tag)
+    header = text[:idx]
+
+    lines = [header + "\n[MO]\n"]
+    for i in range(n_orb):
+        ei = energies[i]
+        oi = occ[i]
+        lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n"
+                     f" Occup= {oi:14.10f}\n")
+        for j in range(C_AO.shape[0]):
+            lines.append(f"  {j + 1:>4d}  {C_AO[j, i]:16.10f}\n")
+
+    path.write_text("".join(lines), encoding="utf-8")
 ```
 
 Return in the JSON response:
@@ -433,7 +517,7 @@ Return in the JSON response:
     "moleculeFormat": "molden",
     "molden": molden_text,
     "cjson": cjson,
-    "message": "Computed IAO orbitals (hf/def2-SVP)",
+    "message": "IBO analysis saved to calcs/last/ibos.txt",
 }
 ```
 
@@ -441,9 +525,12 @@ The `molden` field provides the orbitals. `moleculeFormat: "molden"` tells
 Avogadro to read orbital data from the molden string. `readProperties: True`
 enables property display (energy). `cjson` provides the 3D structure.
 
+The analysis table is written separately to `calcs/last/ibos.txt` (not
+embedded in the popup message) to avoid blocking the user.
+
 ---
 
-## 12. Test Plugins (No Heavy Dependencies)
+## 14. Test Plugins (No Heavy Dependencies)
 
 Create separate test functions that don't require Psi4. This lets you
 verify the Avogadro pipeline works before debugging computation logic:
@@ -473,16 +560,15 @@ def test_energy(cjson, options, charge, spin):
 
 ---
 
-## Giving Context to Another LLM (or Future You)
+## 15. Giving Context to Another LLM (or Future You)
 
 To give an LLM full context for continuing work on this plugin, share
-**both** files:
+**these files**:
 
-1. **This tutorial** — explains the architecture and gotchas.
-2. **`AGENTS.md`** — a session summary file in the project root that
-   captures current status, what's been done, what's pending, and key
-   decisions. An LLM can read this to pick up where you left off without
-   re-discovering everything from scratch.
+1. **`tutorial.md`** — explains the architecture and gotchas.
+2. **`MATHEMATICS.md`** — full mathematical derivation with paper references.
+3. **`AGENTS.md`** — session context: current status, pending items,
+   key decisions, gotchas hit.
 
 Keep `AGENTS.md` updated as you go. A good format:
 
@@ -507,13 +593,14 @@ Briefly: what are we building?
 - #2: ...
 
 ## Relevant Files
-- src/my_plugin/__init__.py — entry point
-- src/my_plugin/calcs.py — computation
-- pyproject.toml — build config
+- MATHEMATICS.md — mathematical derivation
+- README.md — usage
+- tutorial.md — architecture and gotchas
 ```
 
-When starting a new session, present this tutorial + `AGENTS.md` together
-as context. The LLM will be up to speed in one read.
+When starting a new session, present `AGENTS.md` + relevant snippets
+from `tutorial.md` and `MATHEMATICS.md` as context. The LLM will be up
+to speed in one read.
 
 ---
 
