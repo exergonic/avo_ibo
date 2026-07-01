@@ -1,57 +1,62 @@
-# avogadro-ibo
+# avo_ibo
+
+[![Status: Stable](https://img.shields.io/badge/status-stable-green.svg)](https://github.com/exergonic/avo_ibo)
+[![Environment: Pixi](https://img.shields.io/badge/env-pixi-blue.svg)](https://pixi.sh)
+[![Python: >=3.11](https://img.shields.io/badge/python-%E2%89%A53.11-green.svg)](https://python.org)
+[![License: BSD-3](https://img.shields.io/badge/license-BSD--3-yellow.svg)](LICENSE)
+[![Psi4](https://img.shields.io/badge/dependency-Psi4-purple.svg)](https://psicode.org)
 
 Avogadro 2 plugin (and standalone CLI) for computing and visualizing Intrinsic
-Bond Orbitals (IBOs) using [Psi4](https://psicode.org).
+Bond Orbitals (IBOs) via [Psi4](https://psicode.org).  IBOs (Knizia, *J. Chem.
+Theory Comput.* **2013**, *9*, 4834) provide a chemically intuitive picture of
+bonding — σ-bonds, π-bonds, lone pairs, and core orbitals — from first-principles
+HF/DFT.
 
-IBOs (Knizia, *J. Chem. Theory Comput.* **2013**, *9*, 4834) provide a chemically
-intuitive picture of bonding by localizing occupied molecular orbitals onto
-atoms — revealing σ-bonds, π-bonds, lone pairs, and core orbitals directly
-from first-principles HF/DFT.  See [`MATHEMATICS.md`](MATHEMATICS.md) for the
-full mathematical derivation.
+## Features
 
-## Installation
+- **Full IAO/2014 pipeline** — depolarized + repolarized IAO construction (Knizia Appendix C), matching IboView's `MakeIaoBasisNew`
+- **Pipek-Mezey localization** (p=4, conv 1e-12, max 2048 iter) for both occupied and valence-virtual blocks
+- **On-atom degeneracy resolution** — post-PM Fock diagonalisation separates same-atom orbitals (e.g. O 2s LP vs O 2p LP) by energy
+- **Valence-virtual IAOs** via SVD (`C_IAO^T @ S @ C_vir`), localizing anti-bond σ\* and π\* orbitals for isosurface viewing
+- **Molden output** — IAO-basis orbitals with Fock-diagonal energies, zero-energy padded to `n_AO` slots for robust Avogadro rendering
+- **Analysis table** (`calcs/last/ibos.txt`) — occupancy, energy, DOM, bond type, atomic composition, and s/p/d hybridization for every IBO
+- **Standalone CLI** — `python -m avogadro_ibo molecule.xyz` for headless IBO computation
+- **Psi4 in-process** — single Python process, no subprocess or file-based IPC
 
-All paths require [pixi](https://pixi.sh).  From the repo root:
+## Quick Start
+
+Requires [pixi](https://pixi.sh).
 
 ```powershell
-# Step 1: install dependencies (psi4, numpy) via pixi
+git clone https://github.com/exergonic/avo_ibo.git
+cd avo_ibo
 pixi install
-
-# Step 2: install the package as editable (creates entry points)
-pixi run pip install -e .
+pixi run python -m pip install -e .
 ```
 
-### Usage as standalone CLI
+### Standalone CLI
 
 ```powershell
 pixi run python -m avogadro_ibo molecule.xyz
 ```
 
-Reads an XYZ file, runs the full IBO pipeline, and writes results to
-`calcs/last/` (ibo.molden, canonical.molden, ibos.txt, psi4.log).
-Neutral singlet only — for charged or open-shell systems use
-Avogadro or IboView.
+Reads an XYZ file, runs the full IBO pipeline, writes to `calcs/last/`
+(ibo.molden, canonical.molden, ibos.txt, psi4.log).
+Neutral singlet only — for charged or open-shell systems use Avogadro or IboView.
 
-### Usage as Avogadro 2 plugin
+### Avogadro 2 plugin
 
-The plugin will appear under **Extensions → Intrinsic Bond Orbitals →
-Compute IBOs** in Avogadro 2, provided that Avogadro can discover it.
-
-Avogadro 2 scans `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` for
-Python script plugins.  Create a symlink:
+Create a symlink so Avogadro discovers the plugin:
 
 ```powershell
 New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" `
   -Target "C:\path\to\avo_ibo"
 ```
 
-1. Open a molecule in Avogadro 2.
-2. **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
-3. Wait for the calculation to complete (Psi4 runs in-process).
-4. Double-click any orbital in **Molecular Orbital** to toggle its isosurface.
-5. The analysis table is available in `calcs/last/ibos.txt`.
-6. **Extensions → Intrinsic Bond Orbitals → Go to files …** opens the
-   `calcs/` directory in Explorer.
+Then in Avogadro: **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
+The computed IBOs appear in the **Molecular Orbitals** panel where you can
+double-click any orbital to toggle its isosurface.  All results are also
+saved to `calcs/last/` for reference.
 
 ### Tests
 
@@ -59,66 +64,15 @@ New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\
 pixi run test
 ```
 
-Runs a CLI integration suite against `tests/files/` (water, methane, ethene, ammonia). Validates: correct number of IAOs, Molden entry count matches n_AO, occupancy partitioning (occ/vir), on-atom degeneracy resolution (water), C-H sigma degeneracy (methane), and lone pair detection (ammonia). Tests call the CLI as a black box — no production code modified for testability.
+7 CLI integration tests against water, methane, ethene, and ammonia — validates
+IAO counts, Molden structure, occupancy partitioning, and per-molecule orbital
+patterns.
 
-### Options
+## Further Reading
 
-The `options` dict passed from Avogadro (or via stdin) can contain:
+- [`mathematics.md`](mathematics.md) — full derivation of the IAO/IBO pipeline
+- [`tutorial.md`](tutorial.md) — architecture, algorithm walkthrough, and gotchas
 
-| Key      | Default   | Description |
-|----------|-----------|-------------|
-| `basis`  | `cc-pVDZ` | SCF basis set name (Psi4 format) |
-| `method` | `hf`      | Quantum chemistry method (hf, b3lyp, etc.) |
+## License
 
-## How it works
-
-1. **Avogadro** sends the current molecule geometry (CJSON) to the plugin.
-2. **Psi4** runs a HF/DFT calculation (default: HF/cc-pVDZ, Cartesian
-   functions, `puream=0`).  The SCF basis can be overridden via options.
-3. **Intrinsic Atomic Orbitals (IAOs)** are constructed using the full
-   IAO/2014 algorithm (Knizia Appendix C, matching IboView's
-   `MakeIaoBasisNew`).  A minimal basis (STO-3G) defines the split between
-   occupied atomic orbitals and virtual residual.
-4. **Occupied IBOs** are obtained via Pipek-Mezey localization (p=4, eq 4)
-   in the IAO basis (Jacobi sweeps, conv 1e-12, max 2048 iterations).
-   A warm-start strategy (p=2 first, then p=4 refine) avoids local minima.
-5. **On-atom degeneracy resolution**: The PM functional uses only atomic
-   populations n_A(i), so orbitals on the same atom with DOM ≈ 1 (e.g.
-   O 2s and O lone pair) are degenerate — any rotation within that
-   subspace yields the same L value.  After PM, a post-processing step
-   diagonalises the Fock matrix within each same-atom, high-DOM subspace,
-   restoring the aufbau ordering (s-rich lowest, p-rich highest).
-6. **Valence-virtual IAOs** are constructed via SVD of `C_IAO^T @ S @ C_vir`
-   (IboView `MakeValenceVirtuals`), keeping singular values > 1e-8, then
-   localized with the same PM p=4 procedure.  This gives clean anti-bond
-   σ\* and π\* orbitals for visualisation.
-7. Orbital energies are computed as ε_i = C_i^T @ F_AO @ C_i (Fock-matrix
-   diagonal elements in the AO basis), matching IboView's
-   `MakeOrbitalEnergies_General`.
-8. All n_min IAO-basis orbitals (occupied + valence-virtual) are written
-   to a **Molden file** with custom [MO] sections, and returned to Avogadro.
-9. An **analysis table** (`calcs/last/ibos.txt`) lists each orbital's
-   occupancy, energy, DOM, assigned type (σ/π/LP/Core/anti\*), atomic
-   composition, and s/p/d hybridization.
-10. Double-click any IBO in Avogadro's **Molecular Orbitals** panel to view its
-    isosurface.
-
-### Algorithm pipeline (inside `compute_ibo`)
-
-```
-CJSON geom → Psi4 HF/cc-pVDZ → C_occ (MO coefficients)
-    ↓
-C_IAO, C_IAO_occ = _build_iao_basis(S_full, S12, S_min, C_occ)
-    ↓
-_localize_ibos(C_IAO_occ)       ← PM p=2→p=4 warm-start
-    ↓
-F_IAO = C_IAO^T @ F_AO @ C_IAO
-    ↓
-_resolve_on_atom_mixing(C_IAO_occ)  ← Fock diag per same-atom group
-    ↓
-occ_energies[i] = C_i^T @ F_IAO @ C_i
-    ↓
-Valence-virtual: SVD(SIbVir) → U_val → _localize_ibos(U_val)
-    ↓
-Combine, sort by energy → Molden output → analysis table
-```
+BSD 3-Clause.  See [LICENSE](LICENSE).
