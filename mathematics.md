@@ -285,7 +285,9 @@ For each sweep:
 
 After each sweep the gradient norm is:
 
-$$\|\nabla L\| = \frac{1}{n_{\mathrm{occ}}}\sqrt{\sum_{i<j} (p \phi_{ij} B_{ij}^{(p)})^2}$$
+```math
+\Vert\nabla L\Vert = \frac{1}{n_{\mathrm{occ}}}\sqrt{\sum_{i<j} \bigl(p \,\phi_{ij}\, B_{ij}^{(p)}\bigr)^2}
+```
 
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
 $\Vert\nabla L\Vert < 10^{-12}$ or 2048 sweeps are reached.
