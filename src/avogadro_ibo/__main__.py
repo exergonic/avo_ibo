@@ -26,7 +26,7 @@ def main():
         import psi4
     except ImportError:
         print("Error: Psi4 is required but not installed.", file=sys.stderr)
-        print("Install it via: pixi add psi4", file=sys.stderr)
+        print("Install it via pixi, or via conda (conda install psi4).", file=sys.stderr)
         sys.exit(1)
     coords, numbers = _parse_xyz(sys.argv[1])
     cjson = {

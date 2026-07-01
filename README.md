@@ -41,8 +41,26 @@ If pixi complains of `no module named pip`, just install it with:
 ```
 Pixi may warn that the lock file uses an older format (v6):
 >  WARN the lock file is up-to-date but uses an older format (v6), run `pixi lock` to upgrade to v7 for improved reproducibility
+
 This is safe to ignore. Avogadro's bundled pixi (v0.66.0) reads v6 lock files natively. If using a standalone pixi that upgraded the lock, run `pixi lock --no-update` to keep v6.
 
+### 🐍 pip (no pixi)
+
+```powershell
+pip install git+https://github.com/exergonic/avo_ibo.git
+```
+
+> **Note:** Psi4 is not on PyPI — install it via `conda install psi4`.
+> This pulls in `numpy` (also required by `avogadro_ibo`) as a transitive dependency.
+
+That's it. Run a calculation with:
+
+```powershell
+python -m avogadro_ibo molecule.xyz
+```
+
+The Avogadro plugin symlink still works the same way; Avogadro calls the
+`avogadro-ibo` entry point under the hood.
 
 ### 💻 Standalone CLI
 
