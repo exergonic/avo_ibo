@@ -170,8 +170,7 @@ $$
    \mathbf{C}^{\mathrm{IAO}} \, \mathbf{M}^{-1/2}.
 $$
 
-Now $\langle\phi_\alpha\vert\phi_\beta\rangle
-= (\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$.
+Now $\langle\phi_\alpha\vert\phi_\beta\rangle = (\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$.
 
 `calcs.py:90–92`
 
@@ -185,8 +184,7 @@ $$
 $$
 
 Because IAOs span the occupied space (by construction), this is a
-unitary rotation and $\mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ}
-= \mathbf{C}^{\mathrm{occ}}$ is exact.
+unitary rotation and $\mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ} = \mathbf{C}^{\mathrm{occ}}$ is exact.
 
 `calcs.py:97`
 
@@ -242,8 +240,7 @@ $$
    \frac{B_{ij}^{(2)}}{-A_{ij}^{(2)}} \right),
 $$
 
-where $n_{ij}(A) = \sum_{\alpha\in A}
-C^{\mathrm{IAO},occ}_{\alpha i} C^{\mathrm{IAO},occ}_{\alpha j}$.
+where $n_{ij}(A) = \sum_{\alpha\in A} C^{\mathrm{IAO},occ}_{\alpha i} C^{\mathrm{IAO},occ}_{\alpha j}$.
 
 `calcs.py:163–174`
 
@@ -279,7 +276,7 @@ For each sweep:
    maximises $L$.
 3. Apply the rotation to columns $i$ and $j$ of
    $\mathbf{C}^{\mathrm{IAO},occ}$.
-4. Track the gradient norm $\|\nabla L\|$; stop when it falls below
+4. Track the gradient norm $\lVert\nabla L\rVert$; stop when it falls below
    $10^{-12}$ (IboView default).
 
 `calcs.py:148–207`
@@ -289,12 +286,12 @@ For each sweep:
 After each sweep the gradient norm is:
 
 $$
-\|\nabla L\| = \frac{1}{n_{\mathrm{occ}}}
+\lVert\nabla L\rVert = \frac{1}{n_{\mathrm{occ}}}
    \sqrt{\sum_{i<j} \bigl(p \,\phi_{ij}\, B_{ij}^{(p)}\bigr)^2}
 $$
 
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
-$\|\nabla L\| < 10^{-12}$ or 2048 sweeps are reached.
+$\lVert\nabla L\rVert < 10^{-12}$ or 2048 sweeps are reached.
 
 `calcs.py:202–206`
 
@@ -327,8 +324,7 @@ form a group.
 ### 5.2 Fock diagonalisation
 
 For a group of $g$ orbitals $\{i_k\}_{k=1}^{g}$ on atom $A$, extract
-the coefficient block $\mathbf{C}_{\mathrm{block}} \in \mathbb{R}^{n_{\mathrm{min}}
-\times g}$ and compute the projected Fock matrix:
+the coefficient block $\mathbf{C}_{\mathrm{block}} \in \mathbb{R}^{n_{\mathrm{min}} \times g}$ and compute the projected Fock matrix:
 
 $$
 \mathbf{F}_{\mathrm{block}}
@@ -342,8 +338,7 @@ $$
   \mathbf{C}^{\mathrm{IAO}}.
 $$
 
-Diagonalise $\mathbf{F}_{\mathrm{block}} = \mathbf{V} \mathbf{\lambda}
-\mathbf{V}^{T}$ and rotate the block:
+Diagonalise $\mathbf{F}_{\mathrm{block}} = \mathbf{V} \mathbf{\lambda} \mathbf{V}^{T}$ and rotate the block:
 
 $$
 \mathbf{C}_{\mathrm{block}} \leftarrow
@@ -505,13 +500,12 @@ $\mathbf{C}^{\mathrm{occ}}$).  The Roothaan–Hall equation gives:
 
 $$
 \mathbf{F}^{\mathrm{AO}} \mathbf{c}_k = \varepsilon_k \mathbf{S}
-\mathbf{c}_k. \tag{HF}
+\mathbf{c}_k. \qquad (\text{HF})
 $$
 
 Because IAOs exactly span the occupied space (Section 3),
 $\mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ} = \mathbf{C}^{\mathrm{occ}}$
-is an exact identity.  Substitute $\mathbf{c}_k = \mathbf{C}^{\mathrm{IAO}}
-\mathbf{C}^{\mathrm{IAO},occ}_{:,k}$ into (HF):
+is an exact identity.  Substitute $\mathbf{c}_k = \mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ}_{:,k}$ into (HF):
 
 $$
 \mathbf{F}^{\mathrm{AO}} \mathbf{C}^{\mathrm{IAO}}
@@ -529,10 +523,7 @@ $$
   \mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ}_{:,k}.
 $$
 
-The left factor is $\mathbf{F}^{\mathrm{IAO}}
-\mathbf{C}^{\mathrm{IAO},occ}_{:,k}$.  The right factor uses the IAO
-orthonormality $(\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S}
-\mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$ (Section 3.8), giving:
+The left factor is $\mathbf{F}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ}_{:,k}$.  The right factor uses the IAO orthonormality $(\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$ (Section 3.8), giving:
 
 $$
 \mathbf{F}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ}_{:,k}
@@ -591,8 +582,8 @@ construction is designed to filter out.
 
 For water/cc-pVDZ ($n_{\mathrm{min}}=7$, $n_{\mathrm{occ}}=5$, $n_{\mathrm{val\,vir}}=2$):
 
-- $\|\mathbf{F}^{\mathrm{IAO}}_{ov}\|_F = 5.2 \times 10^{-8}$ (machine precision)
-- $\|(\mathbf{C}^{\mathrm{occ}})^{T} \mathbf{C}^{\mathrm{vir}}\|_F = 0.0$ (exact, since
+- $\lVert\mathbf{F}^{\mathrm{IAO}}_{ov}\rVert_F = 5.2 \times 10^{-8}$ (machine precision)
+- $\lVert(\mathbf{C}^{\mathrm{occ}})^{T} \mathbf{C}^{\mathrm{vir}}\rVert_F = 0.0$ (exact, since
   canonical MOs are orthonormal)
 
 Both are zero to within numerical noise, confirming the mathematical
