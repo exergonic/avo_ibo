@@ -57,7 +57,9 @@ The bundled pixi path is `C:\Program Files\Avogadro2\bin\pixi.exe`.
    in the IAO basis (Jacobi sweeps, conv 1e-12, max 2048 iterations).
    A warm-start strategy (p=2 first, then p=4 refine) avoids local minima.
 5. **On-atom degeneracy resolution**: The PM functional uses only atomic
-   populations n_A(i), so orbitals on the same atom with DOM ≈ 1 (e.g.
+   populations n_A(i), so orbitals on the same atom with DOM ≈ 1
+   (Degree of Mono-centricity; the sum of squares of the top two
+   atomic populations; 1.00 = one-atom orbital, see mathematics.md §8.1) (e.g.
    O 2s and O lone pair) are degenerate — any rotation within that
    subspace yields the same L value.  After PM, a post-processing step
    diagonalises the Fock matrix within each same-atom, high-DOM subspace,
