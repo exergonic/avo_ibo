@@ -276,7 +276,7 @@ For each sweep:
    maximises $L$.
 3. Apply the rotation to columns $i$ and $j$ of
    $\mathbf{C}^{\mathrm{IAO},occ}$.
-4. Track the gradient norm $\lVert\nabla L\rVert$; stop when it falls below
+4. Track the gradient norm $\Vert\nabla L\Vert$; stop when it falls below
    $10^{-12}$ (IboView default).
 
 `calcs.py:148–207`
@@ -286,12 +286,12 @@ For each sweep:
 After each sweep the gradient norm is:
 
 $$
-\lVert\nabla L\rVert = \frac{1}{n_{\mathrm{occ}}}
-   \sqrt{\sum_{i<j} \bigl(p \,\phi_{ij}\, B_{ij}^{(p)}\bigr)^2}
+\Vert\nabla L\Vert = \frac{1}{n_{\mathrm{occ}}}
+\sqrt{\sum_{i<j} \bigl(p \,\phi_{ij}\, B_{ij}^{(p)}\bigr)^2}
 $$
 
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
-$\lVert\nabla L\rVert < 10^{-12}$ or 2048 sweeps are reached.
+$\Vert\nabla L\Vert < 10^{-12}$ or 2048 sweeps are reached.
 
 `calcs.py:202–206`
 
@@ -582,8 +582,8 @@ construction is designed to filter out.
 
 For water/cc-pVDZ ($n_{\mathrm{min}}=7$, $n_{\mathrm{occ}}=5$, $n_{\mathrm{val\,vir}}=2$):
 
-- $\lVert\mathbf{F}^{\mathrm{IAO}}_{ov}\rVert_F = 5.2 \times 10^{-8}$ (machine precision)
-- $\lVert(\mathbf{C}^{\mathrm{occ}})^{T} \mathbf{C}^{\mathrm{vir}}\rVert_F = 0.0$ (exact, since
+- $\Vert\mathbf{F}^{\mathrm{IAO}}_{ov}\Vert_F = 5.2 \times 10^{-8}$ (machine precision)
+- $\Vert(\mathbf{C}^{\mathrm{occ}})^{T} \mathbf{C}^{\mathrm{vir}}\Vert_F = 0.0$ (exact, since
   canonical MOs are orthonormal)
 
 Both are zero to within numerical noise, confirming the mathematical
