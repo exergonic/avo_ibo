@@ -742,6 +742,81 @@ applied for robustness.
 
 ---
 
+## 17. Distributing the Environment with pixi-pack
+
+[`pixi-pack`](https://github.com/quantco/pixi-pack) bundles a pixi environment
+into a self-extracting archive.  Users on a clean machine run a single script
+and get the full computation environment — no pixi, no conda, no Python install
+required.
+
+### Building the pack
+
+Install pixi-pack (once):
+
+```powershell
+pixi global install pixi-pack pixi-unpack
+```
+
+From the project directory, create the self-extracting executable:
+
+```powershell
+pixi-pack --create-executable
+```
+
+This reads the lockfile, downloads all conda packages, and produces
+`environment.ps1` (~500 MB).  The pack contains Psi4, numpy, scipy, pytest,
+ruff — everything declared in `[tool.pixi.dependencies]`.
+
+> **Note:** The `avo_ibo` package itself is installed via `pip install -e .`
+> and is **not** included in the pack (it is not a conda package).  It is
+> tiny (~100 KB) and added separately.
+
+### What the user sees
+
+The self-extracting script produces three items:
+
+| File / Dir | Size | Purpose |
+|------------|------|---------|
+| `environment.ps1` | 500 MB | Self-extracting archive (run once) |
+| `env/` | 1.9 GB | The extracted conda environment |
+| `activate.bat` | — | Activates the environment (sets PATH, CONDA_PREFIX) |
+
+### End-to-end workflow on a clean machine
+
+```powershell
+# 1. Extract the Psi4 environment (~2 min)
+.\environment.ps1
+
+# 2. Activate it
+.\activate.bat
+
+# 3. Install the thin plugin layer (once avo_ibo is on PyPI)
+pip install avogadro-ibo
+
+# 4. Run a calculation
+python -m avogadro_ibo molecule.xyz
+```
+
+The environment at `env/` contains a complete Python 3.14 + Psi4 installation.
+After activation, all standard Python and conda commands work:
+
+- `python -c "import psi4; print(psi4.__version__)"`
+- `pip list` shows all installed packages
+- `pytest tests/` runs the test suite (if included)
+
+### Rebuilding for updates
+
+When the lockfile changes (new dependencies, updated versions):
+
+```powershell
+pixi install --locked     # recreate env from lockfile
+pixi-pack --create-executable
+```
+
+The new `environment.ps1` is a drop-in replacement — users just re-run it.
+
+---
+
 ## Summary of Gotchas
 
 | # | Gotcha | Symptom | Fix |
@@ -758,3 +833,4 @@ applied for robustness.
 | 10 | Psi4 Molden with spherical harmonics | Orbitals load but are chemically wrong in Avogadro | Use `puream=0` (Cartesian) |
 | 11 | [MO] entries < [GTO] basis count | Extra MO slots show junk noise in Avogadro | Pad [MO] with zero-energy dummies up to n_AO ([#2890](https://github.com/OpenChemistry/avogadrolibs/issues/2890)) |
 | 12 | GitHub MathJax `$$` + `\Vert` + `<` | "Missing close brace" error on `mathematics.md` display math | ` ```math ```` code block + `\lVert`/`\rVert` + `\lt` (§16) |
+| 13 | pip-installed packages missing from pixi-pack | `avo_ibo` not available after unpacking | `pixi-pack` reads the lockfile, not site-packages; install plugin separately with `pip install avogadro-ibo` (§17) |
