@@ -29,3 +29,7 @@ CONTINUITY.md
 
 # Editor/IDE files
 .vscode/
+
+# Reference schemas (kept locally, not published)
+cjson.scheme
+PLUGIN-SPEC.md

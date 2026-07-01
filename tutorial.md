@@ -3,7 +3,7 @@
 Everything we learned building a working Psi4 IAO/IBO plugin for Avogadro 2
 on Windows. This guide covers the gotchas that aren't in any single doc.
 
-See [`MATHEMATICS.md`](MATHEMATICS.md) for the full mathematical derivation
+See [`mathematics.md`](mathematics.md) for the full mathematical derivation
 of the IAO/IBO pipeline, and [`README.md`](README.md) for usage.
 
 ---
@@ -50,8 +50,8 @@ my_plugin/
 ├── pixi.toml               # pixi environment (optional if using bundled pixi)
 ├── pixi.lock               # lock file (v6!)
 ├── README.md               # project overview
-├── TUTORIAL.md             # this tutorial
-├── MATHEMATICS.md          # mathematical derivation
+├── tutorial.md             # this tutorial
+├── mathematics.md          # mathematical derivation
 ├── AGENTS.md               # session context for LLMs
 ├── calcs/
 │   └── last/               # per-run artifacts
@@ -590,8 +590,8 @@ def test_energy(cjson, options, charge, spin):
 To give an LLM full context for continuing work on this plugin, share
 **these files**:
 
-1. **`TUTORIAL.md`** — explains the architecture and gotchas.
-2. **`MATHEMATICS.md`** — full mathematical derivation with paper references.
+1. **`tutorial.md`** — explains the architecture and gotchas.
+2. **`mathematics.md`** — full mathematical derivation with paper references.
 3. **`AGENTS.md`** — session context: current status, pending items,
    key decisions, gotchas hit.
 
@@ -618,13 +618,13 @@ Briefly: what are we building?
 - #2: ...
 
 ## Relevant Files
-- MATHEMATICS.md — mathematical derivation
+- mathematics.md — mathematical derivation
 - README.md — usage
-- TUTORIAL.md — architecture and gotchas
+- tutorial.md — architecture and gotchas
 ```
 
 When starting a new session, present `AGENTS.md` + relevant snippets
-from `TUTORIAL.md` and `MATHEMATICS.md` as context. The LLM will be up
+from `tutorial.md` and `mathematics.md` as context. The LLM will be up
 to speed in one read.
 
 ---
