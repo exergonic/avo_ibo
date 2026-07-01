@@ -25,7 +25,9 @@ HF/DFT.
 
 ## 🚀 Quick Start
 
-Requires [pixi](https://pixi.sh).
+Requires [pixi](https://pixi.sh). 
+
+If you are using the Avogadro plugin, the pixi bundled with Avogadro is already on your PATH.
 
 ```powershell
 git clone https://github.com/exergonic/avo_ibo.git
@@ -33,6 +35,14 @@ cd avo_ibo
 pixi install
 pixi run python -m pip install -e .
 ```
+If pixi complains of `no module named pip`, just install it with:
+```shell
+ pixi run python -m ensurepip
+```
+Pixi may warn that the lock file uses an older format (v6):
+>  WARN the lock file is up-to-date but uses an older format (v6), run `pixi lock` to upgrade to v7 for improved reproducibility
+This is safe to ignore. Avogadro's bundled pixi (v0.66.0) reads v6 lock files natively. If using a standalone pixi that upgraded the lock, run `pixi lock --no-update` to keep v6.
+
 
 ### 💻 Standalone CLI
 
@@ -43,6 +53,16 @@ pixi run python -m avogadro_ibo molecule.xyz
 Reads an XYZ file, runs the full IBO pipeline, writes to `calcs/last/`
 (ibo.molden, canonical.molden, ibos.txt, psi4.log).
 Neutral singlet only — for charged or open-shell systems use Avogadro or IboView.
+
+### ✅ Tests
+
+```powershell
+pixi run test
+```
+
+7 CLI integration tests against water, methane, ethene, and ammonia — validates
+IAO counts, Molden structure, occupancy partitioning, and per-molecule orbital
+patterns.
 
 ### 🧪 Avogadro 2 plugin
 
@@ -58,15 +78,6 @@ The computed IBOs appear in the **Molecular Orbitals** panel where you can
 double-click any orbital to toggle its isosurface.  All results are also
 saved to `calcs/last/` for reference.
 
-### ✅ Tests
-
-```powershell
-pixi run test
-```
-
-7 CLI integration tests against water, methane, ethene, and ammonia — validates
-IAO counts, Molden structure, occupancy partitioning, and per-molecule orbital
-patterns.
 
 ## 📚 Further Reading
 
