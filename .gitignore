@@ -31,6 +31,9 @@ CONTINUITY.md
 # Editor/IDE files
 .vscode/
 
+# Paper draft (tracked locally, not published to GitHub)
+paper/
+
 # Reference schemas (kept locally, not published)
 cjson.scheme
 PLUGIN-SPEC.md
