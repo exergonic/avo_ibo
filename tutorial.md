@@ -600,6 +600,12 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     path.write_text("".join(lines), encoding="utf-8")
 ```
 
+This padding works around an upstream bug: Avogadro allocates one MO
+display slot per [GTO] basis function rather than per [MO] entry,
+so files with fewer orbitals than basis functions show uninitialised
+noise in the extra slots.  Filed as
+[OpenChemistry/avogadrolibs #2890](https://github.com/OpenChemistry/avogadrolibs/issues/2890).
+
 Return in the JSON response:
 
 ```python
@@ -709,4 +715,4 @@ to speed in one read.
 | 8 | hatchling build backend | pixi can't install | Use `uv_build` |
 | 9 | Plugin not showing up in Avogadro | Wrong plugin directory | Use `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` |
 | 10 | Psi4 Molden with spherical harmonics | Orbitals load but are chemically wrong in Avogadro | Use `puream=0` (Cartesian) |
-| 11 | [MO] entries < [GTO] basis count | Extra MO slots show junk noise in Avogadro | Pad [MO] with zero-energy dummies up to n_AO |
+| 11 | [MO] entries < [GTO] basis count | Extra MO slots show junk noise in Avogadro | Pad [MO] with zero-energy dummies up to n_AO ([#2890](https://github.com/OpenChemistry/avogadrolibs/issues/2890)) |
