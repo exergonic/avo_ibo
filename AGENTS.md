@@ -126,7 +126,9 @@ interactive isosurface viewing with a full IAO-basis analysis table.
 17. **[MO] padding to match [GTO] slot count (2026-06-30)**: Avogadro
     allocates one MO slot per basis function in [GTO].  If [MO] has fewer
     entries, the extra slots show uninitialised noise.  Fix: pad [MO] with
-    zero-energy dummy orbitals up to n_AO total entries.
+    zero-energy dummy orbitals up to n_AO total entries.  (The real fix
+    would be in Avogadro's Molden reader — count [MO] entries, not [GTO]
+    functions — but the padding approach is robust for any Molden reader.)
 
 ## Relevant Files
 
