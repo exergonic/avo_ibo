@@ -34,6 +34,8 @@ interactive isosurface viewing with a full IAO-basis analysis table.
   diagonalises $\mathbf{F}^{\rm IAO}$ (spectral theorem ⇒ $\mathbf{F}^{\rm IAO}_{ov}=0$),
   making both overlap-based and Fock-based occ-vir analysis structurally
   impossible.  See `MATHEMATICS.md §9` for proof.
+- **Standalone CLI**: `python -m avogadro_ibo <file.xyz>` computes IBOs from an XYZ
+  file without Avogadro, writing results to `calcs/last/`.
 - Signal discipline: all debug output before final `print(json.dumps(...))`.
 
 ### Tested Molecules (hf/cc-pVDZ)
@@ -54,7 +56,7 @@ interactive isosurface viewing with a full IAO-basis analysis table.
 |----------|--------|-----------|
 | Build backend | `uv_build>=0.10.2,<0.11.0` | Avogadro-bundled pixi v0.66.0 doesn't support hatchling |
 | Lock file version | v6 | Bundled pixi v0.66.0 can't read v7 |
-| Package install | `pip install -e .` (manual, not `[tool.pixi.pypi-dependencies]`) | pypi-dependencies requires lock v7 |
+| Package install | `pixi install` + `pip install -e .` (manual, not `[tool.pixi.pypi-dependencies]`) | pypi-dependencies requires lock v7 |
 | Plugin discovery | Symlink in `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` | Avogadro scans this directory |
 | Psi4 integration | In-process (`import psi4` in compute function) | Simpler, faster, better error handling than subprocess |
 | SCF basis (default) | cc-pVDZ, `puream=0` (Cartesian) | Better wavefunction than def2-SVP for IBO isosurfaces |
@@ -146,6 +148,7 @@ interactive isosurface viewing with a full IAO-basis analysis table.
   - `compute_ibo()` — top-level: Psi4 run, IAO build, occ+vir PM localize, on-atom
     Fock resolve, Fock energies, Molden write, analysis table
 - `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\links.py` — `open_calcs_dir()` (Explorer)
+- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\__main__.py` — standalone CLI entry (`python -m avogadro_ibo <file.xyz>`)
 - `C:\Users\mccan\Documents\Code\avo_ibo\MATHEMATICS.md` — full mathematical derivation with 2013 paper references
 - `C:\Users\mccan\Documents\Code\avo_ibo\TUTORIAL.md` — Avogadro 2 plugin architecture and gotchas
 - `C:\Users\mccan\Documents\Code\avo_ibo\calcs\last\` — Runtime artifacts

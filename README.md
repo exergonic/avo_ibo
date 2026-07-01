@@ -1,7 +1,7 @@
 # avogadro-ibo
 
-Avogadro 2 plugin for computing and visualizing Intrinsic Bond Orbitals (IBOs)
-using [Psi4](https://psicode.org).
+Avogadro 2 plugin (and standalone CLI) for computing and visualizing Intrinsic
+Bond Orbitals (IBOs) using [Psi4](https://psicode.org).
 
 IBOs (Knizia, *J. Chem. Theory Comput.* **2013**, *9*, 4834) provide a chemically
 intuitive picture of bonding by localizing occupied molecular orbitals onto
@@ -64,15 +64,31 @@ Combine, sort by energy → Molden output → analysis table
 
 ## Installation
 
-```bash
-cd avo_ibo
+All paths require [pixi](https://pixi.sh).  From the repo root:
+
+```powershell
+# Step 1: install dependencies (psi4, numpy) via pixi
+pixi install
+
+# Step 2: install the package as editable (creates entry points)
 pixi run pip install -e .
 ```
 
-Then the plugin will appear under **Extensions → Intrinsic Bond Orbitals →
-Compute IBOs** in Avogadro 2.
+### Usage as standalone CLI
 
-### Plugin directory
+```powershell
+pixi run python -m avogadro_ibo molecule.xyz
+```
+
+Reads an XYZ file, runs the full IBO pipeline, and writes results to
+`calcs/last/` (ibo.molden, canonical.molden, ibos.txt, psi4.log).
+Neutral singlet only — for charged or open-shell systems use
+Avogadro or IboView.
+
+### Usage as Avogadro 2 plugin
+
+The plugin will appear under **Extensions → Intrinsic Bond Orbitals →
+Compute IBOs** in Avogadro 2, provided that Avogadro can discover it.
 
 Avogadro 2 scans `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` for
 Python script plugins.  Create a symlink:
@@ -81,8 +97,6 @@ Python script plugins.  Create a symlink:
 New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" `
   -Target "C:\path\to\avo_ibo"
 ```
-
-## Usage
 
 1. Open a molecule in Avogadro 2.
 2. **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.

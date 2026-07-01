@@ -77,6 +77,14 @@ containing those chars before JSON breaks parsing.
 **Imports**: `numpy`, `scipy.linalg`, `psi4`, `logging`, `tempfile`,
 `pathlib.Path`.
 
+### `src/avogadro_ibo/__main__.py` (36 lines)
+**Standalone CLI entry.**  Usage: `python -m avogadro_ibo <file.xyz>`
+Reads an XYZ file, builds CJSON, calls `compute_ibo()` with charge=0, spin=1.
+| Function | Lines | Purpose |
+|----------|-------|---------|
+| `_parse_xyz(path)` | 10–18 | Parse XYZ → `(coords, atom_numbers)` |
+| `main()` | 20–32 | CLI dispatch, redirect to `compute_ibo` |
+
 ### `src/avogadro_ibo/links.py` (23 lines)
 | Function | Lines | Purpose |
 |----------|-------|---------|
@@ -160,8 +168,11 @@ JSON response to Avogadro: { molden, cjson, message, readProperties, moleculeFor
 ### Prerequisites
 
 ```powershell
+# Step 1: install dependencies (psi4, numpy) via pixi (scipy comes as transitive dep)
+pixi install
+
+# Step 2: install the package as editable (creates .exe entry point)
 pixi run pip install -e .
-# Creates .pixi\envs\default\Scripts\avogadro-ibo.exe
 ```
 
 ### Test all molecules
@@ -281,6 +292,9 @@ No need to reinstall pixi environment unless dependencies change.
 ```powershell
 # Run the plugin as Avogadro would
 pixi run --as-is avogadro-ibo ibo < debug_log\input.json
+
+# Standalone CLI from an XYZ file (neutral singlet)
+pixi run python -m avogadro_ibo molecule.xyz
 
 # Quick energy + Molden check
 pixi run python -c "from avogadro_ibo.calcs import compute_ibo; ..."
