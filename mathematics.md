@@ -206,21 +206,27 @@ Here $n_A(i)$ is the Mulliken population of orbital $i$ on atom $A$,
 computed directly from the squared IAO coefficients (the IAO basis is
 orthonormal).
 
-### 4.1 Random symmetry breaking
+### 4.1 Initial guess: canonical MOs (no symmetry breaking)
 
-A random orthogonal matrix $\mathbf{U}$ (QR decomposition of a matrix of
-standard normal variates) is applied to the occupied block *before*
-localisation:
+The occupied block $\mathbf{C}^{\mathrm{IAO},occ}$ is the identity in
+IAO space — it already diagonalises $\mathbf{F}^{\mathrm{IAO}}$ and
+provides a unique, deterministic starting point.  **No random
+perturbation is applied before localisation.**
 
-$$
-\mathbf{C}^{\mathrm{IAO},occ} \leftarrow
-   \mathbf{C}^{\mathrm{IAO},occ} \mathbf{U}.
-$$
+IboView applies an 18° Cayley rotation (`RotateVectorsRandomly`) to
+break accidental near-degeneracies, but in our testing this **increased**
+the benzene C-H σ split from $2\times10^{-5}$ Ha to $1.2\times10^{-4}$ Ha
+(Gotcha 20 in AGENTS.md).  The symmetric converged solution is the
+nearest local maximum for the fixed sequential sweep order
+($i=1..n_\mathrm{occ}, j&lt;i$) — no perturbation improves it.
 
-This breaks any accidental near-degeneracies that could trap the
-Jacobi sweep in a shallow local minimum.
+All PAO-like methods that use the PM functional on an orthogonal
+minimal basis converge to the same nearest local maximum without
+symmetry breaking, as long as the sweep order is fixed and
+reproducible.  The line-reference at the bottom of this section
+is therefore a stub; the actual localisation code begins at §4.2.
 
-`calcs.py:140–142`
+`calcs.py:147–148`
 
 ### 4.2 p=2 warm-start
 
@@ -242,7 +248,7 @@ $$
 
 where $n_{ij}(A) = \sum_{\alpha\in A} C^{\mathrm{IAO},occ}_{\alpha i} C^{\mathrm{IAO},occ}_{\alpha j}$.
 
-`calcs.py:163–174`
+`calcs.py:175–186`
 
 ### 4.3 p=4 refine ($L$ from Eq. 4)
 
@@ -266,20 +272,31 @@ $$
 The angle is $\frac{1}{4}$ (not $\frac{1}{2}$) because the leading
 power in the trigonometric expansion is $4\theta$.
 
-`calcs.py:176–189`
+`calcs.py:187–205`
 
 ### 4.4 Jacobi sweep algorithm
 
 For each sweep:
-1. Loop over all unique orbital pairs $(i, j)$.
+1. Loop over all unique orbital pairs $(i, j)$ in **fixed sequential
+   order**: for $i = 1 \ldots n_\mathrm{occ}$, for $j = 0 \ldots i-1$.
 2. For each pair, compute the $2\times2$ rotation angle $\phi$ that
-   maximises $L$.
+   maximises $L$ using the current exponent $p$ (Eq. 5 for $p=2$,
+   Eq. 6 for $p=4$).
 3. Apply the rotation to columns $i$ and $j$ of
    $\mathbf{C}^{\mathrm{IAO},occ}$.
 4. Track the gradient norm $\Vert\nabla L\Vert$; stop when it falls below
    $10^{-12}$ (IboView default).
 
-`calcs.py:148–207`
+The fixed sequential sweep order is essential for reproducibility.
+Because each sweep revisits pairs in the same order, the algorithm
+converges to the nearest local maximum of $L$ — which for symmetric
+molecules (e.g. benzene) is the symmetric solution.  Randomising the
+pair order (or applying an initial perturbation, §4.1) does not
+improve the energy degeneracy of symmetry-equivalent bonds; it
+merely changes which nearby local maximum is selected, typically
+producing a worse (less symmetric) result.
+
+`calcs.py:159–226`
 
 ### 4.5 Convergence criterion
 
@@ -292,7 +309,7 @@ After each sweep the gradient norm is:
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
 $\Vert\nabla L\Vert < 10^{-12}$ or 2048 sweeps are reached.
 
-`calcs.py:202–206`
+`calcs.py:218–224`
 
 ---
 
@@ -318,7 +335,7 @@ If $\delta_i > 0.99$, the orbital is essentially mono-atomic.
 Orbitals sharing the same dominant atom $A$ and meeting this threshold
 form a group.
 
-`calcs.py:239–245`
+`calcs.py:256–263`
 
 ### 5.2 Fock diagonalisation
 

@@ -107,48 +107,56 @@ def _build_iao_basis(S, S12, S_min, C_occ):
 # Pipek-Mezey localisation in the IAO basis   (eq 4 and Appendix D)
 # ---------------------------------------------------------------------------
 
-def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12):
+def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12,
+                   exponents=(2, 4), cayley_deg=0.0, seed=42):
     """
     Localise the occupied orbitals in the IAO basis by maximising
 
-        L = sum_A sum_i  [n_A(i)]^4
+        L = sum_A sum_i  [n_A(i)]^p
 
     where n_A(i) = sum_{mu in A} C(mu,i)^2 is the electron population of
-    orbital i on atom A (in the orthonormal IAO basis).
+    orbital i on atom A (in the orthonormal IAO basis) and p is the PM
+    exponent.
 
-    This is the IBO functional of Knizia JCTC 2013 with exponent p=4.
     The procedure follows the standard Pipek-Mezey Jacobi sweep
     (Appendix D of the paper), but in the IAO basis.
 
-    To avoid local minima in the p=4 functional when the IAO basis
-    differs from the SCF basis (e.g. STO-3G IAOs but def2-SVP SCF),
-    the p=2 functional (convex, no local minima) is run first as a
-    warm-start, then p=4 refines.
-
     Parameters
     ----------
-    C_occ   : (n_IAO, n_occ)  occupied coefficients in IAO basis
-              (modified in place)
+    C_occ   : (n_IAO, n_occ)  coefficients in IAO basis (modified in place)
     atom_of : (n_IAO,)         atom index for each IAO basis function
     max_iter: int              maximum sweeps per functional
     conv    : float            gradient-norm convergence threshold
+    exponents: tuple of PM exponents to apply sequentially.
+              (2,)  matches IboView GUI default (p=2 only).
+              (2, 4)  adds p=4 refinement (default; sharper convergence
+                      for bond-direction p-vector alignment).
+    cayley_deg: float          Cayley random rotation angle in degrees
+              (IboView: 18°).  Set to 0 (default) to skip — the fixed
+              sequential sweep order starting from canonical MOs gives
+              the best energy degeneracy for symmetric molecules.
+    seed    : int              RNG seed (only used if cayley_deg > 0).
 
     Returns
     -------
-    n_sweeps : total sweeps performed (p=2 warmup + p=4 refine)
+    n_sweeps : total sweeps performed
     """
     n_IAO, n_occ = C_occ.shape
     n_atoms = int(np.max(atom_of)) + 1
 
-    # --- Random perturbation to break symmetry (IboView uses 18 deg) ---
-    rng = np.random.default_rng()
-    U, _ = np.linalg.qr(rng.normal(0, 1, (n_occ, n_occ)))
-    C_occ[:] = C_occ @ U
+    # Cayley random rotation (IboView's RotateVectorsRandomly)
+    if cayley_deg > 0:
+        rng = np.random.default_rng(seed)
+        sigma = cayley_deg * np.pi / 180.0
+        A = rng.normal(0, sigma, (n_occ, n_occ))
+        A = (A - A.T) / 2  # anti-symmetric
+        U = np.linalg.solve(np.eye(n_occ) - 0.5 * A,
+                            np.eye(n_occ) + 0.5 * A)
+        C_occ[:] = C_occ @ U
 
     total_sweeps = 0
 
-    for exponent, inv_p in ((2, 0.5), (4, 0.25)):
-        # Run p=exponent localisation (p=2 warmup, then p=4 refine)
+    for exponent in exponents:
         for _ in range(max_iter):
             grad_norm = 0.0
 
@@ -176,7 +184,7 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12):
                             continue
                         phi = 0.5 * np.arctan2(Bij, -Aij)
                         grad_term = 2.0
-                    else:
+                    elif exponent == 4:
                         # Pipek-Mezey p=4 (eq 4).  The published Appendix D
                         # 2x2 update formulas contain a production error
                         # (confirmed by Knizia at https://sites.psu.edu/knizia/software/).
@@ -195,6 +203,8 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12):
                             continue
                         phi = 0.25 * np.arctan2(Bij, -Aij)
                         grad_term = 4.0
+                    else:
+                        raise ValueError(f"Unsupported PM exponent: {exponent}")
 
                     cs = np.cos(phi)
                     sn = np.sin(phi)
@@ -369,9 +379,10 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
 
-        s_pct = s_char * 100.0
-        p_pct = p_char * 100.0
-        d_pct = d_char * 100.0
+        pA = pop[top_A]
+        s_pct = (s_char / pA * 100.0) if pA > 0 else 0.0
+        p_pct = (p_char / pA * 100.0) if pA > 0 else 0.0
+        d_pct = (d_char / pA * 100.0) if pA > 0 else 0.0
         hybrid = ""
         if s_pct > 1 or p_pct > 1 or d_pct > 1:
             hybrid = f"{s_pct:.0f}% s + {p_pct:.0f}% p + {d_pct:.0f}% d"
@@ -491,7 +502,6 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         logging.getLogger(_name).setLevel(logging.WARNING)
 
     import psi4
-    import numpy as np
 
     psi4.set_output_file(str(TEMP_DIR / "psi4.log"), append=True)
 

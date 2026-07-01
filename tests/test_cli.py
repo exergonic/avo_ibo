@@ -22,6 +22,7 @@ MOLECULES = [
     ("methane.xyz", "methane", 35, 9, 5, 4),
     ("ethene.xyz", "ethene", 50, 14, 8, 6),
     ("ammonia.xyz", "ammonia", 30, 8, 5, 3),
+    ("benzene.xyz", "benzene", 120, 36, 21, 15),
 ]
 
 
@@ -141,3 +142,42 @@ def test_ammonia_lp():
 
     lps = [o for o in occ if o["dom"] > 0.99 and o["ene"] > -10]
     assert len(lps) == 1, f"Expected 1 N LP, got {len(lps)}"
+
+
+def test_benzene_symmetry():
+    """
+    Benzene: all 6 C-H sigma bonds have essentially degenerate energies.
+
+    The PM functional cannot resolve intra-atom p-orbital alignment for
+    symmetry-equivalent bonds (a known limitation — see Knizia JCTC 2013,
+    ibo-ref.py, and mathematics.md).  The split is < 1e-4 Ha.
+    """
+    xyz_path = FILES_DIR / "benzene.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=300,
+    )
+    assert result.returncode == 0
+
+    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
+    assert len(occ) == 21, f"Expected 21 occupied IBOs, got {len(occ)}"
+
+    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    ch_energies = []
+    for line in text.splitlines():
+        s = line.strip()
+        if not s or not s[0].isdigit():
+            continue
+        if "C-H sigma" not in line:
+            continue
+        cols = line.split()
+        ch_energies.append(float(cols[2]))
+
+    assert len(ch_energies) == 6, f"Expected 6 C-H sigma, got {len(ch_energies)}"
+
+    emax = max(ch_energies)
+    emin = min(ch_energies)
+    assert (emax - emin) < 1e-4, (
+        f"C-H sigma energies split by {emax - emin:.6f} Ha (limit < 1e-4)"
+    )

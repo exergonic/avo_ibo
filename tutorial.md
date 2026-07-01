@@ -66,7 +66,7 @@ The bundled pixi path is `C:\Program Files\Avogadro2\bin\pixi.exe`.
    restoring the aufbau ordering (s-rich lowest, p-rich highest).
 6. **Valence-virtual IAOs** are constructed via SVD of `C_IAO^T @ S @ C_vir`
    (IboView `MakeValenceVirtuals`), keeping singular values > 1e-8, then
-   localized with the same PM p=4 procedure.  This gives clean anti-bond
+    localized with the same PM p=2→p=4 procedure (warm-start).  This gives clean anti-bond
    σ\* and π\* orbitals for visualisation.
 7. Orbital energies are computed as ε_i = C_i^T @ F_AO @ C_i (Fock-matrix
    diagonal elements in the AO basis), matching IboView's
