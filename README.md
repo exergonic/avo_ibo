@@ -68,6 +68,15 @@ Pixi may warn that the lock file uses an older format (v6):
 
 This is safe to ignore. Avogadro's bundled pixi (v0.66.0) reads v6 lock files natively. If using a standalone pixi that upgraded the lock, run `pixi lock --no-update` to keep v6.
 
+### ✅ Tests
+
+```powershell
+pixi run test
+```
+
+7 CLI integration tests against water, methane, ethene, and ammonia — validates
+IAO counts, Molden structure, occupancy partitioning, and per-molecule orbital
+patterns.
 
 ### 💻 Standalone CLI
 
@@ -78,16 +87,6 @@ pixi run python -m avogadro_ibo molecule.xyz
 Reads an XYZ file, runs the full IBO pipeline, writes to `calcs/last/`
 (ibo.molden, canonical.molden, ibos.txt, psi4.log).
 Neutral singlet only — for charged or open-shell systems use Avogadro or IboView.
-
-### ✅ Tests
-
-```powershell
-pixi run test
-```
-
-7 CLI integration tests against water, methane, ethene, and ammonia — validates
-IAO counts, Molden structure, occupancy partitioning, and per-molecule orbital
-patterns.
 
 ### 🧪 Avogadro 2 plugin
 
@@ -117,9 +116,7 @@ That's it. Run a calculation with:
 ```powershell
 python -m avogadro_ibo molecule.xyz
 ```
-
-The Avogadro plugin symlink still works the same way; Avogadro calls the
-`avogadro-ibo` entry point under the hood.
+Output files are stored in in the `.\calcs\last\` directory.
 
 ## 📋 Scope and Limitations
 
