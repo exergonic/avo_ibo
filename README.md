@@ -106,6 +106,14 @@ New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\
 6. **Extensions → Intrinsic Bond Orbitals → Go to files …** opens the
    `calcs/` directory in Explorer.
 
+### Tests
+
+```powershell
+pixi run test
+```
+
+Runs a CLI integration suite against `tests/files/` (water, methane, ethene, ammonia). Validates: correct number of IAOs, Molden entry count matches n_AO, occupancy partitioning (occ/vir), on-atom degeneracy resolution (water), C-H sigma degeneracy (methane), and lone pair detection (ammonia). Tests call the CLI as a black box — no production code modified for testability.
+
 ### Options
 
 The `options` dict passed from Avogadro (or via stdin) can contain:

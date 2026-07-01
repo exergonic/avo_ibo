@@ -18,8 +18,12 @@ platforms = ["win-64"]
 
 [tool.pixi.dependencies]
 psi4 = ">=1.10.2,<2"
+pytest = ">=8.3.3"
+ruff = ">=0.7.2"
 
 [tool.pixi.tasks]
+test = { cmd = "pytest tests/ -v", depends-on = ["_install"] }
+_install = "python -m pip install -e ."
 
 [tool.avogadro]
 minimum-avogadro-version = "1.103"

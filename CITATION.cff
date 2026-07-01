@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software in your work, please cite it."
+authors:
+  - family-names: McCann
+    given-names: Billy Wayne
+    email: thebillywayne@gmail.com
+title: "avo_ibo: Intrinsic Bond Orbital plugin for Avogadro 2"
+version: 0.1.0
+date-released: 2026-06-30
+license: BSD-3-Clause
+repository-code: "https://github.com/<username>/avo_ibo"
+keywords:
+  - intrinsic-bond-orbitals
+  - iao
+  - ibo
+  - avogadro
+  - psi4
+  - computational-chemistry

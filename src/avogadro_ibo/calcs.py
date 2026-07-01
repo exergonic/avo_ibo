@@ -1,6 +1,10 @@
 """
 IAO/IBO construction and Pipek-Mezey localization for Avogadro 2.
 
+BSD 3-Clause License
+Copyright (c) 2025-2026, Billy Wayne McCann
+SPDX-License-Identifier: BSD-3-Clause
+
 References:
   G. Knizia, JCTC 2013, 9, 4834-4843.  DOI: 10.1021/ct400687b
   ("Intrinsic Atomic Orbitals: An Unbiased Bridge between Quantum
