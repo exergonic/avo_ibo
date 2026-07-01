@@ -20,8 +20,9 @@ _test_*.py
 # Build artifacts
 *.egg-info/
 
-# calcs/ folder
-calcs/
+# calcs/ runtime artifacts (but keep .gitkeep so directory ships with repo)
+calcs/last/*
+!calcs/last/.gitkeep
 
 # Local development notes (LLM context, not for publishing)
 AGENTS.md
