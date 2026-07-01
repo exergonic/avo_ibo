@@ -72,6 +72,7 @@ patterns.
 
 - [`mathematics.md`](mathematics.md) — full derivation of the IAO/IBO pipeline
 - [`tutorial.md`](tutorial.md) — architecture, algorithm walkthrough, and gotchas
+- [Why no donor-acceptor analysis?](https://github.com/exergonic/avo_ibo/blob/master/mathematics.md#9-why-occ-vir-delocalization-analysis-is-impossible-in-the-iao-basis) — IAO exactness makes F_ov = 0 by spectral theorem, killing NBO-style E(2) analysis
 
 ## ⚖️ License
 
