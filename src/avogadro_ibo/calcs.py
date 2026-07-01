@@ -177,7 +177,11 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12):
                         phi = 0.5 * np.arctan2(Bij, -Aij)
                         grad_term = 2.0
                     else:
-                        # Pipek-Mezey p=4 (eq 4 / Appendix D)
+                        # Pipek-Mezey p=4 (eq 4).  The published Appendix D
+                        # 2x2 update formulas contain a production error
+                        # (confirmed by Knizia at https://sites.psu.edu/knizia/software/).
+                        # These formulas match the corrected reference
+                        # implementation (ibo-ref).
                         Aij = 0.0
                         Bij = 0.0
                         for A in range(n_atoms):
