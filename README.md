@@ -44,23 +44,6 @@ Pixi may warn that the lock file uses an older format (v6):
 
 This is safe to ignore. Avogadro's bundled pixi (v0.66.0) reads v6 lock files natively. If using a standalone pixi that upgraded the lock, run `pixi lock --no-update` to keep v6.
 
-### 🐍 pip (no pixi)
-
-```powershell
-pip install git+https://github.com/exergonic/avo_ibo.git
-```
-
-> **Note:** Psi4 is not on PyPI — install it via `conda install psi4`.
-> This pulls in `numpy` (also required by `avogadro_ibo`) as a transitive dependency.
-
-That's it. Run a calculation with:
-
-```powershell
-python -m avogadro_ibo molecule.xyz
-```
-
-The Avogadro plugin symlink still works the same way; Avogadro calls the
-`avogadro-ibo` entry point under the hood.
 
 ### 💻 Standalone CLI
 
@@ -96,6 +79,23 @@ The computed IBOs appear in the **Molecular Orbitals** panel where you can
 double-click any orbital to toggle its isosurface.  All results are also
 saved to `calcs/last/` for reference.
 
+### 🐍 pip (no pixi)
+
+```powershell
+pip install git+https://github.com/exergonic/avo_ibo.git
+```
+
+> **Note:** Psi4 is not on PyPI — install it via `conda install psi4`.
+> This pulls in `numpy` (also required by `avogadro_ibo`) as a transitive dependency.
+
+That's it. Run a calculation with:
+
+```powershell
+python -m avogadro_ibo molecule.xyz
+```
+
+The Avogadro plugin symlink still works the same way; Avogadro calls the
+`avogadro-ibo` entry point under the hood.
 
 ## 📚 Further Reading
 
