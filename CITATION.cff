@@ -8,7 +8,7 @@ title: "avo_ibo: Intrinsic Bond Orbital plugin for Avogadro 2"
 version: 0.1.0
 date-released: 2026-06-30
 license: BSD-3-Clause
-repository-code: "https://github.com/<username>/avo_ibo"
+repository-code: "https://github.com/exergonic/avo_ibo"
 keywords:
   - intrinsic-bond-orbitals
   - iao
