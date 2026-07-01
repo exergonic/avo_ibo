@@ -128,8 +128,8 @@ The Avogadro plugin symlink still works the same way; Avogadro calls the
 - Tested for small to medium-sized systems (up to ~50 atoms) with standard quantum chemistry basis sets.
 
 **Method and basis support:**
-- Hartree-Fock and DFT (B3LYP, PBE, ωB97X, etc.).
-- Common basis sets: cc-pVDZ, cc-pVTZ, def2-SVP, def2-TZVP, 6-31G\*, etc.
+- Hartree-Fock and DFT (B3LYP, PBE, ωB97X, etc.). [not yet implemented]
+- Common basis sets: cc-pVDZ, cc-pVTZ, def2-SVP, def2-TZVP, 6-31G\*, etc. [not yet implemented]
 - Requires STO-3G availability for minimal-basis IAO construction.
 
 **Known limitations:**
@@ -145,7 +145,7 @@ The Avogadro plugin symlink still works the same way; Avogadro calls the
 
 ## 🔗 See Also
 
-- **[IboView](https://www.math.uni-bonn.de/knizia/ibo/)** — Gerhard Knizia's reference IBO implementation (standalone tool with its own workflow).
+- **[IboView](http://www.iboview.org/)** — Gerhard Knizia's reference IBO implementation (standalone tool with its own workflow).
 - **[NBO 7.0](https://nbo7.chem.wisc.edu/)** — Natural Bond Orbital analysis for alternative localization schemes and donor-acceptor energetics.
 - **[Avogadro 2](https://avogadro.cc)** — Molecular editor and visualization framework.
 - **[Psi4](https://psicode.org)** — Open-source quantum chemistry engine.
