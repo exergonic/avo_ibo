@@ -701,6 +701,45 @@ to speed in one read.
 
 ---
 
+## 16. GitHub MathJax Rendering
+
+`mathematics.md` uses MathJax v3 to render LaTeX display math on GitHub.
+GitHub's pipeline has two independent failure modes for display math:
+
+### 16.1 Markdown preprocessor brace mangling
+
+GitHub runs a Markdown preprocessor *before* MathJax that [mangles LaTeX
+inside `$$...$$` blocks](https://stackoverflow.com/a/77726873) (confirmed
+by MathJax core dev Davide Cervone).  The preprocessor tries to protect
+special characters (`_`, `{`, `}`, `\`) but its algorithm is buggy and
+can corrupt braces, causing MathJax's "Missing close brace" error.
+
+**Fix**: use ` ```math ```` code block syntax instead of `$$...$$`.
+The code block bypasses the Markdown preprocessor entirely.
+
+### 16.2 MathJax `\Vert` + `<` parsing error
+
+Even inside a ` ```math ```` code block, the combination of `\Vert` and bare
+`<` (in `\sum_{i<j}`) triggers a "Missing close brace" error in MathJax v3
+itself (or GitHub's specific MathJax configuration).  The equation
+
+```math
+\Vert\nabla L\Vert = \frac{1}{n_{\mathrm{occ}}} \sqrt{\sum_{i<j} \bigl(p \,\phi_{ij}\, B_{ij}^{(p)}\bigr)^2}
+```
+
+produces the error even with ` ```math ```` isolation.
+
+**Fix**: use `\lVert`/`\rVert` instead of `\Vert`, and `\lt` instead of `<`:
+
+```math
+\lVert\nabla L\rVert = \frac{1}{n_{\mathrm{occ}}} \sqrt{\sum_{i\lt j} \bigl(p \,\phi_{ij}\, B_{ij}^{(p)}\bigr)^2}
+```
+
+Both changes together are required; either alone may suffice but both are
+applied for robustness.
+
+---
+
 ## Summary of Gotchas
 
 | # | Gotcha | Symptom | Fix |
@@ -716,3 +755,4 @@ to speed in one read.
 | 9 | Plugin not showing up in Avogadro | Wrong plugin directory | Use `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` |
 | 10 | Psi4 Molden with spherical harmonics | Orbitals load but are chemically wrong in Avogadro | Use `puream=0` (Cartesian) |
 | 11 | [MO] entries < [GTO] basis count | Extra MO slots show junk noise in Avogadro | Pad [MO] with zero-energy dummies up to n_AO ([#2890](https://github.com/OpenChemistry/avogadrolibs/issues/2890)) |
+| 12 | GitHub MathJax `$$` + `\Vert` + `<` | "Missing close brace" error on `mathematics.md` display math | ` ```math ```` code block + `\lVert`/`\rVert` + `\lt` (§16) |
