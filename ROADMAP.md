@@ -22,6 +22,7 @@ See [#5](https://github.com/exergonic/avo_ibo/issues/5),
 [#6](https://github.com/exergonic/avo_ibo/issues/6).
 
 ## Future
-IRC tracking, charged/open-shell systems.
+IRC tracking, charged/open-shell systems, Avogadro plugin registration.
 See [#7](https://github.com/exergonic/avo_ibo/issues/7),
-[#8](https://github.com/exergonic/avo_ibo/issues/8).
+[#8](https://github.com/exergonic/avo_ibo/issues/8),
+[#9](https://github.com/exergonic/avo_ibo/issues/9).
