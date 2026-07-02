@@ -441,11 +441,60 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     size, preventing uninitialised-slot noise.
     """
     import tempfile
+    import numpy as np
     tmp = path.with_suffix(".molden.tmp")
     psi4_molden = __import__("psi4").molden
     psi4_molden(wfn, str(tmp))
     text = tmp.read_text(encoding="utf-8")
     tmp.unlink()
+
+    # Build index permutation and re-scaling vector to convert Psi4 internal AO
+    # order to Molden standard.  Psi4's CCA convention uses unnormalized Cartesian
+    # Gaussians (off-diagonal d/f have self-overlap < 1); the Molden/Gaussian
+    # convention includes the angular normalization factor.  For each shell we
+    # apply both reordering and renormalisation.
+    #
+    # Psi4 Cartesian d:  xx, xy, xz, yy, yz, zz
+    # Molden standard d: xx, yy, zz, xy, xz, yz
+    # Off-diagonal d (xy, xz, yz) need 1/√3 scaling.
+    D_PERM = [0, 3, 5, 1, 2, 4]
+    D_NORM = [1.0, 1.0, 1.0, 1.0 / np.sqrt(3.0),
+              1.0 / np.sqrt(3.0), 1.0 / np.sqrt(3.0)]
+    #
+    # Psi4 Cartesian f:  xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz
+    # Molden standard f: xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
+    # Off-diagonal f (all but xxx/yyy/zzz) need 1/√(15) or 1/√(3) scaling
+    # depending on the triple-exponent pattern.
+    # (F-support included for forward-compatibility; cc-pVDZ does not have f.)
+    F_PERM = [0, 6, 9, 3, 1, 2, 5, 8, 7, 4]
+    F_NORM = [
+        1.0, 1.0, 1.0,                              # xxx, yyy, zzz (diag)
+        1.0 / np.sqrt(5.0),                          # xyy
+        1.0 / np.sqrt(5.0),                          # xxy
+        1.0 / np.sqrt(5.0),                          # xxz
+        1.0 / np.sqrt(5.0),                          # xzz
+        1.0 / np.sqrt(5.0),                          # yzz
+        1.0 / np.sqrt(5.0),                          # yyz
+        1.0 / np.sqrt(15.0),                         # xyz
+    ]
+
+    n_AO = C_AO.shape[0]
+    perm = np.arange(n_AO)
+    scale = np.ones(n_AO)
+    bas = wfn.basisset()
+    ao = 0
+    for sh in range(bas.nshell()):
+        am = bas.shell(sh).am
+        nf = bas.shell(sh).nfunction
+        if am == 2:
+            for i in range(6):
+                perm[ao + i] = ao + D_PERM[i]
+                scale[ao + i] = D_NORM[i]
+        elif am == 3:
+            for i in range(10):
+                perm[ao + i] = ao + F_PERM[i]
+                scale[ao + i] = F_NORM[i]
+        ao += nf
 
     # Keep everything before the [MO] section
     mo_tag = "[MO]"
@@ -454,7 +503,6 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
         raise RuntimeError("Psi4 Molden output has no [MO] section")
     header = text[:idx]
 
-    n_AO = C_AO.shape[0]
     lines = [header + "\n[MO]\n"]
 
     for i in range(n_orb):
@@ -462,8 +510,9 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
         oi = occ[i]
         lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n"
                      f" Occup= {oi:14.10f}\n")
+        coeffs = C_AO[perm, i] * scale
         for j in range(n_AO):
-            lines.append(f"  {j + 1:>4d}  {C_AO[j, i]:16.10f}\n")
+            lines.append(f"  {j + 1:>4d}  {coeffs[j]:16.10f}\n")
 
     # Pad with dummy orbitals so Avogadro's MO slot count matches [GTO]
     for i in range(n_orb, n_AO):

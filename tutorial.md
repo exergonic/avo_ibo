@@ -608,6 +608,60 @@ so files with fewer orbitals than basis functions show uninitialised
 noise in the extra slots.  Filed as
 [OpenChemistry/avogadrolibs #2890](https://github.com/OpenChemistry/avogadrolibs/issues/2890).
 
+### Cartesian d/f ordering in custom Molden writer
+
+Psi4 internally uses a CCA-convention Cartesian ordering that differs from
+the Molden/Gaussian convention.  `_write_iao_molden()` copies the [Atoms] and
+[GTO] headers from Psi4's own `psi4.molden()` (which are in Molden standard),
+so when writing [MO] coefficients for $L\ge2$ shells, the code must
+**reorder** and **renormalise** to match.
+
+**d-functions ($L=2$, 6 functions):**
+
+| Function | Psi4 index | Molden index |
+|----------|------------|--------------|
+| $xx$     | 0          | 0            |
+| $yy$     | 3          | 1            |
+| $zz$     | 5          | 2            |
+| $xy$     | 1          | 3            |
+| $xz$     | 2          | 4            |
+| $yz$     | 4          | 5            |
+
+Permutation: `D_PERM = [0, 3, 5, 1, 2, 4]`.
+
+**f-functions ($L=3$, 10 functions):**
+
+| Function | Psi4 index | Molden index |
+|----------|------------|--------------|
+| $xxx$    | 0          | 0            |
+| $yyy$    | 6          | 1            |
+| $zzz$    | 9          | 2            |
+| $xyy$    | 3          | 3            |
+| $xxy$    | 1          | 4            |
+| $xxz$    | 2          | 5            |
+| $xzz$    | 5          | 6            |
+| $yzz$    | 8          | 7            |
+| $yyz$    | 7          | 8            |
+| $xyz$    | 4          | 9            |
+
+Permutation: `F_PERM = [0, 6, 9, 3, 1, 2, 5, 8, 7, 4]`.
+
+Psi4's CCA convention also omits the angular normalisation factor for
+Cartesian Gaussians with multiple non-zero exponents.  The self-overlap of
+$xy$ is $1/3$ that of $xx$, not $1$ as the Molden/Gaussian convention
+expects.  Off-diagonal d-components ($xy$, $xz$, $yz$) are therefore scaled
+by $1/\sqrt{3}$; two-off-diagonal f-components by $1/\sqrt{5}$; $xyz$ by
+$1/\sqrt{15}$.
+
+With cc-pVDZ the highest angular momentum is $L=2$, so only the d-function
+fix is exercised by the test suite.  The f-function arrays (`F_PERM`,
+`F_NORM`) are **forward-compatible** — if a user runs cc-pVTZ or higher,
+reordering and normalisation are applied automatically.  Without this fix, a
+higher-basis calculation would silently produce corrupted [MO] coefficients
+for f-shells, causing Avogadro to display incorrect orbital shapes.  This
+was identified by a colleague who noticed a characteristic d-function
+fingerprint in C-H $\sigma$ orbital shapes.
+
 Return in the JSON response:
 
 ```python
