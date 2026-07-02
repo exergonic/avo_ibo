@@ -13,6 +13,7 @@ _last_output.json
 # Psi4 artifacts
 timer.dat
 log.txt
+NUL.log
 
 # Temporary test scripts
 _test_*.py
