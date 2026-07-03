@@ -12,29 +12,29 @@ equations in Knizia, *J. Chem. Theory Comput.* *2013*, *9*, 4834–4843
 
 = 1 Notation
 
-Let the *AO basis* (the SCF basis, e.g. cc-pVDZ) have $n_{"AO"}$
+Let the *AO basis* (the SCF basis, e.g. cc-pVDZ) have $n_("AO")$
 functions ${|chi_mu⟩}$, and the *minimal basis* (STO-3G,
-$n_{"min"}$) have functions ${|tilde(chi)_alpha⟩}$.
+$n_("min")$) have functions ${|tilde(chi)_alpha⟩}$.
 
 #table(columns: (auto, auto, auto),
   [*Symbol*], [*Shape*], [*Meaning*],
-  [$bold(S)$], [$n_{"AO"} × n_{"AO"}$], [AO overlap, $S_{mu nu} = ⟨chi_{mu}|chi_{nu}⟩$],
-  [$bold(S)^{12}$], [$n_{"AO"} × n_{"min"}$], [Cross-overlap, $S^{12}_{mu alpha} = ⟨chi_{mu}|tilde(chi)_{alpha}⟩$],
-  [$bold(S)^{"min"}$], [$n_{"min"} × n_{"min"}$], [Minimal-basis overlap, $S^{"min"}_{alpha b eta} = ⟨tilde(chi)_{alpha}|tilde(chi)_{b eta}⟩$],
-  [$bold(C)^{"occ"}$], [$n_{"AO"} × n_{"occ"}$], [Occupied MO coefficients (columns = orbitals)],
-  [$bold(C)^{"IAO"}$], [$n_{"AO"} × n_{"min"}$], [IAO coefficients in the AO basis],
-  [$bold(C)^{"IAO,occ"}$], [$n_{"min"} × n_{"occ"}$], [Occupied MO coefficients in the IAO basis],
-  [$bold(F)^{"AO"}$], [$n_{"AO"} × n_{"AO"}$], [Fock matrix in the AO basis],
-  [$bold(F)^{"IAO"}$], [$n_{"min"} × n_{"min"}$], [Fock matrix in the IAO basis],
+  [$bold(S)$], [$n_("AO") × n_("AO")$], [AO overlap, $S_(mu nu) = ⟨chi_(mu)|chi_(nu)⟩$],
+  [$bold(S)^(12)$], [$n_("AO") × n_("min")$], [Cross-overlap, $S^(12)_(mu alpha) = ⟨chi_(mu)|tilde(chi)_(alpha)⟩$],
+  [$bold(S)^("min")$], [$n_("min") × n_("min")$], [Minimal-basis overlap, $S^("min")_(alpha b eta) = ⟨tilde(chi)_(alpha)|tilde(chi)_(b eta)⟩$],
+  [$bold(C)^("occ")$], [$n_("AO") × n_("occ")$], [Occupied MO coefficients (columns = orbitals)],
+  [$bold(C)^("IAO")$], [$n_("AO") × n_("min")$], [IAO coefficients in the AO basis],
+  [$bold(C)^("IAO,occ")$], [$n_("min") × n_("occ")$], [Occupied MO coefficients in the IAO basis],
+  [$bold(F)^("AO")$], [$n_("AO") × n_("AO")$], [Fock matrix in the AO basis],
+  [$bold(F)^("IAO")$], [$n_("min") × n_("min")$], [Fock matrix in the IAO basis],
   [$n_A(i)$], [$RR$], [Mulliken population of orbital $i$ on atom $A$],
   [$delta_i$], [$RR$], [*D*iatomic *O*ccupation of orbital $i$],
 )
 
 Indices run over:
-- $mu,nu$ — AO functions ($1 .. n_{"AO"}$)
-- $alpha,beta$ — minimal-basis functions ($1 .. n_{"min"}$)
-- $i,j$ — occupied orbitals ($1 .. n_{"occ"}$)
-- $A,B$ — atoms ($1 .. n_{"atom"}$)
+- $mu,nu$ — AO functions ($1 .. n_("AO")$)
+- $alpha,beta$ — minimal-basis functions ($1 .. n_("min")$)
+- $i,j$ — occupied orbitals ($1 .. n_("occ")$)
+- $A,B$ — atoms ($1 .. n_("atom")$)
 
 #line()
 
@@ -44,12 +44,12 @@ Psi4 solves the Hartree–Fock (or DFT) equations for the molecular geometry
 from Avogadro:
 
 $
-bold(F)^{"AO"} bold(C) = bold(S) bold(C) bold(epsilon)
+bold(F)^("AO") bold(C) = bold(S) bold(C) bold(epsilon)
 $
 
 The default method is HF with the cc-pVDZ basis and Cartesian
 ($"puream"=0$) functions.  The occupied block
-$bold(C)^{"occ"} in RR^{n_{"AO"} × n_{"occ"}}$ is
+$bold(C)^("occ") in RR^(n_"AO") × n_("occ")$ is
 extracted from the converged solution (`calcs.py:509`).
 
 #line()
@@ -67,10 +67,10 @@ Each minimal-basis function $|tilde(chi)_alpha⟩$ is expanded in
 the AO basis via the overlap:
 
 $
-bold(P)^{12} = bold(S)^{-1} bold(S)^{12},
+bold(P)^(12) = bold(S)^(-1) bold(S)^(12),
 quad quad
-|tilde(chi)_alpha^{"(AO)"}⟩ = sum_{mu=1}^{n_{"AO"}}
-(bold(P)^{12})_{mu alpha}  |chi_mu⟩ .
+|tilde(chi)_alpha^("(AO)")⟩ = sum_(mu=1)^(n_"AO")
+(bold(P)^(12))_(mu alpha)  |chi_mu⟩ .
 $
 
 `calcs.py:64–65`
@@ -81,26 +81,26 @@ The projection of each occupied orbital onto the minimal-basis functions
 gives the minimal-basis representation:
 
 $
-(bold(C)^{"occ,min"})_{alpha i}
+(bold(C)^("occ,min"))_(alpha i)
 = ⟨tilde(chi)_alpha|psi_i⟩
-= sum_{mu} S^{12}_{mu alpha} C^{"occ"}_{mu i}
-= (bold(S)^{12 T} bold(C)^{"occ"})_{alpha i}.
+= sum_(mu) S^(12)_(mu alpha) C^("occ")_(mu i)
+= (bold(S)^(12 T) bold(C)^("occ"))_(alpha i).
 $
 
 `calcs.py:68`
 
-== 3.3 Depolarisation — solve $bold(S)^{"min"} tilde(bold(C)) = bold(C)^{"occ,min"}$
+== 3.3 Depolarisation — solve $bold(S)^("min") tilde(bold(C)) = bold(C)^("occ,min")$
 
 We find the coefficients $tilde(bold(C))$ that express the occupied
 orbitals in the minimal basis:
 
 $
-bold(S)^{"min"} tilde(bold(C)) = bold(C)^{"occ,min"}
+bold(S)^("min") tilde(bold(C)) = bold(C)^("occ,min")
 quad=>quad
-tilde(bold(C)) = (bold(S)^{"min"})^{-1} bold(C)^{"occ,min"}.
+tilde(bold(C)) = (bold(S)^("min"))^(-1) bold(C)^("occ,min").
 $
 
-$(bold(S)^{"min"})^{-1}$ is obtained via Cholesky factorisation.
+$(bold(S)^("min"))^(-1)$ is obtained via Cholesky factorisation.
 `calcs.py:70–72`
 
 == 3.4 Occupied-space metric
@@ -108,38 +108,38 @@ $(bold(S)^{"min"})^{-1}$ is obtained via Cholesky factorisation.
 The overlap of the projected occupied orbitals within the minimal basis is:
 
 $
-tilde(bold(S)) = (bold(C)^{"occ,min"})^{T} tilde(bold(C))
-= (bold(C)^{"occ,min"})^{T} (bold(S)^{"min"})^{-1}
-  bold(C)^{"occ,min"}.
+tilde(bold(S)) = (bold(C)^("occ,min"))^(T) tilde(bold(C))
+= (bold(C)^("occ,min"))^(T) (bold(S)^("min"))^(-1)
+  bold(C)^("occ,min").
 $
 
 `calcs.py:75`
 
-== 3.5 Inverse metric — $tilde(bold(C))^{(2)}$
+== 3.5 Inverse metric — $tilde(bold(C))^((2))$
 
-We solve for the coefficients $tilde(bold(C))^{(2)}$:
+We solve for the coefficients $tilde(bold(C))^((2))$:
 
 $
-tilde(bold(S)) tilde(bold(C))^{(2) T} = tilde(bold(C))^{T}
+tilde(bold(S)) tilde(bold(C))^((2) T) = tilde(bold(C))^(T)
 quad=>quad
-tilde(bold(C))^{(2)} = tilde(bold(C)) tilde(bold(S))^{-1}.
+tilde(bold(C))^((2)) = tilde(bold(C)) tilde(bold(S))^(-1).
 $
 
 `calcs.py:78–80`
 
-== 3.6 Tight residual — $bold(T)^{(4)}$
+== 3.6 Tight residual — $bold(T)^((4))$
 
 The component of each occupied orbital that lies *orthogonal* to the
 minimal-basis span is the tight residual:
 
 $
-bold(T)^{(4)} = bold(C)^{"occ"}
-   - bold(P)^{12} tilde(bold(C))^{(2)}.
+bold(T)^((4)) = bold(C)^("occ")
+   - bold(P)^(12) tilde(bold(C))^((2)).
 $
 
 `calcs.py:83`
 
-The columns of $bold(T)^{(4)}$ are the occupied-space vectors that
+The columns of $bold(T)^((4))$ are the occupied-space vectors that
 the minimal basis alone cannot describe.
 
 == 3.7 Construct the IAO coefficients
@@ -149,11 +149,11 @@ tight residual weighted by the overlap of that minimal-basis function with
 the occupied orbitals:
 
 $
-bold(C)^{"IAO"} = bold(P)^{12}
-   + bold(T)^{(4)} (bold(C)^{"occ,min"})^{T}.
+bold(C)^("IAO") = bold(P)^(12)
+   + bold(T)^((4)) (bold(C)^("occ,min"))^(T).
 $
 
-In matrix form: $(bold(C)^{"IAO"})_{mu alpha}$
+In matrix form: $(bold(C)^("IAO"))_(mu alpha)$
 is the coefficient of AO function $|chi_mu⟩$ in IAO $|phi_alpha⟩$.
 
 `calcs.py:86`
@@ -163,18 +163,18 @@ is the coefficient of AO function $|chi_mu⟩$ in IAO $|phi_alpha⟩$.
 The IAOs are not yet orthonormal.  Define the metric of the IAO basis:
 
 $
-bold(M) = (bold(C)^{"IAO"})^{T} bold(S) bold(C)^{"IAO"}.
+bold(M) = (bold(C)^("IAO"))^(T) bold(S) bold(C)^("IAO").
 $
 
-Diagonalise $bold(M) = bold(U) bold(m) bold(U)^{T}$ and apply
-$bold(M)^{-1/2} = bold(U) bold(m)^{-1/2} bold(U)^{T}$:
+Diagonalise $bold(M) = bold(U) bold(m) bold(U)^(T)$ and apply
+$bold(M)^(-1/2) = bold(U) bold(m)^(-1/2) bold(U)^(T)$:
 
 $
-bold(C)^{"IAO"} arrow
-   bold(C)^{"IAO"}   bold(M)^{-1/2}.
+bold(C)^("IAO") arrow
+   bold(C)^("IAO")   bold(M)^(-1/2).
 $
 
-Now $⟨phi_{alpha}|phi_{b eta}⟩ = (bold(C)^{"IAO"})^{T} bold(S) bold(C)^{"IAO"} = bold(I)$.
+Now $⟨phi_(alpha)|phi_(b eta)⟩ = (bold(C)^("IAO"))^(T) bold(S) bold(C)^("IAO") = bold(I)$.
 
 `calcs.py:90–92`
 
@@ -183,12 +183,12 @@ Now $⟨phi_{alpha}|phi_{b eta}⟩ = (bold(C)^{"IAO"})^{T} bold(S) bold(C)^{"IAO
 The occupied MO coefficients in the orthonormal IAO basis are:
 
 $
-bold(C)^{"IAO,occ"} = (bold(C)^{"IAO"})^{T}
-                           bold(S) bold(C)^{"occ"}.
+bold(C)^("IAO,occ") = (bold(C)^("IAO"))^(T)
+                           bold(S) bold(C)^("occ").
 $
 
 Because IAOs span the occupied space (by construction), this is a
-unitary rotation and $bold(C)^{"IAO"} bold(C)^{"IAO,occ"} = bold(C)^{"occ"}$ is exact.
+unitary rotation and $bold(C)^("IAO") bold(C)^("IAO,occ") = bold(C)^("occ")$ is exact.
 
 `calcs.py:97`
 
@@ -200,10 +200,10 @@ The IBOs are obtained by maximising the generalised
 Pipek–Mezey functional (*Eq. 4* of the paper):
 
 $
-L = sum_{A=1}^{n_{"atom"}} sum_{i=1}^{n_{"occ"}}
-    [n_A(i)]^{4},
+L = sum_(A=1)^(n_"atom") sum_(i=1)^(n_"occ")
+    [n_A(i)]^(4),
 quad quad
-n_A(i) = sum_{alpha in A} |C^{"IAO,occ"}_{alpha i}|^{2}.
+n_A(i) = sum_(alpha in A) |C^("IAO,occ")_(alpha i)|^(2).
 $
 
 Here $n_A(i)$ is the Mulliken population of orbital $i$ on atom $A$,
@@ -212,14 +212,14 @@ orthonormal).
 
 == 4.1 Initial guess: canonical MOs (no symmetry breaking)
 
-The occupied block $bold(C)^{"IAO,occ"}$ is the identity in
-IAO space — it already diagonalises $bold(F)^{"IAO"}$ and
+The occupied block $bold(C)^("IAO,occ")$ is the identity in
+IAO space — it already diagonalises $bold(F)^("IAO")$ and
 provides a unique, deterministic starting point.  *No random
 perturbation is applied before localisation.*
 
 IboView applies an 18° Cayley rotation (`RotateVectorsRandomly`) to
 break accidental near-degeneracies, but in our testing this *increased*
-the benzene C-H σ split from $2×10^{-5}$ Ha to $1.2×10^{-4}$ Ha
+the benzene C-H σ split from $2×10^(-5)$ Ha to $1.2×10^(-4)$ Ha
 (Gotcha 20 in AGENTS.md).  The symmetric converged solution is the
 nearest local maximum for the fixed sequential sweep order
 ($i=1..n_"occ", j&lt;i$) — no perturbation improves it.
@@ -239,18 +239,18 @@ no local minima.  Running it first provides a good starting point for
 $p=4$.  The Jacobi rotation angle for a pair $(i,j)$ at $p=2$ is:
 
 $
-A_{i j}^{(2)} = sum_A
-   [-n_i(A)^2 - n_j(A)^2 + 2  n_{i j}(A)^2],
+A_(i j)^((2)) = sum_A
+   [-n_i(A)^2 - n_j(A)^2 + 2  n_(i j)(A)^2],
 quad quad
-B_{i j}^{(2)} = 4 sum_A n_{i j}(A) 
+B_(i j)^((2)) = 4 sum_A n_(i j)(A) 
    [n_i(A) - n_j(A)],
 $
 $
 phi = frac(1, 2) arctan (
-   frac(B_{i j}^{(2)}, -A_{i j}^{(2)}) ),
+   frac(B_(i j)^((2)), -A_(i j)^((2))) ),
 $
 
-where $n_{i j}(A) = sum_{alpha in A} C^{"IAO,occ"}_{alpha i} C^{"IAO,occ"}_{alpha j}$.
+where $n_(i j)(A) = sum_(alpha in A) C^("IAO,occ")_(alpha i) C^("IAO,occ")_(alpha j)$.
 
 `calcs.py:175–186`
 
@@ -259,18 +259,18 @@ where $n_{i j}(A) = sum_{alpha in A} C^{"IAO,occ"}_{alpha i} C^{"IAO,occ"}_{alph
 The $p=4$ functional replaces $n_A(i)^2$ with $n_A(i)^4$:
 
 $
-A_{i j}^{(4)} = sum_A
+A_(i j)^((4)) = sum_A
    [-n_i(A)^4 - n_j(A)^4
-         + 6 (n_i(A)^2 + n_j(A)^2)  n_{i j}(A)^2
+         + 6 (n_i(A)^2 + n_j(A)^2)  n_(i j)(A)^2
          + n_i(A)^3 n_j(A) + n_i(A) n_j(A)^3],
 $
 $
-B_{i j}^{(4)} = 4 sum_A n_{i j}(A) 
+B_(i j)^((4)) = 4 sum_A n_(i j)(A) 
    [n_i(A)^3 - n_j(A)^3],
 $
 $
 phi = frac(1, 4) arctan (
-   frac(B_{i j}^{(4)}, -A_{i j}^{(4)}) ).
+   frac(B_(i j)^((4)), -A_(i j)^((4))) ).
 $
 
 The angle is $frac(1, 4)$ (not $frac(1, 2)$) because the leading
@@ -287,9 +287,9 @@ For each sweep:
    maximises $L$ using the current exponent $p$ (Eq. 5 for $p=2$,
    Eq. 6 for $p=4$).
 3. Apply the rotation to columns $i$ and $j$ of
-   $bold(C)^{"IAO,occ"}$.
+   $bold(C)^("IAO,occ")$.
 4. Track the gradient norm $||nabla L||$; stop when it falls below
-   $10^{-12}$ (IboView default).
+   $10^(-12)$ (IboView default).
 
 The fixed sequential sweep order is essential for reproducibility.
 Because each sweep revisits pairs in the same order, the algorithm
@@ -307,11 +307,11 @@ producing a worse (less symmetric) result.
 After each sweep the gradient norm is:
 
 $
-||nabla L|| = frac(1, n_{"occ"})sqrt(sum_{i< j} (p  phi_{i j}  B_{i j}^{(p)})^2)
+||nabla L|| = frac(1, n_("occ"))sqrt(sum_(i< j) (p  phi_(i j)  B_(i j)^((p)))^2)
 $
 
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
-$||nabla L|| < 10^{-12}$ or 2048 sweeps are reached.
+$||nabla L|| < 10^(-12)$ or 2048 sweeps are reached.
 
 `calcs.py:218–224`
 
@@ -330,7 +330,7 @@ mix arbitrarily after PM localisation.
 For each occupied orbital compute the DOM (*Eq. 2*):
 
 $
-delta_i = n_{A}(i)^2 + n_{B}(i)^2,
+delta_i = n_(A)(i)^2 + n_(B)(i)^2,
 quad quad
 A = "atom with largest " n_A(i),  B = "second largest".
 $
@@ -343,26 +343,26 @@ form a group.
 
 == 5.2 Fock diagonalisation
 
-For a group of $g$ orbitals ${i_k}_{k=1}^{g}$ on atom $A$, extract
-the coefficient block $bold(C)_{"block"} in RR^{n_{"min"} × g}$ and compute the projected Fock matrix:
+For a group of $g$ orbitals ${i_k}_(k=1)^(g)$ on atom $A$, extract
+the coefficient block $bold(C)_("block") in RR^(n_"min") × g$ and compute the projected Fock matrix:
 
 $
-bold(F)_{"block"}
-= bold(C)_{"block"}^{T}
-  bold(F)^{"IAO"}
-  bold(C)_{"block"},
+bold(F)_("block")
+= bold(C)_("block")^(T)
+  bold(F)^("IAO")
+  bold(C)_("block"),
 quad quad
-bold(F)^{"IAO"}
-= (bold(C)^{"IAO"})^{T}
-  bold(F)^{"AO"}
-  bold(C)^{"IAO"}.
+bold(F)^("IAO")
+= (bold(C)^("IAO"))^(T)
+  bold(F)^("AO")
+  bold(C)^("IAO").
 $
 
-Diagonalise $bold(F)_{"block"} = bold(V) bold(lambda) bold(V)^{T}$ and rotate the block:
+Diagonalise $bold(F)_("block") = bold(V) bold(lambda) bold(V)^(T)$ and rotate the block:
 
 $
-bold(C)_{"block"} arrow
-   bold(C)_{"block"} bold(V).
+bold(C)_("block") arrow
+   bold(C)_("block") bold(V).
 $
 
 The eigenvalues $bold(lambda)$ become the new orbital energies
@@ -375,7 +375,7 @@ orbitals (e.g. s-rich lowest, p-rich highest).
 
 = 6 Valence-virtual IAOs via SVD
 
-The IAO basis ($n_{"min"}$ functions) accounts for all occupied
+The IAO basis ($n_("min")$ functions) accounts for all occupied
 orbitals but typically only a fraction of the virtual space.  The
 valence-virtual IAOs span the part of the canonical virtual space
 that has non-negligible overlap with the IAO basis.
@@ -383,32 +383,32 @@ that has non-negligible overlap with the IAO basis.
 == 6.1 SVD of the cross overlap
 
 $
-bold(S)^{"IbVir"} = (bold(C)^{"IAO"})^{T}
-   bold(S) bold(C)^{"vir"}
-    in  RR^{n_{"min"} × n_{"vir"}},
+bold(S)^("IbVir") = (bold(C)^("IAO"))^(T)
+   bold(S) bold(C)^("vir")
+    in  RR^(n_"min") × n_("vir"),
 $
 
-where $bold(C)^{"vir"}$ are the canonical virtual MO coefficients.
+where $bold(C)^("vir")$ are the canonical virtual MO coefficients.
 Perform the singular value decomposition:
 
 $
-bold(S)^{"IbVir"} = bold(U) bold(Sigma) bold(V)^{T}.
+bold(S)^("IbVir") = bold(U) bold(Sigma) bold(V)^(T).
 $
 
 `calcs.py:550–552`
 
 == 6.2 Truncation
 
-Keep only singular values $sigma_k > 10^{-8}$:
+Keep only singular values $sigma_k > 10^(-8)$:
 
 $
-n_{"val vir"} = |{k : sigma_k > 10^{-8}}|.
+n_("val vir") = |{k : sigma_k > 10^(-8)}|.
 $
 
 The valence-virtual IAO coefficients are:
 
 $
-bold(U)^{"val"} = bold(U)_{:,:n_{"val vir"}}.
+bold(U)^("val") = bold(U)_(:,:n_"val vir").
 $
 
 `calcs.py:553–554`
@@ -417,7 +417,7 @@ $
 
 The SVD-projected virtuals are delocalised because each right-singular
 vector mixes many canonical virtuals.  The same PM $p=2-> p=4$
-procedure (Section 4) is applied to $bold(U)^{"val"}$.
+procedure (Section 4) is applied to $bold(U)^("val")$.
 
 `calcs.py:557–559`
 
@@ -431,24 +431,24 @@ are computed as the diagonal of the Fock matrix in the basis of the
 
 $
 epsilon_i
-= bold(c)_i^{T} bold(F)^{"AO"} bold(c)_i,
+= bold(c)_i^(T) bold(F)^("AO") bold(c)_i,
 quad quad
-bold(c)_i = bold(C)^{"IAO"} bold(C)^{"IAO,all"}_{:,i},
+bold(c)_i = bold(C)^("IAO") bold(C)^("IAO,all")_(:,i),
 $
 
 where $bold(c)_i$ are the orbital coefficients in the original AO
-basis, and $bold(C)^{"IAO,all"}$ is the concatenation of occupied
+basis, and $bold(C)^("IAO,all")$ is the concatenation of occupied
 and valence-virtual blocks.  Equivalently, in the IAO basis:
 
 $
 epsilon_i
-= (bold(C)^{"IAO,all"}_{:,i})^{T}
-  bold(F)^{"IAO"}
-  bold(C)^{"IAO,all"}_{:,i},
+= (bold(C)^("IAO,all")_(:,i))^(T)
+  bold(F)^("IAO")
+  bold(C)^("IAO,all")_(:,i),
 quad quad
-bold(F)^{"IAO"} = (bold(C)^{"IAO"})^{T}
-                      bold(F)^{"AO"}
-                      bold(C)^{"IAO"}.
+bold(F)^("IAO") = (bold(C)^("IAO"))^(T)
+                      bold(F)^("AO")
+                      bold(C)^("IAO").
 $
 
 `calcs.py:534–546, 561–563`
@@ -464,7 +464,7 @@ The analysis written to `ibos.txt` computes per-orbital descriptors.
 $
 delta_i = n_A(i)^2 + n_B(i)^2,
 quad quad
-A = arg max _{A'} n_{A'}(i),  B = arg max _{A' != A} n_{A'}(i).
+A = arg max _(A') n_(A')(i),  B = arg max _(A' != A) n_(A')(i).
 $
 
 A DOM of 1.00 means the orbital is entirely on one atom (core or lone
@@ -478,17 +478,17 @@ Fraction of the orbital density on the dominant atom $A$ that comes from
 functions of each angular momentum $l$ (0=s, 1=p, 2=d):
 
 $
-s = sum_{alpha in A,  e l l_alpha = 0}
-    (C^{"IAO,all"}_{alpha, i})^2,
+s = sum_(alpha in A,  e l l_alpha = 0)
+    (C^("IAO,all")_(alpha, i))^2,
 quad quad
-p = sum_{alpha in A,  e l l_alpha = 1}
-    (C^{"IAO,all"}_{alpha, i})^2,
+p = sum_(alpha in A,  e l l_alpha = 1)
+    (C^("IAO,all")_(alpha, i))^2,
 quad quad
-d = sum_{alpha in A,  e l l_alpha = 2}
-    (C^{"IAO,all"}_{alpha, i})^2.
+d = sum_(alpha in A,  e l l_alpha = 2)
+    (C^("IAO,all")_(alpha, i))^2.
 $
 
-The hybridisation label is "${s}\%$ s + ${p}\%$ p + ${d}\%$ d".
+The hybridisation label is "$s\%$ s + $p\%$ p + $d\%$ d".
 
 `calcs.py:304–306, 385–400`
 
@@ -514,87 +514,87 @@ theory) requires non-zero off-diagonal Fock matrix elements between occupied
 and virtual orbitals.  In the IAO basis, these are *exactly zero* by
 construction — not a numerical approximation, but a mathematical identity.
 
-== 9.1 Occupied MOs are eigenvectors of $bold(F)^{"IAO"}$
+== 9.1 Occupied MOs are eigenvectors of $bold(F)^("IAO")$
 
 Let $bold(c)_k$ be the $k$-th occupied canonical MO (column of
-$bold(C)^{"occ"}$).  The Roothaan–Hall equation gives:
+$bold(C)^("occ")$).  The Roothaan–Hall equation gives:
 
 $
-bold(F)^{"AO"} bold(c)_k = epsilon_k bold(S)
+bold(F)^("AO") bold(c)_k = epsilon_k bold(S)
 bold(c)_k. quad quad ("HF")
 $
 
 Because IAOs exactly span the occupied space (Section 3),
-$bold(C)^{"IAO"} bold(C)^{"IAO,occ"} = bold(C)^{"occ"}$
-is an exact identity.  Substitute $bold(c)_k = bold(C)^{"IAO"} bold(C)^{"IAO,occ"}_{:,k}$ into (HF):
+$bold(C)^("IAO") bold(C)^("IAO,occ") = bold(C)^("occ")$
+is an exact identity.  Substitute $bold(c)_k = bold(C)^("IAO") bold(C)^("IAO,occ")_(:,k)$ into (HF):
 
 $
-bold(F)^{"AO"} bold(C)^{"IAO"}
-bold(C)^{"IAO,occ"}_{:,k}
-= epsilon_k bold(S) bold(C)^{"IAO"}
-  bold(C)^{"IAO,occ"}_{:,k}.
+bold(F)^("AO") bold(C)^("IAO")
+bold(C)^("IAO,occ")_(:,k)
+= epsilon_k bold(S) bold(C)^("IAO")
+  bold(C)^("IAO,occ")_(:,k).
 $
 
-Left-multiply by $(bold(C)^{"IAO"})^{T}$:
+Left-multiply by $(bold(C)^("IAO"))^(T)$:
 
 $
-(bold(C)^{"IAO"})^{T} bold(F)^{"AO"}
-bold(C)^{"IAO"} bold(C)^{"IAO,occ"}_{:,k}
-= epsilon_k (bold(C)^{"IAO"})^{T} bold(S)
-  bold(C)^{"IAO"} bold(C)^{"IAO,occ"}_{:,k}.
+(bold(C)^("IAO"))^(T) bold(F)^("AO")
+bold(C)^("IAO") bold(C)^("IAO,occ")_(:,k)
+= epsilon_k (bold(C)^("IAO"))^(T) bold(S)
+  bold(C)^("IAO") bold(C)^("IAO,occ")_(:,k).
 $
 
-The left factor is $bold(F)^{"IAO"} bold(C)^{"IAO,occ"}_{:,k}$.  The right factor uses the IAO orthonormality $(bold(C)^{"IAO"})^{T} bold(S) bold(C)^{"IAO"} = bold(I)$ (Section 3.8), giving:
+The left factor is $bold(F)^("IAO") bold(C)^("IAO,occ")_(:,k)$.  The right factor uses the IAO orthonormality $(bold(C)^("IAO"))^(T) bold(S) bold(C)^("IAO") = bold(I)$ (Section 3.8), giving:
 
 $
-bold(F)^{"IAO"} bold(C)^{"IAO,occ"}_{:,k}
-= epsilon_k bold(C)^{"IAO,occ"}_{:,k}.
+bold(F)^("IAO") bold(C)^("IAO,occ")_(:,k)
+= epsilon_k bold(C)^("IAO,occ")_(:,k).
 $
 
-Each column of $bold(C)^{"IAO,occ"}$ is an exact eigenvector of
-$bold(F)^{"IAO"}$ with eigenvalue $epsilon_k$.  This holds for
+Each column of $bold(C)^("IAO,occ")$ is an exact eigenvector of
+$bold(F)^("IAO")$ with eigenvalue $epsilon_k$.  This holds for
 the *raw* canonical occupied MOs before any PM localisation.
 
-== 9.2 Spectral theorem $=>$ $bold(F)^{"IAO"}_{o v} = bold(0)$
+== 9.2 Spectral theorem $=>$ $bold(F)^("IAO")_(o v) = bold(0)$
 
-Since $bold(F)^{"IAO"}$ is a real symmetric matrix, eigenvectors
+Since $bold(F)^("IAO")$ is a real symmetric matrix, eigenvectors
 corresponding to different eigenvalues are orthogonal.  The occupied
-eigenvectors (columns of $bold(C)^{"IAO,occ"}$) span a subspace
-$cal(O) subset RR^{n_{"min"}}$, and the virtual eigenvectors
-span the orthogonal complement $cal(V) = cal(O)^{perp}$.
+eigenvectors (columns of $bold(C)^("IAO,occ")$) span a subspace
+$cal(O) subset RR^(n_"min")$, and the virtual eigenvectors
+span the orthogonal complement $cal(V) = cal(O)^(perp)$.
 
-The valence-virtual IAO coefficients $bold(U)^{"val"}$ (Section 6)
-live in $cal(V)$ because the SVD of $bold(S)^{"IbVir"}$ extracts
+The valence-virtual IAO coefficients $bold(U)^("val")$ (Section 6)
+live in $cal(V)$ because the SVD of $bold(S)^("IbVir")$ extracts
 the part of the canonical virtual space that projects into the IAO subspace
 but is orthogonal to the occupied space.  Therefore:
 
 $
-(bold(C)^{"IAO,occ"})^{T}
-bold(F)^{"IAO"}
-bold(U)^{"val"}
+(bold(C)^("IAO,occ"))^(T)
+bold(F)^("IAO")
+bold(U)^("val")
 = bold(0),
 quad quad
-(bold(U)^{"val"})^{T}
-bold(F)^{"IAO"}
-bold(C)^{"IAO,occ"}
+(bold(U)^("val"))^(T)
+bold(F)^("IAO")
+bold(C)^("IAO,occ")
 = bold(0).
 $
 
-The off-diagonal occupied-virtual block of $bold(F)^{"IAO"}$ is
+The off-diagonal occupied-virtual block of $bold(F)^("IAO")$ is
 identically zero.  This is *not* a numerical truncation — it follows
 from the spectral theorem applied to the symmetric matrix
-$bold(F)^{"IAO"}$.
+$bold(F)^("IAO")$.
 
 == 9.3 Consequences for delocalization analysis
 
 #table(columns: (auto, auto, auto, auto),
   [*Analysis type*], [*Mathematical requirement*], [*IAO-basis value*], [*Why*],
-  [Overlap-based donor/acceptor], [$⟨psi_i^{"occ"}|psi_j^{"vir"}⟩$], [$0$], [$cal(O) perp cal(V)$ in orthonormal IAO basis],
-  [Fock-based (NBO E2)], [$F_{i j}^2 / (epsilon_j - epsilon_i)$], [$0$], [$F_{o v} = 0$ (Section 9.2)],
-  [Orbital mixing coefficient], [$F_{i j} / (epsilon_j - epsilon_i)$], [$0$], [Same reason],
+  [Overlap-based donor/acceptor], [$⟨psi_i^("occ")|psi_j^("vir")⟩$], [$0$], [$cal(O) perp cal(V)$ in orthonormal IAO basis],
+  [Fock-based (NBO E2)], [$F_(i j)^2 / (epsilon_j - epsilon_i)$], [$0$], [$F_(o v) = 0$ (Section 9.2)],
+  [Orbital mixing coefficient], [$F_(i j) / (epsilon_j - epsilon_i)$], [$0$], [Same reason],
 )
 
-The only way to obtain non-zero $F_{o v}$ would be to abandon the IAO
+The only way to obtain non-zero $F_(o v)$ would be to abandon the IAO
 projection for virtuals and use the raw canonical virtual MOs.  However,
 canonical virtuals contain diffuse and Rydberg character that pollutes
 the chemically meaningful valence picture — exactly what the IAO
@@ -602,10 +602,10 @@ construction is designed to filter out.
 
 == 9.4 Numerical verification
 
-For water/cc-pVDZ ($n_{"min"}=7$, $n_{"occ"}=5$, $n_{"val vir"}=2$):
+For water/cc-pVDZ ($n_("min")=7$, $n_("occ")=5$, $n_("val vir")=2$):
 
-- $||bold(F)^{"IAO"}_{o v}||_F = 5.2 × 10^{-8}$ (machine precision)
-- $||(bold(C)^{"occ"})^{T} bold(C)^{"vir"}||_F = 0.0$ (exact, since
+- $||bold(F)^("IAO")_(o v)||_F = 5.2 × 10^(-8)$ (machine precision)
+- $||(bold(C)^("occ"))^(T) bold(C)^("vir")||_F = 0.0$ (exact, since
   canonical MOs are orthonormal)
 
 Both are zero to within numerical noise, confirming the mathematical

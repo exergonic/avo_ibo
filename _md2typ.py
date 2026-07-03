@@ -151,9 +151,12 @@ def convert_math_source(src):
     for latex, typst in sorted(cmds, key=lambda x: -len(x[0])):
         src = src.replace(latex, typst)
 
-    # 3. Bracket escapes
-    src = src.replace(r'\{', '{')
-    src = src.replace(r'\}', '}')
+    # 3. Save literal \{ \} braces (set notation, etc.) with placeholders
+    #    BEFORE step 4 strips backslashes, so we can distinguish from grouping braces
+    src = src.replace(r'\{', '\x00LB\x00')
+    src = src.replace(r'\}', '\x00RB\x00')
+
+    # 3b. Bracket escapes (excluding braces which are handled above)
     src = src.replace(r'\[', '[')
     src = src.replace(r'\]', ']')
     src = src.replace(r'\langle', '\u27e8')
@@ -161,7 +164,7 @@ def convert_math_source(src):
     src = re.sub(r'\\big(g)?l(?!\w)', '', src)
     src = re.sub(r'\\big(g)?r(?!\w)', '', src)
 
-    # 4. Strip remaining \cmd
+    # 4. Strip remaining \cmd (literal-brace placeholders use \x00, not backslash → safe)
     src = re.sub(r'\\([A-Za-z]+)', r'\1', src)
     src = re.sub(r'\\tag\{[^}]*\}', '', src)
 
@@ -225,9 +228,16 @@ def convert_math_source(src):
         # Restore strings
         for i, s in enumerate(strings):
             content = content.replace(f'\x00S{i}\x00', s)
-        return m.group(1) + '{' + content + '}'
+        return m.group(1) + '(' + content + ')'
 
     src = re.sub(r'([_^])\{([^}]*)\}', fix_subsup_braces, src)
+
+    # 5b. Strip remaining bare braces (LaTeX grouping; fix_subsup_braces already used ^( ) and _( ))
+    src = src.replace('{', '').replace('}', '')
+
+    # 5c. Restore literal braces from \{ \}
+    src = src.replace('\x00LB\x00', '{')
+    src = src.replace('\x00RB\x00', '}')
 
     # 6. Protect | (now from \vert restored or existing) with placeholder
     src = src.replace('|', '\x00PIPE\x00')
