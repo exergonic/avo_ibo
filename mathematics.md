@@ -15,9 +15,9 @@ $n_{\mathrm{min}}$) have functions $\{\lvert\tilde\chi_\alpha\rangle\}$.
 
 | Symbol | Shape | Meaning |
 |--------|-------|---------|
-| $\mathbf{S}$ | $n_{\mathrm{AO}} \times n_{\mathrm{AO}}$ | AO overlap, $S_{\mu\nu} = \langle\chi_\mu\vert\chi_\nu\rangle$ |
-| $\mathbf{S}^{12}$ | $n_{\mathrm{AO}} \times n_{\mathrm{min}}$ | Cross-overlap, $S^{12}_{\mu\alpha} = \langle\chi_\mu\vert\tilde\chi_\alpha\rangle$ |
-| $\mathbf{S}^{\mathrm{min}}$ | $n_{\mathrm{min}} \times n_{\mathrm{min}}$ | Minimal-basis overlap, $S^{\mathrm{min}}_{\alpha\beta} = \langle\tilde\chi_\alpha\vert\tilde\chi_\beta\rangle$ |
+| $\mathbf{S}$ | $n_{\mathrm{AO}} \times n_{\mathrm{AO}}$ | AO overlap, $S_{\mu\nu} = \langle\chi_{\mu}|\chi_{\nu}\rangle$ |
+| $\mathbf{S}^{12}$ | $n_{\mathrm{AO}} \times n_{\mathrm{min}}$ | Cross-overlap, $S^{12}_{\mu\alpha} = \langle\chi_{\mu}|\tilde{\chi}_{\alpha}\rangle$ |
+| $\mathbf{S}^{\mathrm{min}}$ | $n_{\mathrm{min}} \times n_{\mathrm{min}}$ | Minimal-basis overlap, $S^{\mathrm{min}}_{\alpha\beta} = \langle\tilde{\chi}_{\alpha}|\tilde{\chi}_{\beta}\rangle$ |
 | $\mathbf{C}^{\mathrm{occ}}$ | $n_{\mathrm{AO}} \times n_{\mathrm{occ}}$ | Occupied MO coefficients (columns = orbitals) |
 | $\mathbf{C}^{\mathrm{IAO}}$ | $n_{\mathrm{AO}} \times n_{\mathrm{min}}$ | IAO coefficients in the AO basis |
 | $\mathbf{C}^{\mathrm{IAO},occ}$ | $n_{\mathrm{min}} \times n_{\mathrm{occ}}$ | Occupied MO coefficients in the IAO basis |
@@ -170,7 +170,7 @@ $$
    \mathbf{C}^{\mathrm{IAO}} \, \mathbf{M}^{-1/2}.
 $$
 
-Now $\langle\phi_\alpha\vert\phi_\beta\rangle = (\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$.
+Now $\langle\phi_{\alpha}|\phi_{\beta}\rangle = (\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$.
 
 `calcs.py:90–92`
 
@@ -584,7 +584,7 @@ $\mathbf{F}^{\mathrm{IAO}}$.
 
 | Analysis type | Mathematical requirement | IAO-basis value | Why |
 |---|---|---|---|
-| Overlap-based donor/acceptor | $\langle\psi_i^{\mathrm{occ}}\vert\psi_j^{\mathrm{vir}}\rangle$ | $0$ | $\mathcal{O} \perp \mathcal{V}$ in orthonormal IAO basis |
+| Overlap-based donor/acceptor | $\langle\psi_i^{\mathrm{occ}}|\psi_j^{\mathrm{vir}}\rangle$ | $0$ | $\mathcal{O} \perp \mathcal{V}$ in orthonormal IAO basis |
 | Fock-based (NBO E2) | $F_{ij}^2 / (\varepsilon_j - \varepsilon_i)$ | $0$ | $F_{ov} = 0$ (Section 9.2) |
 | Orbital mixing coefficient | $F_{ij} / (\varepsilon_j - \varepsilon_i)$ | $0$ | Same reason |
 
