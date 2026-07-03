@@ -103,8 +103,8 @@ def test_water_on_atom_resolution():
     assert s_lp["ene"] < p_lp["ene"], "s-rich LP should be lower in energy than p-pure LP"
 
     text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
-    assert "55% s + 45% p" in text or "100% s" in text
-    assert "100% p" in text
+    assert "55% 2s + 45% 2pz" in text or "55% 2s + 45% 2p" in text
+    assert "100% 2px" in text
 
 
 def test_methane_pattern():

@@ -23,19 +23,58 @@ import numpy as np
 def _get_basis_maps(basis):
     """
     Return arrays mapping each basis function in *basis* to its atom center
-    (0-indexed) and angular momentum (0=s, 1=p, 2=d, ...).
+    (0-indexed), angular momentum (0=s, 1=p, 2=d, ...), principal quantum
+    number n, and orbital subtype label.
+
+    The principal quantum number n is inferred from shell ordering per atom
+    (1s→2s→2p→3s→3p→3d→4s→4p), which matches the STO-3G shell layout.
+
+    The subtype label identifies:
+      - p-functions: "px", "py", "pz"  (Psi4 Cartesian order: x, y, z)
+      - d-functions: "dxx","dxy","dxz","dyy","dyz","dzz" (Psi4 order)
+      - s-functions: "" (empty)
     """
     atom_of = []
     am_of = []
+    n_of = []
+    dtype_of = []
+
+    # Track the next n to assign for each (atom, am) pair
+    #   s(am=0): start at n=1, increment by 1 per s shell
+    #   p(am=1): start at n=2, increment by 1 per p shell
+    #   d(am=2): start at n=3, increment by 1 per d shell
+    # This matches STO-3G's aufbau ordering of shells.
+    _P_AM_START = {0: 1, 1: 2, 2: 3}
+    _P_SUBTYPE = {
+        1: ['px', 'py', 'pz'],              # Psi4 Cartesian p order: x, y, z
+        2: ['dxx', 'dxy', 'dxz', 'dyy', 'dyz', 'dzz'],  # Psi4 Cartesian d order
+    }
+
+    next_n_per_atom = {}
+
     for sh in range(basis.nshell()):
         shell = basis.shell(sh)
-        atom = shell.ncenter          # 0-indexed atom index
-        am = shell.am                 # angular momentum quantum number
-        nfunc = shell.nfunction       # total number of functions in shell
-        for _ in range(nfunc):
+        atom = shell.ncenter
+        am = shell.am
+        nfunc = shell.nfunction
+
+        # Determine principal quantum number for this shell
+        key = (atom, am)
+        next_n = next_n_per_atom.get(key, _P_AM_START.get(am, 1))
+        shell_n = next_n
+        next_n_per_atom[key] = next_n + 1
+
+        subtypes = _P_SUBTYPE.get(am, [''] * nfunc)
+        for f_idx in range(nfunc):
             atom_of.append(atom)
             am_of.append(am)
-    return np.array(atom_of, dtype=np.int32), np.array(am_of, dtype=np.int32)
+            n_of.append(shell_n)
+            dtype_of.append(subtypes[f_idx] if f_idx < len(subtypes) else '')
+
+    return (np.array(atom_of, dtype=np.int32),
+            np.array(am_of, dtype=np.int32),
+            np.array(n_of, dtype=np.int32),
+            dtype_of)
 
 
 # ---------------------------------------------------------------------------
@@ -287,8 +326,89 @@ _ELEM_SYMBOLS = [
 ]
 
 
+def _d_spherical_weights(c, atom_idx, atom_of, am_of):
+    """
+    Compute weights for each spherical d-type from Cartesian d coefficients
+    on a given atom.  The 6 Cartesian d-functions in Psi4 (puream=0) are
+    ordered: xx, xy, xz, yy, yz, zz.  We project the coefficient vector
+    onto the five spherical harmonic directions.
+
+    Returns dict of {name: weight} where weight = squared projection.
+    """
+    idx = np.where((atom_of == atom_idx) & (am_of == 2))[0]
+    if len(idx) < 6:
+        return {}
+    c = np.asarray(c, dtype=np.float64)
+    # Psi4 Cartesian d order: xx, xy, xz, yy, yz, zz
+    c_xx, c_xy, c_xz, c_yy, c_yz, c_zz = c[idx[:6]]
+    return {
+        'dxy':    c_xy ** 2,
+        'dxz':    c_xz ** 2,
+        'dyz':    c_yz ** 2,
+        'dz2':    (-c_xx - c_yy + 2 * c_zz) ** 2,
+        'dx2y2':  (c_xx - c_yy) ** 2,
+    }
+
+
+def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
+    """
+    Build a specific hybrid label for the dominant atom, e.g.
+        "57% 4s + 43% 3dz²"
+        "100% 1s"
+        "100% 4pz"
+        "83% 3s + 17% 3pz"
+        "46% 4s + 54% 3d"
+    """
+    c = np.asarray(c, dtype=np.float64)
+    pA = float(np.sum(c[np.where(atom_of == top_atom)] ** 2))
+    if pA < 1e-12:
+        return ""
+
+    parts = []
+    for am_label, am_val in [('s', 0), ('p', 1), ('d', 2)]:
+        idx_am = np.where((atom_of == top_atom) & (am_of == am_val))[0]
+        if len(idx_am) == 0:
+            continue
+        total_am = float(np.sum(c[idx_am] ** 2))
+        pct = total_am / pA * 100.0
+        if pct < 1.0:
+            continue
+
+        # Find dominant n within this l-subspace
+        n_counts = {}
+        for fi in idx_am:
+            n_key = func_n[fi]
+            n_counts[n_key] = n_counts.get(n_key, 0.0) + c[fi] ** 2
+        dominant_n = max(n_counts, key=n_counts.get)
+
+        # Determine dominant subtype
+        subtype = ""
+        if am_val == 1:   # p-orbitals: px, py, pz
+            st_counts = {}
+            for fi in idx_am:
+                st = func_dtype[fi]
+                if st:
+                    st_counts[st] = st_counts.get(st, 0.0) + c[fi] ** 2
+            if st_counts:
+                top_st = max(st_counts, key=st_counts.get)
+                if st_counts[top_st] > 0.5 * total_am:
+                    subtype = top_st  # e.g. "pz"
+        elif am_val == 2:   # d-orbitals: dxy, dxz, dyz, dz2, dx2y2
+            d_weights = _d_spherical_weights(c, top_atom, atom_of, am_of)
+            if d_weights:
+                top_st = max(d_weights, key=d_weights.get)
+                if d_weights[top_st] > 0.5 * max(d_weights.values()):
+                    subtype = top_st  # e.g. "dz2"
+
+        label = str(dominant_n) + (subtype if subtype else am_label)
+        parts.append(f"{pct:.0f}% {label}")
+
+    return " + ".join(parts)
+
+
 def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
-                  atom_of, am_of, elem, method, basis, ref):
+                  atom_of, am_of, func_n, func_dtype,
+                  elem, method, basis, ref):
     """
     Build a formatted IBO analysis table covering all IAO-basis orbitals.
 
@@ -335,7 +455,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 orbid = f"{_elem_symbol(elem[top_A])}(Core)"
             elif pop[top_A] > 0.90:
                 orbid = f"{_elem_symbol(elem[top_A])}(LP)"
-            elif pop[top_A] + pop[top_B] > 0.75:
+            elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
                 def _p_frac(c, am_of, atom, atom_of):
                     _s = _s_char(c, am_of, atom, atom_of)
                     _p = _p_char(c, am_of, atom, atom_of)
@@ -360,8 +480,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             else:
                 orbid = "Deloc"
         else:
-            # Virtual — label as anti-bonding where appropriate
-            if pop[top_A] + pop[top_B] > 0.60:
+            # Virtual — label as anti-bonding only if second atom matters
+            if pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
                 symA = _elem_symbol(elem[top_A])
                 symB = _elem_symbol(elem[top_B])
                 if top_A < top_B:
@@ -383,13 +503,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
 
-        pA = pop[top_A]
-        s_pct = (s_char / pA * 100.0) if pA > 0 else 0.0
-        p_pct = (p_char / pA * 100.0) if pA > 0 else 0.0
-        d_pct = (d_char / pA * 100.0) if pA > 0 else 0.0
-        hybrid = ""
-        if s_pct > 1 or p_pct > 1 or d_pct > 1:
-            hybrid = f"{s_pct:.0f}% s + {p_pct:.0f}% p + {d_pct:.0f}% d"
+        hybrid = _hybrid_str(C_IAO_all[:, orb], am_of, atom_of,
+                              func_n, func_dtype, top_A)
 
         lines.append(
             f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
@@ -612,7 +727,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     # -- Atom / angular-momentum map for the minimal basis -----------------
     # Each IAO inherits the atom and AM from the minimal-basis function
     # it was built from.
-    atom_of, am_of = _get_basis_maps(bas_min)  # both (n_min,)
+    atom_of, am_of, func_n, func_dtype = _get_basis_maps(bas_min)  # (n_min,) each
 
     # -- Pipek-Mezey localisation in IAO basis (eq 4 / Appendix D) --------
     _localize_ibos(C_IAO_occ, atom_of,
@@ -673,7 +788,8 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     # -- IBO analysis table -------------------------------------------------
     msg, labels = _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
-                                atom_of, am_of, elem, method, basis, ref)
+                                atom_of, am_of, func_n, func_dtype,
+                                elem, method, basis, ref)
     analysis_path = TEMP_DIR / "ibos.txt"
     analysis_path.write_text(msg, encoding="utf-8")
 
