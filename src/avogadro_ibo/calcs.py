@@ -406,6 +406,43 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
     return " + ".join(parts)
 
 
+def _wiberg_per_ibo(pop, occ, A, B):
+    """
+    Per-IBO contribution to the Wiberg bond order between atoms A and B.
+
+    In the orthonormal IAO basis, the density contribution from a single IBO
+    with coefficient vector c_k is D^{(k)} = occ_k · c_k c_k^T.  The Wiberg
+    index between A and B from this IBO is:
+
+        W_AB^{(k)} = Σ_{i∈A} Σ_{j∈B} (D^{(k)}_ij)²
+
+    which simplifies (by the independence of i and j sums) to:
+
+        W_AB^{(k)} = occ_k² · P_A · P_B
+
+    where P_X = Σ_{i∈X} c_{k,i}² is the Mulliken population on atom X.
+
+    For RHF occupied (occ=2): W_AB = 4 · P_A · P_B, ranging from 0 (pure
+    ionic, no shared density) to 1 (pure covalent 2c-2e bond with 50/50
+    sharing).
+    """
+    return float(occ ** 2 * pop[A] * pop[B])
+
+
+def _ionic_pct(pop, A, B):
+    """
+    Percent ionic character between atoms A and B from per-atom populations.
+
+        Ionic% = |P_A - P_B| / (P_A + P_B) × 100
+
+    Ranges from 0% (pure covalent, equal sharing) to 100% (pure ionic,
+    all density on one atom).
+    """
+    num = abs(pop[A] - pop[B])
+    den = pop[A] + pop[B]
+    return num / den * 100.0 if den > 1e-12 else 0.0
+
+
 def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                   atom_of, am_of, func_n, func_dtype,
                   elem, method, basis, ref):
@@ -415,7 +452,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     For each orbital (occupied IBO or valence-virtual IAO), compute:
       - per-atom populations from IAO coefficients
       - DOM (largest two n_A fractions summed)
-      - s/p/d character on the dominant atom
+      - per-IBO Wiberg bond order (W_AB) and percent ionic character
+      - specific nl/subtype hybrid label on the dominant atom
     """
     n_IAO, n_orb = C_IAO_all.shape
     n_atoms = len(elem)
@@ -426,7 +464,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     lines.append("")
     header = (
         f"  {'#':>3}  {'Occ':>7}  {'Energy':>10}  {'DOM':>5}  "
-        f"{'Type':>12}  {('Composition'):<38}  Hybrid"
+        f"{'Type':>12}  {('Composition'):<38}  {'Hybrid':<25}  "
+        f"{'W_AB':>7}  {'Ion%':>5}"
     )
     lines.append(header)
     lines.append("-" * len(header))
@@ -506,14 +545,68 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         hybrid = _hybrid_str(C_IAO_all[:, orb], am_of, atom_of,
                               func_n, func_dtype, top_A)
 
+        # Per-IBO Wiberg bond order and ionic character (between top_A, top_B)
+        w_ab = _wiberg_per_ibo(pop, oc, top_A, top_B)
+        if oc > 1.5 and w_ab > 0.001:
+            ion_str = f"{_ionic_pct(pop, top_A, top_B):.1f}"
+        else:
+            ion_str = "---"
+
         lines.append(
             f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
-            f"{dom:>5.3f}  {orbid:>12}  {comp:<38}  {hybrid}"
+            f"{dom:>5.3f}  {orbid:>12}  {comp:<38}  {hybrid:<25}  "
+            f"{w_ab:>7.3f}  {ion_str:>5}"
         )
 
     lines.append("")
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
     return "\n".join(lines), orbid_labels
+
+
+def _format_total_wiberg(C_IAO_occ, atom_of, elem):
+    """
+    Compute total Wiberg bond order matrix in the orthonormal IAO basis and
+    format a compact table of atom pairs with significant bond order.
+
+    The density matrix in the IAO basis (RHF) is:
+
+        D = 2 · C_IAO_occ @ C_IAO_occ.T
+
+    where C_IAO_occ has shape (n_min, n_occ).  The Wiberg index between
+    atoms A and B is:
+
+        W_AB = Σ_{i∈A} Σ_{j∈B} D_ij²
+
+    Only pairs with W_AB > 0.01 are shown.
+    """
+    # RHF: D = 2 · C_occ @ C_occ.T  (occupied density in orthonormal IAO basis)
+    D = 2.0 * C_IAO_occ @ C_IAO_occ.T       # (n_min, n_min)
+    D_sq = D ** 2
+
+    n_atoms = len(elem)
+    W = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    for i in range(D_sq.shape[0]):
+        ai = atom_of[i]
+        for j in range(D_sq.shape[1]):
+            aj = atom_of[j]
+            W[ai, aj] += D_sq[i, j]
+
+    pairs = []
+    for A in range(n_atoms):
+        for B in range(A + 1, n_atoms):
+            w = W[A, B]
+            if w > 0.01:
+                symA = _elem_symbol(elem[A])
+                symB = _elem_symbol(elem[B])
+                pairs.append((symA, symB, w))
+
+    if not pairs:
+        return ""
+
+    lines = ["", "--- Total Wiberg Bond Orders ---"]
+    for symA, symB, w in sorted(pairs, key=lambda x: -x[2]):
+        lines.append(f"  {symA}-{symB}    {w:>7.3f}")
+    return "\n".join(lines)
 
 
 def _elem_symbol(Z):
@@ -790,6 +883,11 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     msg, labels = _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                                 atom_of, am_of, func_n, func_dtype,
                                 elem, method, basis, ref)
+    # -- Total Wiberg bond order section -----------------------------------
+    wiberg_section = _format_total_wiberg(
+        C_IAO_all[:, :nocc], atom_of, elem
+    )
+    msg += wiberg_section
     analysis_path = TEMP_DIR / "ibos.txt"
     analysis_path.write_text(msg, encoding="utf-8")
 

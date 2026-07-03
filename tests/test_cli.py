@@ -37,12 +37,22 @@ def parse_ibos(path):
             continue
         cols = line.split()
         if cols and cols[0].isdigit():
-            data.append({
+            w_ab_raw = cols[-2]
+            ion_raw = cols[-1]
+            entry = {
                 "idx": int(cols[0]),
                 "occ": float(cols[1]),
                 "ene": float(cols[2]),
                 "dom": float(cols[3]),
-            })
+                "w_ab": float(w_ab_raw) if w_ab_raw != "---" else 0.0,
+                "ion_pct": ion_raw if ion_raw == "---" else float(ion_raw),
+            }
+            middle = cols[4:-2]
+            if len(middle) >= 2 and middle[1] in ("sigma", "pi", "anti*"):
+                entry["label"] = " ".join(middle[:2])
+            else:
+                entry["label"] = middle[0] if middle else ""
+            data.append(entry)
     return data
 
 
@@ -183,3 +193,41 @@ def test_benzene_symmetry():
     assert (emax - emin) < 1e-4, (
         f"C-H sigma energies split by {emax - emin:.6f} Ha (limit < 1e-4)"
     )
+
+
+def test_zncl2_bond_order():
+    """ZnCl₂: occupied Zn-Cl σ bonds show W_AB > 0.5 and ionic character > 10%."""
+    xyz_path = FILES_DIR / "zncl2.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0
+
+    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    assert "W_AB" in text, "Table should contain W_AB column header"
+    assert "Ion%" in text, "Table should contain Ion% column header"
+    assert "Total Wiberg Bond Orders" in text, "Should contain total Wiberg section"
+    assert "Zn-Cl" in text, "Total Wiberg should show Zn-Cl pairs"
+
+    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    zn_cl_sigmas = [
+        o for o in ibos
+        if abs(o["occ"] - 2.0) < 1e-4 and "sigma" in o.get("label", "")
+        and "Zn" in o.get("label", "") and "Cl" in o.get("label", "")
+    ]
+    assert len(zn_cl_sigmas) >= 2, (
+        f"Expected 2+ Zn-Cl sigma bonds, got {len(zn_cl_sigmas)}"
+    )
+    for ibo in zn_cl_sigmas:
+        w_ab = ibo.get("w_ab", 0.0)
+        assert w_ab > 0.5, f"Zn-Cl sigma bond W_AB={w_ab:.3f} should be > 0.5"
+        assert w_ab < 1.0, f"Zn-Cl sigma bond W_AB={w_ab:.3f} should be < 1.0 (not pure covalent)"
+
+        # Check ionic character from the raw line
+        ion_str = ibo.get("ion_pct", "0.0")
+        if ion_str != "---":
+            ion_val = float(ion_str)
+            assert ion_val > 10.0, (
+                f"Zn-Cl sigma ion%={ion_val:.1f} should be > 10% (polar)"
+            )
