@@ -460,6 +460,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
 
     lines = []
     orbid_labels = [""] * n_orb
+    atom_pop = np.zeros(n_atoms, dtype=np.float64)  # accumulated per-atom electron counts
     lines.append(f"IBO Analysis  ({method}/{basis}, {ref.upper()})")
     lines.append("")
     header = (
@@ -475,6 +476,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         sq = C_IAO_all[:, orb] ** 2
         pop = np.zeros(n_atoms, dtype=np.float64)
         np.add.at(pop, atom_of, sq)
+        if oc > 1.5:
+            atom_pop += pop * oc       # accumulate electron count per atom
 
         # Dominant atom and its population
         order = np.argsort(-pop)
@@ -560,6 +563,10 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
 
     lines.append("")
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
+
+    charge_section = _format_charge_decomposition(atom_pop, elem)
+    lines.append(charge_section)
+
     return "\n".join(lines), orbid_labels
 
 
@@ -606,6 +613,38 @@ def _format_total_wiberg(C_IAO_occ, atom_of, elem):
     lines = ["", "--- Total Wiberg Bond Orders ---"]
     for symA, symB, w in sorted(pairs, key=lambda x: -x[2]):
         lines.append(f"  {symA}-{symB}    {w:>7.3f}")
+    return "\n".join(lines)
+
+
+def _format_charge_decomposition(atom_pop, elem):
+    """
+    Format a charge decomposition table from accumulated IAO populations.
+
+    For each atom A:
+        Q_A = \u03a3_k occ_k \u00b7 P_A^{(k)}   (total electrons on atom A)
+        Net charge = Z_A - Q_A
+
+    ``atom_pop[A]`` is Q_A as a float.  ``elem`` gives atomic numbers.
+    """
+    lines = ["", "--- Charge Decomposition ---"]
+    header = f"  {'Atom':>4}  {'Z':>3}  {'Pop':>8}  {'Net Charge':>10}"
+    lines.append(header)
+    lines.append("-" * len(header))
+    total_pop = 0.0
+    total_z = 0
+    for A in range(len(elem)):
+        Z = int(round(elem[A]))
+        pop = atom_pop[A]
+        net = Z - pop
+        sym = _elem_symbol(Z)
+        lines.append(f"  {sym:>4}  {Z:>3d}  {pop:>8.3f}  {net:>+10.3f}")
+        total_pop += pop
+        total_z += Z
+    lines.append("-" * len(header))
+    lines.append(
+        f"Total:  {total_z:>3d}  {total_pop:>8.3f}  "
+        f"{total_z - total_pop:>+10.3f}"
+    )
     return "\n".join(lines)
 
 

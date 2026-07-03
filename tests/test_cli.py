@@ -231,3 +231,58 @@ def test_zncl2_bond_order():
             assert ion_val > 10.0, (
                 f"Zn-Cl sigma ion%={ion_val:.1f} should be > 10% (polar)"
             )
+
+
+def test_charge_decomposition():
+    """Water: charge decomposition sums to 10, O negative, H positive."""
+    xyz_path = FILES_DIR / "water.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0
+
+    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    assert "--- Charge Decomposition ---" in text
+
+    # Parse the charge decomposition section
+    lines = text.splitlines()
+    charge_start = None
+    for i, line in enumerate(lines):
+        if "--- Charge Decomposition ---" in line:
+            charge_start = i + 3  # skip header title + column header + separator
+            break
+    assert charge_start is not None
+
+    # Parse per-atom rows (until next separator line)
+    total_pop = 0.0
+    total_z = 0
+    found_o = False
+    found_h = False
+    for line in lines[charge_start:]:
+        s = line.strip()
+        if s.startswith("---"):
+            break
+        if not s or "Atom" in s or "Total" in s:
+            continue
+        cols = line.split()
+        if len(cols) >= 4:
+            sym = cols[0]
+            Z = int(cols[1])
+            pop = float(cols[2])
+            net = float(cols[3])
+            total_pop += pop
+            total_z += Z
+            if sym == "O":
+                found_o = True
+                assert net < -0.3, f"O net charge {net} should be negative"
+            elif sym == "H":
+                found_h = True
+                assert net > 0.1, f"H net charge {net} should be positive"
+
+    assert found_o, "O not found in charge decomposition"
+    assert found_h, "H not found in charge decomposition"
+    assert abs(total_pop - 10.0) < 0.01, (
+        f"Total population {total_pop:.3f} should be ~10.0"
+    )
+    assert total_z == 10, f"Total Z should be 10, got {total_z}"
