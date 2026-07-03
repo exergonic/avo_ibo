@@ -5,8 +5,11 @@ Runs the standalone CLI (python -m avogadro_ibo <file.xyz>) and
 validates outputs in the project's calcs/last/ directory.
 """
 
+import json
 import subprocess
 import sys
+
+from avogadro_ibo.__main__ import _parse_xyz
 from pathlib import Path
 
 import pytest
@@ -286,3 +289,47 @@ def test_charge_decomposition():
         f"Total population {total_pop:.3f} should be ~10.0"
     )
     assert total_z == 10, f"Total Z should be 10, got {total_z}"
+
+
+def test_charge_cjson():
+    """Water: cjson['atoms']['partialCharges'] in returned JSON has correct charges."""
+    xyz_path = FILES_DIR / "water.xyz"
+    coords, numbers = _parse_xyz(xyz_path)
+    cjson = {
+        "atoms": {"coords": {"3d": coords}, "elements": {"number": numbers}},
+        "properties": {"totalCharge": 0, "totalSpinMultiplicity": 1},
+    }
+
+    # Run through __init__.py's main() (the Avogadro plugin entry) by piping
+    # JSON to stdin and capturing stdout JSON.
+    input_data = json.dumps({"cjson": cjson, "options": {}, "charge": 0, "spin": 1})
+    result = subprocess.run(
+        [sys.executable, "-c",
+         "import sys; sys.argv = ['avogadro_ibo', 'ibo']; "
+         "sys.stdout.reconfigure(encoding='utf-8'); "
+         "from avogadro_ibo import main; main()"],
+        input=input_data, capture_output=True, text=True,
+        cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0, (
+        f"CLI failed:\nstdout:{result.stdout}\nstderr:{result.stderr}"
+    )
+
+    output = json.loads(result.stdout)
+    cjson_out = output.get("cjson", {})
+    charges = cjson_out.get("atoms", {}).get("partialCharges", None)
+    assert charges is not None, "cjson should contain atoms.partialCharges"
+    assert len(charges) == 3, f"Expected 3 charges, got {len(charges)}"
+
+    # O should be negative, both H positive
+    o_charge = charges[0]
+    h1_charge = charges[1]
+    h2_charge = charges[2]
+    assert o_charge < -0.3, f"O charge {o_charge} should be negative"
+    assert h1_charge > 0.1, f"H₁ charge {h1_charge} should be positive"
+    assert h2_charge > 0.1, f"H₂ charge {h2_charge} should be positive"
+
+    # Sum should be neutral
+    assert abs(o_charge + h1_charge + h2_charge) < 0.01, (
+        f"Charges sum to {o_charge + h1_charge + h2_charge:.4f}, should be ~0"
+    )

@@ -567,7 +567,10 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     charge_section = _format_charge_decomposition(atom_pop, elem)
     lines.append(charge_section)
 
-    return "\n".join(lines), orbid_labels
+    net_charges = [
+        float(int(round(elem[A])) - atom_pop[A]) for A in range(n_atoms)
+    ]
+    return "\n".join(lines), orbid_labels, net_charges
 
 
 def _format_total_wiberg(C_IAO_occ, atom_of, elem):
@@ -919,9 +922,12 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     _psi_molden(wfn, str(canon_path))
 
     # -- IBO analysis table -------------------------------------------------
-    msg, labels = _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
-                                atom_of, am_of, func_n, func_dtype,
-                                elem, method, basis, ref)
+    msg, labels, net_charges = _analyze_ibos(
+        C_IAO_all, occ_all, energies_all, nocc,
+        atom_of, am_of, func_n, func_dtype,
+        elem, method, basis, ref,
+    )
+    cjson["atoms"]["partialCharges"] = [round(c, 4) for c in net_charges]
     # -- Total Wiberg bond order section -----------------------------------
     wiberg_section = _format_total_wiberg(
         C_IAO_all[:, :nocc], atom_of, elem
