@@ -20,6 +20,7 @@ _test_*.py
 
 # Build artifacts
 *.egg-info/
+*.pdf
 
 # calcs/ runtime artifacts (but keep .gitkeep so directory ships with repo)
 calcs/last/*
