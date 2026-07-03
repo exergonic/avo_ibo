@@ -610,7 +610,7 @@ def _format_total_wiberg(C_IAO_occ, atom_of, elem):
     if not pairs:
         return ""
 
-    lines = ["", "--- Total Wiberg Bond Orders ---"]
+    lines = ["", "", "--- Total Wiberg Bond Orders ---"]
     for symA, symB, w in sorted(pairs, key=lambda x: -x[2]):
         lines.append(f"  {symA}-{symB}    {w:>7.3f}")
     return "\n".join(lines)
