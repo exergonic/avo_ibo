@@ -6,7 +6,11 @@ from .calcs import compute_ibo
 
 _ELEMENT_NUMBERS = {symbol: Z for Z, symbol in enumerate(
     ["X", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
-     "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar"], start=0)}
+     "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
+     "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+     "Ga", "Ge", "As", "Se", "Br", "Kr",
+     "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
+     "In", "Sn", "Sb", "Te", "I"], start=0)}
 
 def _parse_xyz(path):
     lines = Path(path).read_text().strip().splitlines()

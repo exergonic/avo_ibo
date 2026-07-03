@@ -16,13 +16,15 @@ FILES_DIR = PROJECT_DIR / "tests" / "files"
 CALCS_LAST = PROJECT_DIR / "calcs" / "last"
 
 # (xyz, label, n_AO, n_IAO, n_occ, n_vir)
-# Basis counts: Cartesian cc-pVDZ (H=5, C/N/O=15); STO-3G min (H=1, C/N/O=5)
+# Basis counts: Cartesian cc-pVDZ (H=5, C/N/O=15, Zn=43, Cl=19);
+# STO-3G min (H=1, C/N/O=5, Zn=16, Cl=9).
 MOLECULES = [
     ("water.xyz", "water", 25, 7, 5, 2),
     ("methane.xyz", "methane", 35, 9, 5, 4),
     ("ethene.xyz", "ethene", 50, 14, 8, 6),
     ("ammonia.xyz", "ammonia", 30, 8, 5, 3),
     ("benzene.xyz", "benzene", 120, 36, 21, 15),
+    ("zncl2.xyz", "zncl2", 87, 37, 32, 5),
 ]
 
 
