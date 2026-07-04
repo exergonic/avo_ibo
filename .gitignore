@@ -39,3 +39,4 @@ paper/
 # Reference schemas (kept locally, not published)
 cjson.scheme
 PLUGIN-SPEC.md
+foo
