@@ -2,10 +2,10 @@
 
 `avo_ibo` is a plugin for Avogadro 2 (and standalone CLI) that computes and
 visualizes Intrinsic Bond Orbitals (IBOs) using
-[Psi4](https://psicode.org) for SCF and wavefunction generation.
-The IAO/2014 construction, Pipek-Mezey localization, and analysis are
-delegated to the standalone [`pyibo`](https://github.com/exergonic/pyibo)
-package (pure numpy/scipy, no Psi4 dependency).
+[Psi4](https://psicode.org) for SCF and wavefunction generation, then
+performs post-SCF IAO/2014 orbital construction (Knizia, *J. Chem. Theory
+Comput.* **2013**, *9*, 4834) and Pipek-Mezey localization directly in the
+plugin.
 
 ## Capabilities
 
@@ -25,15 +25,12 @@ package (pure numpy/scipy, no Psi4 dependency).
 ## Quick Start
 
 Requires [pixi](https://pixi.sh). If using the Avogadro plugin, the bundled
-pixi is already on your PATH.  Also requires
-[`pyibo`](https://github.com/exergonic/pyibo) (the standalone IBO core).
+pixi is already on your PATH.
 
 ```powershell
 git clone https://github.com/exergonic/avo_ibo.git
-git clone https://github.com/exergonic/pyibo.git
 cd avo_ibo
 pixi install
-pixi run python -m pip install -e ../pyibo
 pixi run python -m pip install -e .
 ```
 

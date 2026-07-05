@@ -22,9 +22,8 @@ pytest = ">=8.3.3"
 ruff = ">=0.7.2"
 
 [tool.pixi.tasks]
-test = { cmd = "pytest tests/ -v", depends-on = ["_install_plugin"] }
-_install_pyibo = "python -m pip install -e ../pyibo"
-_install_plugin = { cmd = "python -m pip install -e .", depends-on = ["_install_pyibo"] }
+test = { cmd = "pytest tests/ -v", depends-on = ["_install"] }
+_install = "python -m pip install -e ."
 
 [tool.avogadro]
 minimum-avogadro-version = "1.103"
