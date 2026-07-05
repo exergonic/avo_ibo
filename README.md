@@ -16,57 +16,36 @@ plugin.
 * Analysis table (`calcs/last/ibos.txt`) — occupancy, energy, DOM, bond type, atomic composition, s/p/d hybridization
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
 
-## Requirements
-
-* [Psi4](https://psicode.org) — install via `conda install psi4` (not on PyPI)
-* Minimal basis STO-3G for IAO construction (available in Psi4 by default)
-* Neutral singlet closed-shell molecules only
 
 ## Quick Start
 
-Requires [pixi](https://pixi.sh). If using the Avogadro plugin, the bundled
-pixi is already on your PATH.
+### Avogadro Plugin (easiest)
+Download this repo from GitHub (Code → Download ZIP).  Unzip it, then in
+Avogadro click **Extensions → Manage Plugins... → Install from Directory...**
+and choose the extracted `avo_ibo` folder.
+
+**Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
+Orbitals appear in the **Molecular Orbitals** panel.
+
+### Development Setup
+Requires [pixi](https://pixi.sh).
 
 ```powershell
 git clone https://github.com/exergonic/avo_ibo.git
 cd avo_ibo
 pixi install
-pixi run python -m pip install -e .
-```
-
-If pixi complains of `no module named pip`:
-```shell
-pixi run python -m ensurepip
-```
-
-The lock file uses v6 format (safe to ignore — Avogadro's bundled pixi
-v0.66.0 reads v6 natively).
-
-### Tests
-
-```powershell
 pixi run test
 ```
 
-### Standalone CLI
+The lock file uses v6 format (safe to ignore — the version of pixi
+bundled with Avogadro v0.66.0 reads v6 natively).
 
+### Standalone CLI
 ```powershell
 pixi run python -m avogadro_ibo molecule.xyz
 ```
 
 Writes to `calcs/last/` (ibo.molden, canonical.molden, ibos.txt, psi4.log).
-
-### Avogadro 2 plugin
-
-Create a symlink so Avogadro discovers the plugin:
-
-```powershell
-New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" `
-  -Target "C:\path\to\avo_ibo"
-```
-
-In Avogadro: **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
-Orbitals appear in the **Molecular Orbitals** panel.
 
 ### pip (no pixi)
 
