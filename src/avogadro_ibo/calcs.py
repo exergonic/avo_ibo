@@ -104,21 +104,33 @@ def _build_iao_basis(S, S12, S_min, C_occ):
     n_min = S12.shape[1]
 
     # (1) Projector from minimal basis to AO basis: P12 = S^{-1} @ S12
-    L_S, low_S = cho_factor(S)
+    try:
+        L_S, low_S = cho_factor(S)
+    except np.linalg.LinAlgError:
+        S_work = S + np.eye(S.shape[0], dtype=np.float64) * 1e-12
+        L_S, low_S = cho_factor(S_work)
     P12 = cho_solve((L_S, low_S), S12)            # (n_AO, n_min)
 
     # (2) Occupied MOs expressed in the minimal basis
     C_occ_min = S12.T @ C_occ                     # (n_min, n_occ)
 
     # (3) Solve S_min @ C_tilde = C_occ_min
-    L_min, low_min = cho_factor(S_min)
+    try:
+        L_min, low_min = cho_factor(S_min)
+    except np.linalg.LinAlgError:
+        S_min_work = S_min + np.eye(S_min.shape[0], dtype=np.float64) * 1e-12
+        L_min, low_min = cho_factor(S_min_work)
     C_tilde = cho_solve((L_min, low_min), C_occ_min)   # (n_min, n_occ)
 
     # (4) Metric in the occupied space
     S_tilde = C_occ_min.T @ C_tilde                    # (n_occ, n_occ)
 
     # (5) Solve S_tilde @ C_tilde_2bar^T = C_tilde^T
-    L_tilde, low_tilde = cho_factor(S_tilde)
+    try:
+        L_tilde, low_tilde = cho_factor(S_tilde)
+    except np.linalg.LinAlgError:
+        S_tilde = S_tilde + np.eye(S_tilde.shape[0], dtype=np.float64) * 1e-12
+        L_tilde, low_tilde = cho_factor(S_tilde)
     C_tilde_2bar_T = cho_solve((L_tilde, low_tilde), C_tilde.T)  # (n_occ, n_min)
     C_tilde_2bar = C_tilde_2bar_T.T                          # (n_min, n_occ)
 
@@ -752,11 +764,10 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     # note that shell.coef(p) includes primitive normalization — the Molden
     # reader would re-apply normalization, producing incorrect basis
     # function values.  Use shell.original_coef(p) for direct GTO output.
-    import tempfile
     import numpy as np
+    import psi4
     tmp = path.with_suffix(".molden.tmp")
-    psi4_molden = __import__("psi4").molden
-    psi4_molden(wfn, str(tmp))
+    psi4.molden(wfn, str(tmp))
     text = tmp.read_text(encoding="utf-8")
     tmp.unlink()
 
@@ -1019,8 +1030,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
     canon_path = calc_dir / "canonical.molden"
-    _psi_molden = __import__("psi4").molden
-    _psi_molden(wfn, str(canon_path))
+    psi4.molden(wfn, str(canon_path))
 
     # -- IBO analysis table -------------------------------------------------
     msg, labels, net_charges = _analyze_ibos(
