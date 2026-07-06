@@ -649,11 +649,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     if deg_ranges:
         deg_groups = []
         for start, end in deg_ranges:
-            n_group = end - start
-            if n_group == 2:
-                deg_groups.append(f"{start + 1}")
-            else:
-                deg_groups.append(f"{start + 1}-{end}")
+            deg_groups.append(f"{start + 1}-{end}")
         lines.append(f"  † Orbitals {', '.join(deg_groups)} form degenerate "
                      f"manifolds (ΔE < {DEG_THRESH:.0e} Ha).  Small energy "
                      f"differences within each manifold are PM convergence noise.")
