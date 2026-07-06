@@ -132,6 +132,7 @@ def _build_iao_basis(S, S12, S_min, C_occ):
     #     Find M^{-1/2} where M = C_IAO^T @ S @ C_IAO
     metric = C_IAO.T @ S @ C_IAO                     # (n_min, n_min)
     evals, evecs = np.linalg.eigh(metric)
+    evals = np.maximum(evals, 1e-14)  # guard against near-zero from near-linear-dependence
     C_IAO = C_IAO @ (evecs @ np.diag(evals ** -0.5) @ evecs.T)
 
     # Express the occupied MOs in the orthonormal IAO basis.
