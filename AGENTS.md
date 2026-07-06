@@ -217,13 +217,23 @@ Serious professionals can always run their own SCF calculations and then use
     functions — but provided so that cc-pVTZ and higher bases work without a
     silent corruption bug.
 23. **`_ELEMENT_NUMBERS` in `__main__.py` truncated (2026-07-01)**: The CLI
-    parser (`python -m avogadro_ibo <file.xyz>`) used a separate element-number
+    parser (`python -m avogadro_ibo <file.xyz>) used a separate element-number
     lookup that only went to Ar (Z=18).  Any element beyond Ar (Zn, Br, I, etc.)
     silently mapped to Z=0 (ghost atom), producing wrong coordinates for
     molecules containing those elements.  Avogadro's cjson path (stdin/stdout
     protocol) was unaffected — it sends atomic numbers directly.  Fix: extend
     `_ELEMENT_NUMBERS` in `__main__.py` to match `_ELEM_SYMBOLS` in `calcs.py`,
     covering all elements through I (Z=53).  See `__main__.py:7`.
+24. **D₂h symmetry splitting in diborane (2026-07-06)**: The 2e3c bridge bonds
+    and terminal B-H σ bonds in D₂h diborane show small energy splittings
+    (4×10⁻⁵ Ha for bridges, 7×10⁻⁵ Ha for B-H σ).  Same class of limitation
+    as the benzene C-H σ split (Gotcha 19/20): the PM functional with fixed
+    sequential sweep order converges to the nearest local maximum, which for
+    symmetric molecules with overlapping bond subspaces is not guaranteed to
+    be the perfectly symmetric solution.  The orthogonality constraint between
+    σ bonds sharing a boron's p-subspace drives the splitting.  No fix known —
+    the aufbau diagonalisation (`_resolve_on_atom_mixing`) addresses only
+    same-atom DOM≈1 subspaces, not this orthogonal-bond coupling.
 
 ## Relevant Files
 

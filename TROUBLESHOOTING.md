@@ -2,6 +2,16 @@
 
 ## Installation Issues
 
+**Problem:** Creating the Avogadro plugin symlink fails with "Access Denied."
+
+**Solution:**
+1. Run PowerShell as Administrator.
+2. Then run:
+   ```powershell
+   New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" `
+     -Target "C:\path\to\avo_ibo"
+   ```
+
 ### `pixi` not found
 
 **Problem:** Running `pixi install` fails with "command not found."
@@ -46,19 +56,6 @@ To keep v6 format (for compatibility with Avogadro's bundled pixi):
 pixi lock --no-update
 ```
 
-### Symlink creation fails on Windows
-
-**Problem:** Creating the Avogadro plugin symlink fails with "Access Denied."
-
-**Solution:**
-1. Run PowerShell as Administrator.
-2. Enable Developer Mode (Windows 10/11):
-   - Settings → Update & Security → For developers → toggle "Developer Mode"
-3. Then run:
-   ```powershell
-   New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" `
-     -Target "C:\path\to\avo_ibo"
-   ```
 
 ## Runtime Issues
 
@@ -76,12 +73,6 @@ pixi lock --no-update
 3. Check that the symlink target path is correct:
    ```powershell
    (Get-Item "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo").Target
-   ```
-4. Ensure the repository contains the required entry points by checking `pyproject.toml`:
-   ```toml
-   [project.entry-points."avogadro-ibo"]
-   ibo = "avogadro_ibo:avo_ibo"
-   open = "avogadro_ibo:open_calcs_dir"
    ```
 
 ### Computation fails: "molecule contains no atoms"

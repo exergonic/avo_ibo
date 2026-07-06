@@ -507,12 +507,10 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
                 pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
                 bond_type = "pi" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "sigma"
-                symA = _elem_symbol(elem[top_A])
-                symB = _elem_symbol(elem[top_B])
-                if top_A < top_B:
-                    orbid = f"{symA}-{symB} {bond_type}"
-                else:
-                    orbid = f"{symB}-{symA} {bond_type}"
+                a, b = sorted([top_A, top_B])
+                symA = _elem_symbol(elem[a])
+                symB = _elem_symbol(elem[b])
+                orbid = f"{symA}-{symB} {bond_type}"
             elif pop[top_A] > 0.70:
                 symA = _elem_symbol(elem[top_A])
                 if s_char > 0.5:
@@ -520,16 +518,27 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 else:
                     orbid = f"{symA}(LP)"
             else:
-                orbid = "Deloc"
-        else:
-            # Virtual — label as anti-bonding only if second atom matters
-            if pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
-                symA = _elem_symbol(elem[top_A])
-                symB = _elem_symbol(elem[top_B])
-                if top_A < top_B:
-                    orbid = f"{symA}-{symB} anti*"
+                # Check for 2-electron 3-center bond
+                if len(order) >= 3 and pop[order[2]] > 0.10:
+                    atoms = sorted([order[0], order[1], order[2]],
+                                  key=lambda i: (_elem_symbol(elem[i]), i))
+                    syms = '-'.join(_elem_symbol(elem[a]) for a in atoms)
+                    orbid = f"{syms} 2e3c"
                 else:
-                    orbid = f"{symB}-{symA} anti*"
+                    orbid = "Deloc"
+        else:
+            # Virtual — label as anti-bonding counterpart
+            if len(order) >= 3 and pop[order[2]] > 0.08:
+                # 3-center antibonding counterpart
+                atoms = sorted([order[0], order[1], order[2]],
+                              key=lambda i: (_elem_symbol(elem[i]), i))
+                syms = '-'.join(_elem_symbol(elem[a]) for a in atoms)
+                orbid = f"{syms} 2e3c anti*"
+            elif pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
+                a, b = sorted([top_A, top_B])
+                symA = _elem_symbol(elem[a])
+                symB = _elem_symbol(elem[b])
+                orbid = f"{symA}-{symB} anti*"
             elif pop[top_A] > 0.50:
                 orbid = f"{_elem_symbol(elem[top_A])}(virt)"
             else:
@@ -545,8 +554,17 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
 
+        # For hybrid label, prefer a non-H atom when it carries meaningful density
+        hybrid_atom = top_A
+        if elem[top_A] == 1:
+            for A in order[1:]:
+                if elem[A] != 1 and pop[A] > 0.02:
+                    hybrid_atom = A
+                    break
         hybrid = _hybrid_str(C_IAO_all[:, orb], am_of, atom_of,
-                              func_n, func_dtype, top_A)
+                              func_n, func_dtype, hybrid_atom)
+        if hybrid_atom != top_A:
+            hybrid = f"{_elem_symbol(elem[hybrid_atom])}: {hybrid}"
 
         # Per-IBO Wiberg bond order and ionic character (between top_A, top_B)
         w_ab = _wiberg_per_ibo(pop, oc, top_A, top_B)
