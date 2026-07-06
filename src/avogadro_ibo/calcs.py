@@ -513,7 +513,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                     orbid = f"{symA}(LP)"
             else:
                 # Check for 2-electron 3-center bond
-                if len(order) >= 3 and pop[order[2]] > 0.10:
+                if len(order) >= 3 and pop[order[2]] > 0.10 and (len(order) < 4 or pop[order[3]] <= 0.03):
                     atoms = sorted([order[0], order[1], order[2]],
                                   key=lambda i: (_elem_symbol(elem[i]), i))
                     syms = '-'.join(_elem_symbol(elem[a]) for a in atoms)
@@ -550,7 +550,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         comp_parts = []
         for A in order[:4]:
             if pop[A] > 0.02:
-                sym = _elem_symbol(elem[A])
+                sym = f"{_elem_symbol(elem[A])}{A+1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
