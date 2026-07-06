@@ -71,15 +71,28 @@ Calculations are run in `calcs/last/` in the current working directory:
   (radicals, triplet states, broken-symmetry calculations) are not
   supported.  The SCF will still run, but the orbital construction,
   analysis, and Molden output will be invalid.
+
+### Known Limitation: Analysis Table vs. Isosurface Tails
+
+The IBO analysis table (`ibos.txt`) reports orbital compositions in the
+IAO basis, where populations are clean and bond assignments are crisp.
+The Molden isosurfaces are rendered in the full SCF basis via the
+projection `C_AO = C_IAO @ C_IAO_all`, which correctly includes the
+IAO repolarization components.
+
+These two representations are slightly inconsistent by construction:
+small density tails visible on non-dominant atoms in the isosurface
+are physically real repolarization contributions, not rendering
+artifacts or bugs.  The analysis table intentionally omits these for
+clarity of chemical interpretation.  This discrepancy is
+mathematically unavoidable and is present in all IAO-based
+implementations.
+
 * Pipek-Mezey localization uses fixed sequential Jacobi sweeps.  For
   highly symmetric molecules, symmetry-equivalent orbitals may show
   small (sub-milliHartree) energy splittings (a known consequence of
   the orthogonality constraint — see Knizia JCTC 2013 and
   `mathematics.md`).
-* The analysis table uses the IAO-basis population (clean, atoms-only),
-  while the Molden isosurface shows the same orbitals in the full AO
-  basis, which may display small density tails on non-dominant atoms.
-  This is mathematically unavoidable — see `AGENTS.md` (Gotcha 26).
 
 ## License
 
