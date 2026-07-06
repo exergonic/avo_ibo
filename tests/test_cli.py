@@ -70,7 +70,7 @@ def parse_ibos(path):
                 "dom": float(cols[3]),
                 "ion_pct": ion_raw if ion_raw == "---" else float(ion_raw),
             }
-            if len(middle) >= 2 and middle[1] in ("sigma", "pi", "anti*"):
+            if len(middle) >= 2 and middle[1] in ("σ", "σ*", "π", "π*", "anti*"):
                 entry["label"] = " ".join(middle[:2])
             else:
                 entry["label"] = middle[0] if middle else ""
@@ -204,7 +204,7 @@ def test_benzene_symmetry():
         s = line.strip()
         if not s or not s[0].isdigit():
             continue
-        if "C-H sigma" not in line or "anti*" in line:
+        if "C-H σ" not in line or "C-H σ*" in line:
             continue
         cols = line.split()
         ch_energies.append(float(cols[2]))
@@ -214,7 +214,7 @@ def test_benzene_symmetry():
     emax = max(ch_energies)
     emin = min(ch_energies)
     assert (emax - emin) < 1e-4, (
-        f"C-H sigma energies split by {emax - emin:.6f} Ha (limit < 1e-4)"
+        f"C-H σ energies split by {emax - emin:.6f} Ha (limit < 1e-4)"
     )
 
 
@@ -236,7 +236,7 @@ def test_zncl2_bond_order():
     ibos = parse_ibos(calc_dir / "ibos.txt")
     zn_cl_sigmas = [
         o for o in ibos
-        if abs(o["occ"] - 2.0) < 1e-4 and "sigma" in o.get("label", "")
+        if abs(o["occ"] - 2.0) < 1e-4 and "σ" in o.get("label", "")
         and "Zn" in o.get("label", "") and "Cl" in o.get("label", "")
     ]
     assert len(zn_cl_sigmas) >= 2, (

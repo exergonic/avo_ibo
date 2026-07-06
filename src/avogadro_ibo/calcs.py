@@ -555,7 +555,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
                 pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
                 pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
-                bond_type = "pi" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "sigma"
+                bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
                 a, b = sorted([top_A, top_B])
                 symA = _elem_symbol(elem[a])
                 symB = _elem_symbol(elem[b])
@@ -580,16 +580,16 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             if pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
                 pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
                 pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
-                bond_type = "pi" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "sigma"
+                bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
                 a, b = sorted([top_A, top_B])
                 symA = _elem_symbol(elem[a])
                 symB = _elem_symbol(elem[b])
-                orbid = f"{symA}-{symB} {bond_type} anti*"
+                orbid = f"{symA}-{symB} {bond_type}*"
             elif len(order) >= 3 and pop[order[2]] > 0.08:
                 # Delocalized antibond — label by dominant atom's character
                 pfrac_top = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
                 symA = _elem_symbol(elem[top_A])
-                orbid = f"{symA} pi anti*" if pfrac_top > 0.85 else f"{symA} anti*"
+                orbid = f"{symA} π*" if pfrac_top > 0.85 else f"{symA} anti*"
             elif pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
                 a, b = sorted([top_A, top_B])
                 symA = _elem_symbol(elem[a])
