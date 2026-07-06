@@ -151,9 +151,9 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12,
     """
     Localise the occupied orbitals in the IAO basis by maximising
 
-        L = sum_A sum_i  [n_A(i)]^p
+        L = Σ_A Σ_i  [n_A(i)]^p
 
-    where n_A(i) = sum_{mu in A} C(mu,i)^2 is the electron population of
+    where n_A(i) = Σ_{μ ∈ A} C(μ,i)² is the electron population of
     orbital i on atom A (in the orthonormal IAO basis) and p is the PM
     exponent.
 
@@ -642,7 +642,7 @@ def _format_charge_decomposition(atom_pop, elem):
     Format a charge decomposition table from accumulated IAO populations.
 
     For each atom A:
-        Q_A = \u03a3_k occ_k \u00b7 P_A^{(k)}   (total electrons on atom A)
+        Q_A = Σ_k occ_k · P_A^{(k)}   (total electrons on atom A)
         Net charge = Z_A - Q_A
 
     ``atom_pop[A]`` is Q_A as a float.  ``elem`` gives atomic numbers.
