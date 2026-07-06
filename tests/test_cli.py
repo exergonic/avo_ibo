@@ -65,7 +65,7 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
     assert xyz_path.exists(), f"Missing test file: {xyz_path}"
 
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
     )
     assert result.returncode == 0, f"CLI failed:\nstdout:{result.stdout}\nstderr:{result.stderr}"
@@ -102,7 +102,7 @@ def test_water_on_atom_resolution():
     """On-atom Fock diagonalisation separates O 2s LP from O 2p LP by energy."""
     xyz_path = FILES_DIR / "water.xyz"
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
     )
     assert result.returncode == 0
@@ -124,7 +124,7 @@ def test_methane_pattern():
     """Methane: 1 core + 4 identical C-H sigma (degenerate energies)."""
     xyz_path = FILES_DIR / "methane.xyz"
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
     )
     assert result.returncode == 0
@@ -146,7 +146,7 @@ def test_ammonia_lp():
     """Ammonia: 1 core + 3 N-H sigma + 1 N LP (DOM≈1)."""
     xyz_path = FILES_DIR / "ammonia.xyz"
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
     )
     assert result.returncode == 0
@@ -169,7 +169,7 @@ def test_benzene_symmetry():
     """
     xyz_path = FILES_DIR / "benzene.xyz"
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=300,
     )
     assert result.returncode == 0
@@ -202,7 +202,7 @@ def test_zncl2_bond_order():
     """ZnCl₂: occupied Zn-Cl σ bonds show W_AB > 0.5 and ionic character > 10%."""
     xyz_path = FILES_DIR / "zncl2.xyz"
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
     )
     assert result.returncode == 0
@@ -240,7 +240,7 @@ def test_charge_decomposition():
     """Water: charge decomposition sums to 10, O negative, H positive."""
     xyz_path = FILES_DIR / "water.xyz"
     result = subprocess.run(
-        [sys.executable, "-m", "avogadro_ibo", str(xyz_path)],
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", str(xyz_path)],
         capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
     )
     assert result.returncode == 0
@@ -302,7 +302,7 @@ def test_charge_cjson():
 
     # Run through __init__.py's main() (the Avogadro plugin entry) by piping
     # JSON to stdin and capturing stdout JSON.
-    input_data = json.dumps({"cjson": cjson, "options": {}, "charge": 0, "spin": 1})
+    input_data = json.dumps({"cjson": cjson, "options": {"method": "hf", "basis": "cc-pVDZ"}, "charge": 0, "spin": 1})
     result = subprocess.run(
         [sys.executable, "-c",
          "import sys; sys.argv = ['avogadro_ibo', 'ibo']; "

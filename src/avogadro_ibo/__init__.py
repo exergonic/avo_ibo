@@ -40,6 +40,8 @@ def main():
     parser.add_argument("feature", nargs="?", default="ibo", help="Feature to run")
     parser.add_argument("--lang", default="en_US", help="Language")
     parser.add_argument("--debug", action="store_true", help="Enable debug output")
+    parser.add_argument("--user-options", action="store_true",
+                        help="Return available config options (Avogadro protocol)")
     args = parser.parse_args()
     logger.debug(f"Parsed args: {args}")
 
@@ -54,7 +56,13 @@ def main():
     spin = data.get("spin", 1)
 
     try:
-        if args.feature == "ibo":
+        if args.feature == "config":
+            from .config import get_config_options, update_config
+            if args.user_options:
+                result = {"userOptions": get_config_options()}
+            else:
+                result = update_config(data)
+        elif args.feature == "ibo":
             _prepare_calc_dir()
             from .calcs import compute_ibo
 

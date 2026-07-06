@@ -1,5 +1,6 @@
-"""Standalone CLI: python -m avogadro_ibo <file.xyz>"""
+"""Standalone CLI: python -m avogadro_ibo <file.xyz> [--method ...] [--basis ...]"""
 
+import argparse
 import sys
 from pathlib import Path
 from .calcs import compute_ibo
@@ -12,6 +13,7 @@ _ELEMENT_NUMBERS = {symbol: Z for Z, symbol in enumerate(
      "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
      "In", "Sn", "Sb", "Te", "I"], start=0)}
 
+
 def _parse_xyz(path):
     lines = Path(path).read_text().strip().splitlines()
     natoms = int(lines[0].strip())
@@ -22,23 +24,38 @@ def _parse_xyz(path):
         coords.extend(map(float, parts[1:4]))
     return coords, numbers
 
+
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python -m avogadro_ibo <file.xyz>", file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Compute IBOs from an XYZ file"
+    )
+    parser.add_argument("xyz_file", help="Input XYZ file")
+    parser.add_argument("--method", default=None,
+                        help="SCF method (hf, b3lyp, pbe, ...)")
+    parser.add_argument("--basis", default=None,
+                        help="Basis set (cc-pVDZ, def2-TZVP, ...)")
+    args = parser.parse_args()
+
     try:
         import psi4
     except ImportError:
         print("Error: Psi4 is required but not installed.", file=sys.stderr)
         print("Install it via pixi, or via conda (conda install psi4).", file=sys.stderr)
         sys.exit(1)
-    coords, numbers = _parse_xyz(sys.argv[1])
+
+    coords, numbers = _parse_xyz(args.xyz_file)
     cjson = {
         "atoms": {"coords": {"3d": coords}, "elements": {"number": numbers}},
         "properties": {"totalCharge": 0, "totalSpinMultiplicity": 1},
     }
-    result = compute_ibo(cjson, {}, charge=0, spin=1)
+    options = {}
+    if args.method:
+        options["method"] = args.method
+    if args.basis:
+        options["basis"] = args.basis
+    result = compute_ibo(cjson, options, charge=0, spin=1)
     print(result.get("message", "done"))
+
 
 if __name__ == "__main__":
     main()

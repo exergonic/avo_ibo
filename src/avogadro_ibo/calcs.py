@@ -810,6 +810,7 @@ def _option(options, key, default):
 def compute_ibo(cjson, options, charge, spin, debug=False):
     import logging
     from . import TEMP_DIR
+    from .config import load_config as _load_config
 
     _psi_logger = logging.getLogger("psi4")
     _psi_logger.propagate = False
@@ -847,8 +848,9 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     mol_spec = f"{charge_tag}\n{geom_lines}\nno_com\nno_reorient\nsymmetry c1"
     mol = psi4.geometry(mol_spec)
 
-    basis = _option(options, "basis", "cc-pVDZ")
-    method = _option(options, "method", "hf")
+    _cfg = _load_config()
+    basis = _option(options, "basis", _cfg.get("basis", "cc-pVDZ"))
+    method = _option(options, "method", _cfg.get("method", "hf"))
     psi4.set_options({
         "basis": basis,
         "scf_type": "df",

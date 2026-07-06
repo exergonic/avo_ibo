@@ -3,7 +3,7 @@ authors = [{ name = "Billy Wayne McCann", email = "thebillywayne@gmail.com" }]
 dependencies = []
 name = "avogadro_ibo"
 requires-python = ">= 3.11"
-version = "0.1.0"
+version = "0.2.0"
 
 [project.scripts]
 avogadro-ibo = "avogadro_ibo:main"
@@ -36,6 +36,16 @@ menu = "Extensions"
 submenu = "Intrinsic Bond Orbitals"
 item = "Compute IBOs"
 menu-priorities = [100, 800]
+
+[[tool.avogadro.menu-commands]]
+identifier = "config"
+input-format = "xyz"
+input-cjson = true
+user-options = "dynamic"
+menu = "Extensions"
+submenu = "Intrinsic Bond Orbitals"
+item = "Configure…"
+menu-priorities = [100, 100]
 
 [[tool.avogadro.menu-commands]]
 identifier = "open"

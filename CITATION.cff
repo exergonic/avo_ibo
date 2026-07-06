@@ -5,7 +5,7 @@ authors:
     given-names: Billy Wayne
     email: thebillywayne@gmail.com
 title: "avo_ibo: Intrinsic Bond Orbital plugin for Avogadro 2"
-version: 0.1.0
+version: 0.2.0
 date-released: 2026-06-30
 license: BSD-3-Clause
 repository-code: "https://github.com/exergonic/avo_ibo"
