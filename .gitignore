@@ -25,6 +25,7 @@ _test_*.py
 # calcs/ runtime artifacts (but keep .gitkeep so directory ships with repo)
 calcs/last/*
 !calcs/last/.gitkeep
+calcs/config.json
 
 # Local development notes (LLM context, not for publishing)
 AGENTS.md
