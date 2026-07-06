@@ -64,6 +64,23 @@ Calculations are run in `calcs/last/` in the current working directory:
 * `canonical.molden` — canonical MOs for reference
 * `psi4.log` — Psi4 SCF output
 
+## Limitations
+
+* **Closed-shell only.**  The IAO/IBO pipeline treats all occupied
+  orbitals as doubly occupied (RHF-style).  Open-shell systems
+  (radicals, triplet states, broken-symmetry calculations) are not
+  supported.  The SCF will still run, but the orbital construction,
+  analysis, and Molden output will be invalid.
+* Pipek-Mezey localization uses fixed sequential Jacobi sweeps.  For
+  highly symmetric molecules, symmetry-equivalent orbitals may show
+  small (sub-milliHartree) energy splittings (a known consequence of
+  the orthogonality constraint — see Knizia JCTC 2013 and
+  `mathematics.md`).
+* The analysis table uses the IAO-basis population (clean, atoms-only),
+  while the Molden isosurface shows the same orbitals in the full AO
+  basis, which may display small density tails on non-dominant atoms.
+  This is mathematically unavoidable — see `AGENTS.md` (Gotcha 26).
+
 ## License
 
 BSD 3-Clause. See [LICENSE](LICENSE).

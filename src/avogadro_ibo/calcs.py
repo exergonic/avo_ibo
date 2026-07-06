@@ -904,7 +904,15 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     elem = atoms["elements"]["number"]
     charge_val = int(cjson.get("properties", {}).get("totalCharge", charge))
     spin_val = int(cjson.get("properties", {}).get("totalSpinMultiplicity", spin))
-    ref = "uhf" if spin_val != 1 else "rhf"
+    if spin_val != 1:
+        raise ValueError(
+            f"Open-shell systems are not supported (spin multiplicity "
+            f"= {spin_val}). The IAO pipeline is RHF-only — all "
+            f"occupied MOs are treated as doubly occupied, beta spin "
+            f"is ignored, and charge/spin decomposition would be "
+            f"incorrect."
+        )
+    ref = "rhf"
 
     geom_lines = "\n".join(
         f"  {elem[i]:3d}  {coords[3*i]:12.8f}  {coords[3*i+1]:12.8f} "

@@ -12,12 +12,18 @@ _DEFAULT_CONFIG = {
 
 METHODS = ["hf", "b3lyp", "pbe", "pbe0", "wb97x-d", "mn15-l", "m06-2x"]
 BASIS_SETS = [
-    "cc-pVDZ", "cc-pVTZ",
-    "aug-cc-pVDZ", "aug-cc-pVTZ",
-    "def2-SVP", "def2-TZVP",
-    "def2-SVPD", "def2-TZVPD",
-    "6-31G(d,p)", "6-311G(d,p)",
-    "6-31+G(d,p)", "6-311+G(d,p)",
+    "cc-pVDZ",
+    "cc-pVTZ",
+    "aug-cc-pVDZ",
+    "aug-cc-pVTZ",
+    "def2-SVP",
+    "def2-TZVP",
+    "def2-SVPD",
+    "def2-TZVPD",
+    "6-31G(d,p)",
+    "6-311G(d,p)",
+    "6-31+G(d,p)",
+    "6-311+G(d,p)",
 ]
 
 
@@ -32,9 +38,7 @@ def load_config():
 
 def save_config(config):
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CONFIG_PATH.write_text(
-        json.dumps(config, indent=2) + "\n", encoding="utf-8"
-    )
+    CONFIG_PATH.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 
 
 def get_config_options():
@@ -71,19 +75,24 @@ def get_config_options():
             "type": "integer",
             "label": "Spin Multiplicity",
             "minimum": 1,
-            "default": config.get("spin", 1),
+            "maximum": 1,
+            "default": config.get("mult", 1),
             "order": 4.0,
         },
         "memory_note": {
             "type": "text",
             "label": "Note",
             "default": (
-                "Recommended presets:\n"
-                "  General use (recommended): wB97x-D / def2-TZVP\n"
-                "  Small / quick preview:     HF / cc-pVDZ\n"
-                "  Charged / anions:          wB97x-D / aug-cc-pVDZ\n"
-                "  Transition metals:         MN15-L / def2-TZVP\n"
+                "\nRecommended presets:\n"
+                "  General use (recommended):\t\twB97x-D / def2-TZVP\n"
+                "  Small / quick preview:\t\tHF / cc-pVDZ\n"
+                "  Charged / anions:\t\t\twB97x-D / aug-cc-pVDZ\n"
+                "  Transition metals:\t\t\tMN15-L / def2-TZVP\n"
                 "\n"
+                "Only singlet spin multiplicities are currently supported.\n"
+                "Calculations with higher spin multiplicities are not yet supported.\n"
+                "\n"
+                "Memory requirements increase with system size and basis set.\n"
                 "Larger systems (30+ atoms) with triple-zeta or\n"
                 "diffuse basis may require significant memory.\n"
                 "Switch to a smaller basis if the calculation fails."

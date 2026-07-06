@@ -55,7 +55,7 @@ def main():
             from .config import load_config
             _cfg = load_config()
             charge = _cfg.get("charge", charge)
-            spin = _cfg.get("spin", spin)
+            spin = _cfg.get("mult", spin)
 
             result = compute_ibo(cjson, options, charge, spin, debug=args.debug)
         elif args.feature == "open":

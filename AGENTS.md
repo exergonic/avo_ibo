@@ -48,6 +48,11 @@ Serious professionals can always run their own SCF calculations and then use
   diagonalises $\mathbf{F}^{\rm IAO}$ (spectral theorem ⇒ $\mathbf{F}^{\rm IAO}_{ov}=0$),
   making both overlap-based and Fock-based occ-vir analysis structurally
   impossible.  See `mathematics.md §9` for proof.
+- **Closed-shell only**: Open-shell systems (radicals, triplets,
+  broken-symmetry) are rejected at entry with a clear error.  The
+  pipeline treats all occupied MOs as doubly occupied and ignores
+  beta spin — supporting UHF would require a full rewrite of the IAO
+  and PM logic.
 - **Standalone CLI**: `python -m avogadro_ibo <file.xyz>` computes IBOs from an XYZ
   file without Avogadro, writing results to `calcs/`.
 - Signal discipline: all debug output before final `print(json.dumps(...))`.
@@ -100,6 +105,7 @@ Serious professionals can always run their own SCF calculations and then use
 | Lock file version | v6 | Bundled pixi v0.66.0 can't read v7 |
 | Package install | `pixi install` + `pip install -e .` (manual, not `[tool.pixi.pypi-dependencies]`) | pypi-dependencies requires lock v7 |
 | Plugin discovery | Symlink in `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` | Avogadro scans this directory |
+| Closed-shell only | `raise ValueError` if spin ≥ 2 | UHF would require separate α/β IAO/PM; β MOs ignored, occupancies wrong — mathematically incorrect output |
 | Psi4 integration | In-process (`import psi4` in compute function) | Simpler, faster, better error handling than subprocess |
 | SCF basis (default) | cc-pVDZ, `puream=0` (Cartesian) | Better wavefunction than def2-SVP for IBO isosurfaces |
 | Minimal basis for IAO | STO-3G, `puream=0` (Cartesian) | MINAO unavailable in Psi4; STO-3G adequate |
