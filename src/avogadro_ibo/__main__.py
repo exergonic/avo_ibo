@@ -1,4 +1,4 @@
-"""Standalone CLI: python -m avogadro_ibo <file.xyz> [--method ...] [--basis ...]"""
+"""Standalone CLI: python -m avogadro_ibo <file.xyz> [--method ...] [--basis ...] [--charge ...] [--spin ...]"""
 
 import argparse
 import sys
@@ -34,6 +34,10 @@ def main():
                         help="SCF method (hf, b3lyp, pbe, ...)")
     parser.add_argument("--basis", default=None,
                         help="Basis set (cc-pVDZ, def2-TZVP, ...)")
+    parser.add_argument("--charge", type=int, default=None,
+                        help="Total charge (default: config or 0)")
+    parser.add_argument("--spin", "--mult", type=int, default=None, dest="spin",
+                        help="Spin multiplicity (default: config or 1)")
     args = parser.parse_args()
 
     try:
@@ -43,17 +47,22 @@ def main():
         print("Install it via pixi, or via conda (conda install psi4).", file=sys.stderr)
         sys.exit(1)
 
+    from .config import load_config
+    _cfg = load_config()
+    charge = args.charge if args.charge is not None else _cfg.get("charge", 0)
+    spin = args.spin if args.spin is not None else _cfg.get("spin", 1)
+
     coords, numbers = _parse_xyz(args.xyz_file)
     cjson = {
         "atoms": {"coords": {"3d": coords}, "elements": {"number": numbers}},
-        "properties": {"totalCharge": 0, "totalSpinMultiplicity": 1},
+        "properties": {"totalCharge": charge, "totalSpinMultiplicity": spin},
     }
     options = {}
     if args.method:
         options["method"] = args.method
     if args.basis:
         options["basis"] = args.basis
-    result = compute_ibo(cjson, options, charge=0, spin=1)
+    result = compute_ibo(cjson, options, charge=charge, spin=spin)
     print(result.get("message", "done"))
 
 

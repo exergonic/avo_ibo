@@ -44,7 +44,7 @@ input-cjson = true
 user-options = "dynamic"
 menu = "Extensions"
 submenu = "Intrinsic Bond Orbitals"
-item = "Configure…"
+item = "Options…"
 menu-priorities = [100, 100]
 
 [[tool.avogadro.menu-commands]]

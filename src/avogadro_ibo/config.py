@@ -60,6 +60,20 @@ def get_config_options():
             else BASIS_SETS.index("cc-pVDZ"),
             "order": 2.0,
         },
+        "charge": {
+            "type": "integer",
+            "label": "Charge",
+            "minimum": -10,
+            "default": config.get("charge", 0),
+            "order": 3.0,
+        },
+        "mult": {
+            "type": "integer",
+            "label": "Spin Multiplicity",
+            "minimum": 1,
+            "default": config.get("spin", 1),
+            "order": 4.0,
+        },
         "memory_note": {
             "type": "text",
             "label": "Note",
@@ -70,9 +84,9 @@ def get_config_options():
                 "  Charged / anions:          wB97x-D / aug-cc-pVDZ\n"
                 "  Transition metals:         MN15-L / def2-TZVP\n"
                 "\n"
-                "Larger systems (30+ atoms) with triple-zeta or diffuse\n"
-                "basis may require significant memory.  Switch to a\n"
-                "smaller basis if the calculation fails."
+                "Larger systems (30+ atoms) with triple-zeta or\n"
+                "diffuse basis may require significant memory.\n"
+                "Switch to a smaller basis if the calculation fails."
             ),
             "order": 99.0,
         },
@@ -83,7 +97,7 @@ def update_config(avo_input):
     options = avo_input.get("options", {})
     config = load_config()
     changed = False
-    for key in ("method", "basis"):
+    for key in ("method", "basis", "charge", "mult"):
         if key in options:
             config[key] = options[key]
             changed = True

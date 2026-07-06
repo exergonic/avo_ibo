@@ -184,7 +184,7 @@ def test_benzene_symmetry():
         s = line.strip()
         if not s or not s[0].isdigit():
             continue
-        if "C-H sigma" not in line:
+        if "C-H sigma" not in line or "anti*" in line:
             continue
         cols = line.split()
         ch_energies.append(float(cols[2]))

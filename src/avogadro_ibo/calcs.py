@@ -465,7 +465,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     lines.append("")
     header = (
         f"  {'#':>3}  {'Occ':>7}  {'Energy':>10}  {'DOM':>5}  "
-        f"{'Type':>12}  {('Composition'):<38}  {'Hybrid':<25}  "
+        f"{'Type':>16}  {('Composition'):<38}  {'Hybrid':<25}  "
         f"{'W_AB':>7}  {'Ion%':>5}"
     )
     lines.append(header)
@@ -498,12 +498,6 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             elif pop[top_A] > 0.90:
                 orbid = f"{_elem_symbol(elem[top_A])}(LP)"
             elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
-                def _p_frac(c, am_of, atom, atom_of):
-                    _s = _s_char(c, am_of, atom, atom_of)
-                    _p = _p_char(c, am_of, atom, atom_of)
-                    _d = _d_char(c, am_of, atom, atom_of)
-                    _t = _s + _p + _d
-                    return _p / _t if _t > 0 else 0.0
                 pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
                 pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
                 bond_type = "pi" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "sigma"
@@ -527,13 +521,20 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 else:
                     orbid = "Deloc"
         else:
-            # Virtual — label as anti-bonding counterpart
-            if len(order) >= 3 and pop[order[2]] > 0.08:
-                # 3-center antibonding counterpart
-                atoms = sorted([order[0], order[1], order[2]],
-                              key=lambda i: (_elem_symbol(elem[i]), i))
-                syms = '-'.join(_elem_symbol(elem[a]) for a in atoms)
-                orbid = f"{syms} 2e3c anti*"
+            # Virtual — classify as antibonding counterpart (no "2e3c": 0 e⁻)
+            if pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
+                pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
+                pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
+                bond_type = "pi" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "sigma"
+                a, b = sorted([top_A, top_B])
+                symA = _elem_symbol(elem[a])
+                symB = _elem_symbol(elem[b])
+                orbid = f"{symA}-{symB} {bond_type} anti*"
+            elif len(order) >= 3 and pop[order[2]] > 0.08:
+                # Delocalized antibond — label by dominant atom's character
+                pfrac_top = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
+                symA = _elem_symbol(elem[top_A])
+                orbid = f"{symA} pi anti*" if pfrac_top > 0.85 else f"{symA} anti*"
             elif pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
                 a, b = sorted([top_A, top_B])
                 symA = _elem_symbol(elem[a])
@@ -575,7 +576,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
 
         lines.append(
             f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
-            f"{dom:>5.3f}  {orbid:>12}  {comp:<38}  {hybrid:<25}  "
+            f"{dom:>5.3f}  {orbid:>16}  {comp:<38}  {hybrid:<25}  "
             f"{w_ab:>7.3f}  {ion_str:>5}"
         )
 
@@ -692,6 +693,15 @@ def _d_char(c, am_of, atom, atom_of):
     """Fraction of d-orbital (am=2) contribution on the given atom."""
     idx = np.where((atom_of == atom) & (am_of == 2))[0]
     return float(np.sum(c[idx] ** 2)) if len(idx) else 0.0
+
+
+def _p_frac(c, am_of, atom, atom_of):
+    """p/s/d ratio on the given atom; 0 if no density."""
+    _s = _s_char(c, am_of, atom, atom_of)
+    _p = _p_char(c, am_of, atom, atom_of)
+    _d = _d_char(c, am_of, atom, atom_of)
+    _t = _s + _p + _d
+    return _p / _t if _t > 0 else 0.0
 
 
 # -- (canonical MO deloc analysis removed 2026-06-30; canonical.molden below)--
@@ -844,8 +854,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         f"{coords[3*i+2]:12.8f}"
         for i in range(len(elem))
     )
-    charge_tag = f"charge {charge_val}" if charge_val != 0 else ""
-    mol_spec = f"{charge_tag}\n{geom_lines}\nno_com\nno_reorient\nsymmetry c1"
+    mol_spec = f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient\nsymmetry c1"
     mol = psi4.geometry(mol_spec)
 
     _cfg = _load_config()
