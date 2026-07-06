@@ -745,6 +745,12 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     total entries so Avogadro's MO slot count matches the [GTO] basis set
     size, preventing uninitialised-slot noise.
     """
+    # NOTE: The [GTO] header is copied from Psi4's own molden() output, so
+    # the primitive coefficients come from Psi4 (original_coef convention).
+    # If any future code path writes [GTO] directly using shell.coef(p),
+    # note that shell.coef(p) includes primitive normalization — the Molden
+    # reader would re-apply normalization, producing incorrect basis
+    # function values.  Use shell.original_coef(p) for direct GTO output.
     import tempfile
     import numpy as np
     tmp = path.with_suffix(".molden.tmp")
