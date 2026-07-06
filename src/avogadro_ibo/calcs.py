@@ -502,6 +502,30 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     lines.append(header)
     lines.append("-" * len(header))
 
+    # Identify degenerate manifolds: groups of consecutive orbitals
+    # with energy differences < 1e-4 Ha.  Within symmetric molecules,
+    # the PM functional leaves symmetry-equivalent bonds with small
+    # residual energy splittings (~1e-5 Ha for benzene C-H σ).
+    DEG_THRESH = 1e-4
+    deg_ranges = []
+    is_degen = np.zeros(n_orb, dtype=bool)
+    group_start = None
+    for i in range(n_orb):
+        if i > 0 and abs(energies_all[i] - energies_all[i - 1]) < DEG_THRESH:
+            if group_start is None:
+                group_start = i - 1
+            is_degen[i] = True
+        else:
+            if group_start is not None and i - group_start > 1:
+                deg_ranges.append((group_start, i))
+                for j in range(group_start, i):
+                    is_degen[j] = True
+            group_start = None
+    if group_start is not None and n_orb - group_start > 1:
+        deg_ranges.append((group_start, n_orb))
+        for j in range(group_start, n_orb):
+            is_degen[j] = True
+
     for orb in range(n_orb):
         oc = occ_all[orb]
         sq = C_IAO_all[:, orb] ** 2
@@ -610,14 +634,29 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             hl = "<- HOMO"
         elif orb == nocc:
             hl = "<- LUMO"
+        degen_tag = " †" if is_degen[orb] else ""
         lines.append(
             f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
-            f"{dom:>5.3f}  {orbid:>16}  {comp:<{comp_width}}  {hybrid:<22}  "
+            f"{dom:>5.3f}  {orbid:>{16 - len(degen_tag)}}{degen_tag}  "
+            f"{comp:<{comp_width}}  {hybrid:<22}  "
             f"{ion_str:>5}  {hl:>9}"
         )
 
     lines.append("")
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
+
+    # Footnote for degenerate manifolds
+    if deg_ranges:
+        deg_groups = []
+        for start, end in deg_ranges:
+            n_group = end - start
+            if n_group == 2:
+                deg_groups.append(f"{start + 1}")
+            else:
+                deg_groups.append(f"{start + 1}-{end}")
+        lines.append(f"  † Orbitals {', '.join(deg_groups)} form degenerate "
+                     f"manifolds (ΔE < {DEG_THRESH:.0e} Ha).  Small energy "
+                     f"differences within each manifold are PM convergence noise.")
 
     charge_section = _format_charge_decomposition(atom_pop, elem)
     lines.append(charge_section)
