@@ -100,7 +100,7 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
 
     ene_lines = [l for l in molden_text.splitlines() if l.startswith(" Ene=")]
     assert len(ene_lines) == n_ao, (
-        f"Expected {n_ao} MO entries (n_AO), got {len(ene_lines)}"
+        f"Expected {n_ao} MO entries (full AO basis), got {len(ene_lines)}"
     )
 
     ibos = parse_ibos(calc_dir / "ibos.txt")
@@ -313,6 +313,7 @@ def test_charge_cjson():
     xyz_path = FILES_DIR / "water.xyz"
     coords, numbers = _parse_xyz(xyz_path)
     cjson = {
+        "name": "water",
         "atoms": {"coords": {"3d": coords}, "elements": {"number": numbers}},
         "properties": {"totalCharge": 0, "totalSpinMultiplicity": 1},
     }

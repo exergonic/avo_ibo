@@ -17,6 +17,7 @@ NUL.log
 
 # Temporary test scripts
 _test_*.py
+test_molden.log
 
 # Build artifacts
 *.egg-info/
@@ -26,6 +27,7 @@ _test_*.py
 calcs/last/*
 !calcs/last/.gitkeep
 calcs/config.json
+calcs/*_*/
 
 # Local development notes (LLM context, not for publishing)
 AGENTS.md

@@ -32,22 +32,24 @@ Serious professionals can always run their own SCF calculations and then use
   separate orbitals on the same atom (it only measures atomic populations),
   so O 2s + O lone pair mix arbitrarily.  The Fock diagonalisation restores
   the aufbau ordering (s-rich lowest, p-rich highest).
-- **IAO-basis Molden writer**: `_write_iao_molden()` copies Psi4's [Atoms]/[GTO]
-  headers but replaces [MO] with IAO-basis orbitals, using Fock-diagonal energies.
-  Produces `n_min` orbitals (minimal-basis size).
+- **IAO-basis Molden writer**: `_write_iao_molden()` generates the full SCF
+  basis [GTO] section and writes AO-projected coefficients
+  (C_AO_all = C_IAO @ C_IAO_all) as [MO] coefficients.  Small tails on
+  non-dominant atoms are inherent — IAO repolarization adds components
+  beyond the minimal basis.
 - **Analysis table** (`ibos.txt` in `calcs/last/`): per-orbital occupancy,
   energy, DOM, bond type (σ/π/LP/Core/anti*), composition (top atoms + %),
   s/p/d hybridization on dominant atom.
 - **Go to files …** menu command opens `calcs/` in Explorer.
-- Per-calculation directory (`calcs/last/`, avo_xtb-style): cleared before
-  each `"ibo"` run; contains `psi4.log`, `ibo.molden`, `canonical.molden`,
+- Per-calculation directory (`calcs/{name}_NNN/`): named calc directories
+  with counter; contains `psi4.log`, `ibo.molden`, `canonical.molden`,
   `ibos.txt`.
 - **No donor/acceptor delocalisation analysis**: The occupied block
   diagonalises $\mathbf{F}^{\rm IAO}$ (spectral theorem ⇒ $\mathbf{F}^{\rm IAO}_{ov}=0$),
   making both overlap-based and Fock-based occ-vir analysis structurally
   impossible.  See `mathematics.md §9` for proof.
 - **Standalone CLI**: `python -m avogadro_ibo <file.xyz>` computes IBOs from an XYZ
-  file without Avogadro, writing results to `calcs/last/`.
+  file without Avogadro, writing results to `calcs/`.
 - Signal discipline: all debug output before final `print(json.dumps(...))`.
 - **3d transition metals**: Works with no basis change — cc-pVDZ + STO-3G
   cover Sc–Zn. Verified with ZnCl₂ (linear, D∞h, closed-shell d¹⁰).
@@ -55,9 +57,15 @@ Serious professionals can always run their own SCF calculations and then use
   `_ELEMENT_NUMBERS` in `__main__.py` both extend through I (Z=53).
   All common organic elements (Br, I, etc.) display correctly in the
   analysis table.
-- **Test suite**: 10 pytest CLI integration tests in `tests/test_cli.py`
+- **Test suite**: 13 pytest CLI integration tests in `tests/test_cli.py`
   (`pixi run test`). Validates counts, Molden structure, occupancy, on-atom
   resolution, 3d metal support, and per-molecule orbital patterns.
+- **Named calc directories**: `calcs/{name}_NNN/` replaces `calcs/last/`;
+  name from `cjson["name"]` or first-occurrence molecular formula (not Hill).
+- **Molden writer d/f ordering verified**: `D_PERM = [0, 3, 5, 1, 2, 4]` and
+  `D_NORM` confirmed correct against Psi4's own `molden_cartesian_order` array
+  and `cartD` normalization matrix in `writer.cc`. Verified by physical MO
+  coefficient patterns (S-O π bond: only dxz component non-zero).
 
 ### Tested Molecules (hf/cc-pVDZ)
 - **Methane** (9 IAOs): C core + 4 C-H σ (sp³-like) + 4 C-H σ*
@@ -74,6 +82,11 @@ Serious professionals can always run their own SCF calculations and then use
 - **Formaldehyde**: 2 O/C cores + 2 C-H σ + C-O σ + C-O π + 2 O LPs.
 - **ZnCl₂** (2026-07-01): Zn 3d¹⁰ closed-shell, linear D∞h, hf/cc-pVDZ.
   37 IAOs (Zn: 16, Cl: 9 each).  Verifies 3d transition metal support.
+- **SO₃** (2026-07-06): 24 IAOs (S: 9, O: 5 each), 20 occupied + 4 virtual,
+  hf/cc-pVDZ.  D3h symmetry: three S-O σ bonds (S d-polarized) and three S-O π
+  bonds (only dxz/dyz components).  PM functional produces minor d-coefficient
+  asymmetry between the +x bond and the 120° bonds (same class as benzene C-H
+  split — Gotcha 20).  Tests d-orbital ordering in hypervalent S bonding.
 
 ### What's Next (User's Intent)
 - Additional analysis features (bond order, charge decomposition, IRC tracking)
@@ -98,11 +111,12 @@ Serious professionals can always run their own SCF calculations and then use
 | Virtual IAOs via SVD | `C_IAO^T @ S @ C_vir` → SVD → keep σ > 1e-8 | Matches IboView `MakeValenceVirtuals` |
 | Virtual localization | Apply same PM p=2→p=4 to virtual block | IboView localizes ALL iCase blocks |
 | Orbital energies | ε_i = C_i^T @ F_AO @ C_i (diagonal of F_IAO) | Matches IboView `MakeOrbitalEnergies_General` |
-| Molden output | Custom [MO] section with IAO-basis orbitals | Psi4 writes canonical MOs; we replace with n_min IAO orbitals |
+| Molden output | Custom [MO] section with full-AO-projected coefficients | Psi4 writes canonical MOs; we replace with C_AO_all = C_IAO @ C_IAO_all (n_AO entries, padded to match [GTO]) |
 | Analysis table destination | Written to `calcs/last/ibos.txt`, message points to file | Avoids blocking popup on every run |
 | Stderr discipline | Absolutely no `{` or `[` on stderr before JSON output | `stripLeadingNonJson` finds first `{`/`[` in merged channel |
 | `_prepare_calc_dir()` call | Only inside `"ibo"` branch | "Go to files" shouldn't wipe previous results |
-| Test isolation | Tests call CLI as black box, check `calcs/last/` | No test-specific production code paths; CLI, plugin, and tests are orthogonal |
+| Test isolation | Tests call CLI as black box, check calc dirs | No test-specific production code paths; CLI, plugin, and tests are orthogonal |
+| Formula ordering | First-occurrence (not Hill system) | Preserves element order from XYZ file or Avogadro atom ordering; Hill system "O3S" is confusing for common molecules like SO₃ |
 
 ## Gotchas Hit
 
@@ -234,30 +248,55 @@ Serious professionals can always run their own SCF calculations and then use
     σ bonds sharing a boron's p-subspace drives the splitting.  No fix known —
     the aufbau diagonalisation (`_resolve_on_atom_mixing`) addresses only
     same-atom DOM≈1 subspaces, not this orthogonal-bond coupling.
+25. **SO₃ D3h d-orbital asymmetry (2026-07-06)**: In hypervalent SO₃, the
+    three symmetry-equivalent S-O bonds show asymmetric S d-coefficients
+    after PM localization (S-Oσ along +x: d-norm 0.12; at ±120°: d-norm 0.17).
+    This is the same PM functional limitation as the benzene C-H σ split
+    (Gotcha 19/20): the fixed Jacobi sweep order resolves the +x bond first,
+    biasing its d-polarisation relative to the rotated bonds.  The energy
+    splitting (~2×10⁻⁴ Ha) is chemically negligible, but d-coefficient
+    asymmetry can produce visually different isosurfaces in Avogadro.
+    Verification against Psi4's `molden_cartesian_order` and `cartD` matrices
+    confirmed that the D_PERM/D_NORM ordering and normalisation in
+    `_write_iao_molden()` are correct — the asymmetry originates in the PM
+    localization, not the Molden writer.
+26. **IAO-basis vs full-AO-projection isosurface tails are inherent
+    (2026-07-06)**: The IAO construction repolarization adds components
+    beyond the minimal-basis subspace.  Writing a Molden file whose [GTO]
+    section uses only the minimal basis is fundamentally wrong because
+    IAOs are NOT exactly representable in that subspace (verified: 0.14
+    residual norm for CH₄).  The correct approach uses the full SCF basis
+    for [GTO] (via psi4.molden) and projects the IAO-basis MOs to the
+    full AO space: C_AO_all = C_IAO @ C_IAO_all.  Small tails on non-
+    dominant atoms are physically correct — they are the repolarization
+    components visible in the full AO basis.  The analysis table (IAO-basis,
+    clean) and isosurface (full-AO-basis, small tails) differ slightly;
+    this is mathematically unavoidable.
 
 ## Relevant Files
 
-- `C:\Users\mccan\Documents\Code\avo_ibo\pyproject.toml` — 2 menu-commands (`ibo`, `open`)
-- `C:\Users\mccan\Documents\Code\avo_ibo\pixi.toml` — Pixi environment
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\__init__.py` — CLI entry point,
-  stdin/stdout JSON I/O, dispatching for `ibo`/`open`, `_prepare_calc_dir()`
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\calcs.py` — All IAO logic:
+- `C:\Users\mccan\Code\avo_ibo\pyproject.toml` — 2 menu-commands (`ibo`, `open`)
+- `C:\Users\mccan\Code\avo_ibo\pixi.toml` — Pixi environment
+- `C:\Users\mccan\Code\avo_ibo\src\avogadro_ibo\__init__.py` — CLI entry point,
+  stdin/stdout JSON I/O, dispatching for `ibo`/`config`/`open`
+- `C:\Users\mccan\Code\avo_ibo\src\avogadro_ibo\calcs.py` — All IAO logic:
   - `_get_basis_maps()` — per-function atom/AM mapping from Psi4 BasisSet
   - `_build_iao_basis()` — IAO/2014 construction (Appendix C)
   - `_localize_ibos()` — PM Jacobi sweep with p=2→p=4 (eq 4, Appendix D)
   - `_resolve_on_atom_mixing()` — post-PM Fock diag within same-atom DOM≈1 subspaces
   - `_analyze_ibos()` — IBO table: occupancy, energy, DOM, type, composition, hybrid
-  - `_write_iao_molden()` — Molden writer using IAO-basis orbitals (Fock energies)
+  - `_write_iao_molden()` — Molden writer: full-AO-basis [GTO] + C_AO_all coefficients
+    (IAO repolarization tails inherent — see Gotcha 26)
   - `compute_ibo()` — top-level: Psi4 run, IAO build, occ+vir PM localize, on-atom
     Fock resolve, Fock energies, Molden write, analysis table
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\links.py` — `open_calcs_dir()` (Explorer)
-- `C:\Users\mccan\Documents\Code\avo_ibo\src\avogadro_ibo\__main__.py` — standalone CLI entry (`python -m avogadro_ibo <file.xyz>`)
-- `C:\Users\mccan\Documents\Code\avo_ibo\mathematics.md` — full mathematical derivation with 2013 paper references
-- `C:\Users\mccan\Documents\Code\avo_ibo\tutorial.md` — Avogadro 2 plugin architecture and gotchas
-- `C:\Users\mccan\Documents\Code\avo_ibo\calcs\last\` — Runtime artifacts
-  (psi4.log, ibo.molden, canonical.molden, ibos.txt)
-- `C:\Users\mccan\OneDrive\Documents\Code\avo_ibo\tests\test_cli.py` — 10 CLI integration tests
-- `C:\Users\mccan\OneDrive\Documents\Code\avo_ibo\tests\files\` — XYZ reference inputs
+- `C:\Users\mccan\Code\avo_ibo\src\avogadro_ibo\config.py` — Persistent config with charge/spin and method/basis defaults
+- `C:\Users\mccan\Code\avo_ibo\src\avogadro_ibo\links.py` — `open_calcs_dir()` (Explorer)
+- `C:\Users\mccan\Code\avo_ibo\src\avogadro_ibo\__main__.py` — standalone CLI entry (`python -m avogadro_ibo <file.xyz>`)
+- `C:\Users\mccan\Code\avo_ibo\mathematics.md` — full mathematical derivation with 2013 paper references
+- `C:\Users\mccan\Code\avo_ibo\tutorial.md` — Avogadro 2 plugin architecture and gotchas
+- `C:\Users\mccan\Code\avo_ibo\calcs\` — Named calc directories (`{name}_NNN/`), `config.json`
+- `C:\Users\mccan\Code\avo_ibo\tests\test_cli.py` — 13 CLI integration tests
+- `C:\Users\mccan\Code\avo_ibo\tests\files\` — XYZ reference inputs
 - `C:\Users\mccan\AppData\Local\OpenChemistry\Avogadro\plugins\avo_ibo` → symlink
 
 ### External Paths

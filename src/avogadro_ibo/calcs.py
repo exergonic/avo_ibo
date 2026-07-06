@@ -463,11 +463,29 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     atom_pop = np.zeros(n_atoms, dtype=np.float64)  # accumulated per-atom electron counts
     lines.append(f"IBO Analysis  ({method}/{basis}, {ref.upper()})")
     lines.append("")
+
+    # Pre-pass to size the Composition column to fit the widest entry
+    comp_width = len("Composition")
+    for orb in range(n_orb):
+        sq = C_IAO_all[:, orb] ** 2
+        pop = np.zeros(n_atoms, dtype=np.float64)
+        np.add.at(pop, atom_of, sq)
+        order = np.argsort(-pop)
+        comp_parts = []
+        for A in order[:4]:
+            if pop[A] > 0.02:
+                sym = f"{_elem_symbol(elem[A])}{A+1}"
+                pct = pop[A] * 100.0
+                comp_parts.append(f"{sym}({pct:.1f}%)")
+        comp = " + ".join(comp_parts)
+        comp_width = max(comp_width, len(comp))
+    comp_width += 2
+
     header = (
         f"  {'#':>3}  {'Occ':>7}  {'Energy':>10}  {'DOM':>5}  "
-        f"{'Type':>16}  {('Composition'):<35}  {'Hybrid':<22}  "
+        f"{'Type':>16}  {{:<{comp_width}}}  {'Hybrid':<22}  "
         f"{'Ion%':>5}  {'H/L':>9}"
-    )
+    ).format("Composition")
     lines.append(header)
     lines.append("-" * len(header))
 
@@ -581,7 +599,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             hl = "<- LUMO"
         lines.append(
             f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
-            f"{dom:>5.3f}  {orbid:>16}  {comp:<35}  {hybrid:<22}  "
+            f"{dom:>5.3f}  {orbid:>16}  {comp:<{comp_width}}  {hybrid:<22}  "
             f"{ion_str:>5}  {hl:>9}"
         )
 
@@ -738,8 +756,7 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     # Build index permutation and re-scaling vector to convert Psi4 internal AO
     # order to Molden standard.  Psi4's CCA convention uses unnormalized Cartesian
     # Gaussians (off-diagonal d/f have self-overlap < 1); the Molden/Gaussian
-    # convention includes the angular normalization factor.  For each shell we
-    # apply both reordering and renormalisation.
+    # convention includes the angular normalization factor.
     #
     # Psi4 Cartesian d:  xx, xy, xz, yy, yz, zz
     # Molden standard d: xx, yy, zz, xy, xz, yz
@@ -750,8 +767,6 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     #
     # Psi4 Cartesian f:  xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz
     # Molden standard f: xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
-    # Off-diagonal f (all but xxx/yyy/zzz) need 1/√(15) or 1/√(3) scaling
-    # depending on the triple-exponent pattern.
     # (F-support included for forward-compatibility; cc-pVDZ does not have f.)
     F_PERM = [0, 6, 9, 3, 1, 2, 5, 8, 7, 4]
     F_NORM = [
@@ -816,17 +831,16 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
 # ---------------------------------------------------------------------------
 
 def _mol_formula(numbers):
-    """Hill-system molecular formula from atomic number list."""
+    """Molecular formula from atomic number list, preserving first-occurrence order."""
     from collections import Counter
     counts = Counter(numbers)
+    seen = set()
     parts = []
-    for Z in (6, 1):
-        if Z in counts:
-            c = counts.pop(Z)
+    for Z in numbers:
+        if Z not in seen:
+            seen.add(Z)
+            c = counts[Z]
             parts.append(f"{_ELEM_SYMBOLS[Z]}{c if c > 1 else ''}")
-    for Z in sorted(counts):
-        c = counts[Z]
-        parts.append(f"{_ELEM_SYMBOLS[Z]}{c if c > 1 else ''}")
     return "".join(parts)
 
 
@@ -982,10 +996,10 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     energies_all = energies_all[order]
 
     # -- Write Molden with IAO-basis orbitals ------------------------------
-    C_AO_all = C_IAO @ C_IAO_all                    # (n_AO, n_orb)
+    C_AO_all = C_IAO @ C_IAO_all                         # (n_AO, n_orb)
     molden_path = calc_dir / "ibo.molden"
     _write_iao_molden(molden_path, wfn, C_AO_all, occ_all, energies_all,
-                      C_AO_all.shape[1])
+                      C_IAO_all.shape[1])
     molden_text = molden_path.read_text(encoding="utf-8")
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
