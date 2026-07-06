@@ -40,17 +40,21 @@ def parse_ibos(path):
             continue
         cols = line.split()
         if cols and cols[0].isdigit():
-            w_ab_raw = cols[-2]
-            ion_raw = cols[-1]
+            # New format: ... Ion% [<- HOMO/LUMO]
+            # H/L marker (if present) adds "<-" and "HOMO"/"LUMO" as trailing tokens
+            if len(cols) >= 4 and cols[-2] == "<-" and cols[-1] in ("HOMO", "LUMO"):
+                ion_raw = cols[-3]
+                middle = cols[4:-3]
+            else:
+                ion_raw = cols[-1]
+                middle = cols[4:-1]
             entry = {
                 "idx": int(cols[0]),
                 "occ": float(cols[1]),
                 "ene": float(cols[2]),
                 "dom": float(cols[3]),
-                "w_ab": float(w_ab_raw) if w_ab_raw != "---" else 0.0,
                 "ion_pct": ion_raw if ion_raw == "---" else float(ion_raw),
             }
-            middle = cols[4:-2]
             if len(middle) >= 2 and middle[1] in ("sigma", "pi", "anti*"):
                 entry["label"] = " ".join(middle[:2])
             else:
@@ -208,7 +212,6 @@ def test_zncl2_bond_order():
     assert result.returncode == 0
 
     text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
-    assert "W_AB" in text, "Table should contain W_AB column header"
     assert "Ion%" in text, "Table should contain Ion% column header"
     assert "Total Wiberg Bond Orders" in text, "Should contain total Wiberg section"
     assert "Zn-Cl" in text, "Total Wiberg should show Zn-Cl pairs"
@@ -222,12 +225,9 @@ def test_zncl2_bond_order():
     assert len(zn_cl_sigmas) >= 2, (
         f"Expected 2+ Zn-Cl sigma bonds, got {len(zn_cl_sigmas)}"
     )
-    for ibo in zn_cl_sigmas:
-        w_ab = ibo.get("w_ab", 0.0)
-        assert w_ab > 0.5, f"Zn-Cl sigma bond W_AB={w_ab:.3f} should be > 0.5"
-        assert w_ab < 1.0, f"Zn-Cl sigma bond W_AB={w_ab:.3f} should be < 1.0 (not pure covalent)"
 
-        # Check ionic character from the raw line
+    # Check ionic character from the raw line
+    for ibo in zn_cl_sigmas:
         ion_str = ibo.get("ion_pct", "0.0")
         if ion_str != "---":
             ion_val = float(ion_str)

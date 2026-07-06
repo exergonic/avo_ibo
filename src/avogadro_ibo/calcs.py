@@ -465,8 +465,8 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     lines.append("")
     header = (
         f"  {'#':>3}  {'Occ':>7}  {'Energy':>10}  {'DOM':>5}  "
-        f"{'Type':>16}  {('Composition'):<38}  {'Hybrid':<25}  "
-        f"{'W_AB':>7}  {'Ion%':>5}"
+        f"{'Type':>16}  {('Composition'):<35}  {'Hybrid':<22}  "
+        f"{'Ion%':>5}  {'H/L':>9}"
     )
     lines.append(header)
     lines.append("-" * len(header))
@@ -574,10 +574,15 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         else:
             ion_str = "---"
 
+        hl = ""
+        if orb == nocc - 1:
+            hl = "<- HOMO"
+        elif orb == nocc:
+            hl = "<- LUMO"
         lines.append(
             f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
-            f"{dom:>5.3f}  {orbid:>16}  {comp:<38}  {hybrid:<25}  "
-            f"{w_ab:>7.3f}  {ion_str:>5}"
+            f"{dom:>5.3f}  {orbid:>16}  {comp:<35}  {hybrid:<22}  "
+            f"{ion_str:>5}  {hl:>9}"
         )
 
     lines.append("")
