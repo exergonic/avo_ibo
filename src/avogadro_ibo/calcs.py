@@ -812,6 +812,33 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
 
 
 # ---------------------------------------------------------------------------
+# Molecule name helpers
+# ---------------------------------------------------------------------------
+
+def _mol_formula(numbers):
+    """Hill-system molecular formula from atomic number list."""
+    from collections import Counter
+    counts = Counter(numbers)
+    parts = []
+    for Z in (6, 1):
+        if Z in counts:
+            c = counts.pop(Z)
+            parts.append(f"{_ELEM_SYMBOLS[Z]}{c if c > 1 else ''}")
+    for Z in sorted(counts):
+        c = counts[Z]
+        parts.append(f"{_ELEM_SYMBOLS[Z]}{c if c > 1 else ''}")
+    return "".join(parts)
+
+
+def _sanitize_name(name):
+    """Sanitize a string for use as a filesystem directory name."""
+    import re
+    s = re.sub(r'[^a-zA-Z0-9]', '_', str(name))
+    s = re.sub(r'_+', '_', s).strip('_')
+    return s[:50] or "molecule"
+
+
+# ---------------------------------------------------------------------------
 # Top-level entry point
 # ---------------------------------------------------------------------------
 
@@ -824,13 +851,24 @@ def _option(options, key, default):
 
 def compute_ibo(cjson, options, charge, spin, debug=False):
     import logging
-    from . import TEMP_DIR
+    from . import CALCS_DIR
     from .config import load_config as _load_config
+
+    # Determine molecule name and create output directory
+    atoms_data = cjson.get("atoms", {})
+    elem_raw = atoms_data.get("elements", {}).get("number", [])
+    mol_name = cjson.get("name", "") or _mol_formula(elem_raw) or "molecule"
+    safe_name = _sanitize_name(mol_name)
+    counter = 1
+    while (CALCS_DIR / f"{safe_name}_{counter:03d}").exists():
+        counter += 1
+    calc_dir = CALCS_DIR / f"{safe_name}_{counter:03d}"
+    calc_dir.mkdir(parents=True, exist_ok=True)
 
     _psi_logger = logging.getLogger("psi4")
     _psi_logger.propagate = False
     _psi_logger.setLevel(logging.DEBUG if debug else logging.WARNING)
-    _psi_handler = logging.FileHandler(str(TEMP_DIR / "psi4.log"), mode="w")
+    _psi_handler = logging.FileHandler(str(calc_dir / "psi4.log"), mode="w")
     _psi_handler.setFormatter(
         logging.Formatter("%(asctime)s %(levelname)s %(message)s")
     )
@@ -840,7 +878,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     import psi4
 
-    psi4.set_output_file(str(TEMP_DIR / "psi4.log"), append=True)
+    psi4.set_output_file(str(calc_dir / "psi4.log"), append=True)
 
     # -- Parse input geometry and options -----------------------------------
     atoms = cjson["atoms"]
@@ -945,13 +983,13 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     # -- Write Molden with IAO-basis orbitals ------------------------------
     C_AO_all = C_IAO @ C_IAO_all                    # (n_AO, n_orb)
-    molden_path = TEMP_DIR / "ibo.molden"
+    molden_path = calc_dir / "ibo.molden"
     _write_iao_molden(molden_path, wfn, C_AO_all, occ_all, energies_all,
                       C_AO_all.shape[1])
     molden_text = molden_path.read_text(encoding="utf-8")
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
-    canon_path = TEMP_DIR / "canonical.molden"
+    canon_path = calc_dir / "canonical.molden"
     _psi_molden = __import__("psi4").molden
     _psi_molden(wfn, str(canon_path))
 
@@ -967,7 +1005,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         C_IAO_all[:, :nocc], atom_of, elem
     )
     msg += wiberg_section
-    analysis_path = TEMP_DIR / "ibos.txt"
+    analysis_path = calc_dir / "ibos.txt"
     analysis_path.write_text(msg, encoding="utf-8")
 
     return {
@@ -975,7 +1013,8 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         "moleculeFormat": "molden",
         "molden": molden_text,
         "cjson": cjson,
+        "calcDir": str(calc_dir),
         "message":
-            "IBO analysis saved to calcs/last/ibos.txt\n"
-            "Canonical MOs: canonical.molden",
+            f"IBO analysis saved to {calc_dir.name}/ibos.txt\n"
+            f"Canonical MOs: {calc_dir.name}/canonical.molden",
     }

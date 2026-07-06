@@ -2,10 +2,11 @@
 
 Patterned after avo_xtb: uses tests/files/ for reference inputs.
 Runs the standalone CLI (python -m avogadro_ibo <file.xyz>) and
-validates outputs in the project's calcs/last/ directory.
+validates outputs in per-molecule subdirectories under calcs/.
 """
 
 import json
+import re
 import subprocess
 import sys
 
@@ -16,7 +17,6 @@ import pytest
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 FILES_DIR = PROJECT_DIR / "tests" / "files"
-CALCS_LAST = PROJECT_DIR / "calcs" / "last"
 
 # (xyz, label, n_AO, n_IAO, n_occ, n_vir)
 # Basis counts: Cartesian cc-pVDZ (H=5, C/N/O=15, Zn=43, Cl=19);
@@ -29,6 +29,21 @@ MOLECULES = [
     ("benzene.xyz", "benzene", 120, 36, 21, 15),
     ("zncl2.xyz", "zncl2", 87, 37, 32, 5),
 ]
+
+
+def _find_calc_dir(name):
+    """Return the latest calc directory for molecule *name*."""
+    calcs_dir = PROJECT_DIR / "calcs"
+    best = None
+    for d in calcs_dir.iterdir():
+        if not d.is_dir():
+            continue
+        m = re.match(rf"^{re.escape(name)}_(\d+)$", d.name)
+        if m:
+            n = int(m.group(1))
+            if best is None or n > best[1]:
+                best = (d, n)
+    return best[0] if best else calcs_dir / "last"
 
 
 def parse_ibos(path):
@@ -74,11 +89,12 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
     )
     assert result.returncode == 0, f"CLI failed:\nstdout:{result.stdout}\nstderr:{result.stderr}"
 
-    assert (CALCS_LAST / "ibo.molden").exists(), "ibo.molden not found"
-    assert (CALCS_LAST / "canonical.molden").exists(), "canonical.molden not found"
-    assert (CALCS_LAST / "ibos.txt").exists(), "ibos.txt not found"
+    calc_dir = _find_calc_dir(label)
+    assert (calc_dir / "ibo.molden").exists(), "ibo.molden not found"
+    assert (calc_dir / "canonical.molden").exists(), "canonical.molden not found"
+    assert (calc_dir / "ibos.txt").exists(), "ibos.txt not found"
 
-    molden_text = (CALCS_LAST / "ibo.molden").read_text(encoding="utf-8")
+    molden_text = (calc_dir / "ibo.molden").read_text(encoding="utf-8")
     mo_count = molden_text.count("[MO]")
     assert mo_count == 1, "Expected exactly one [MO] section"
 
@@ -87,7 +103,7 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
         f"Expected {n_ao} MO entries (n_AO), got {len(ene_lines)}"
     )
 
-    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    ibos = parse_ibos(calc_dir / "ibos.txt")
     assert len(ibos) == n_iao, (
         f"Expected {n_iao} IAO orbitals, got {len(ibos)}"
     )
@@ -111,7 +127,7 @@ def test_water_on_atom_resolution():
     )
     assert result.returncode == 0
 
-    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    ibos = parse_ibos(_find_calc_dir("water") / "ibos.txt")
     lps = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4 and o["dom"] > 0.99 and o["ene"] > -10]
     assert len(lps) == 2, f"Expected 2 O LPs with DOM≈1, got {len(lps)}"
 
@@ -119,7 +135,7 @@ def test_water_on_atom_resolution():
     s_lp, p_lp = lps_sorted[0], lps_sorted[1]
     assert s_lp["ene"] < p_lp["ene"], "s-rich LP should be lower in energy than p-pure LP"
 
-    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    text = (_find_calc_dir("water") / "ibos.txt").read_text(encoding="utf-8")
     assert "55% 2s + 45% 2pz" in text or "55% 2s + 45% 2p" in text
     assert "100% 2px" in text
 
@@ -133,12 +149,12 @@ def test_methane_pattern():
     )
     assert result.returncode == 0
 
-    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    ibos = parse_ibos(_find_calc_dir("methane") / "ibos.txt")
     occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
     assert len(occ) == 5
 
     core = next(o for o in occ if o["dom"] > 0.99)
-    assert "C(Core)" in (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    assert "C(Core)" in (_find_calc_dir("methane") / "ibos.txt").read_text(encoding="utf-8")
 
     ch_sigmas = [o for o in occ if o["dom"] < 0.99]
     assert len(ch_sigmas) == 4
@@ -155,7 +171,7 @@ def test_ammonia_lp():
     )
     assert result.returncode == 0
 
-    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    ibos = parse_ibos(_find_calc_dir("ammonia") / "ibos.txt")
     occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
     assert len(occ) == 5
 
@@ -178,11 +194,11 @@ def test_benzene_symmetry():
     )
     assert result.returncode == 0
 
-    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    ibos = parse_ibos(_find_calc_dir("benzene") / "ibos.txt")
     occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
     assert len(occ) == 21, f"Expected 21 occupied IBOs, got {len(occ)}"
 
-    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    text = (_find_calc_dir("benzene") / "ibos.txt").read_text(encoding="utf-8")
     ch_energies = []
     for line in text.splitlines():
         s = line.strip()
@@ -211,12 +227,13 @@ def test_zncl2_bond_order():
     )
     assert result.returncode == 0
 
-    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    calc_dir = _find_calc_dir("zncl2")
+    text = (calc_dir / "ibos.txt").read_text(encoding="utf-8")
     assert "Ion%" in text, "Table should contain Ion% column header"
     assert "Total Wiberg Bond Orders" in text, "Should contain total Wiberg section"
     assert "Zn-Cl" in text, "Total Wiberg should show Zn-Cl pairs"
 
-    ibos = parse_ibos(CALCS_LAST / "ibos.txt")
+    ibos = parse_ibos(calc_dir / "ibos.txt")
     zn_cl_sigmas = [
         o for o in ibos
         if abs(o["occ"] - 2.0) < 1e-4 and "sigma" in o.get("label", "")
@@ -245,7 +262,7 @@ def test_charge_decomposition():
     )
     assert result.returncode == 0
 
-    text = (CALCS_LAST / "ibos.txt").read_text(encoding="utf-8")
+    text = (_find_calc_dir("water") / "ibos.txt").read_text(encoding="utf-8")
     assert "--- Charge Decomposition ---" in text
 
     # Parse the charge decomposition section

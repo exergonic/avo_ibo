@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import shutil
 import sys
 import traceback
 from pathlib import Path
@@ -11,19 +10,8 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 PLUGIN_DIR = Path(__file__).resolve().parent.parent.parent
 CALCS_DIR = PLUGIN_DIR / "calcs"
-TEMP_DIR = CALCS_DIR / "last"
 
 logger = logging.getLogger(__name__)
-
-
-def _prepare_calc_dir():
-    """Ensure TEMP_DIR exists and clear its contents."""
-    TEMP_DIR.mkdir(parents=True, exist_ok=True)
-    for child in TEMP_DIR.iterdir():
-        if child.is_file():
-            child.unlink(missing_ok=True)
-        elif child.is_dir():
-            shutil.rmtree(child, ignore_errors=True)
 
 
 def main():
@@ -63,7 +51,6 @@ def main():
             else:
                 result = update_config(data)
         elif args.feature == "ibo":
-            _prepare_calc_dir()
             from .calcs import compute_ibo
             from .config import load_config
             _cfg = load_config()

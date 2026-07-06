@@ -53,7 +53,9 @@ def main():
     spin = args.spin if args.spin is not None else _cfg.get("spin", 1)
 
     coords, numbers = _parse_xyz(args.xyz_file)
+    mol_name = Path(args.xyz_file).stem
     cjson = {
+        "name": mol_name,
         "atoms": {"coords": {"3d": coords}, "elements": {"number": numbers}},
         "properties": {"totalCharge": charge, "totalSpinMultiplicity": spin},
     }
