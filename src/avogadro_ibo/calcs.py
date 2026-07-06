@@ -797,7 +797,7 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
         oi = occ[i]
         lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n"
                      f" Occup= {oi:14.10f}\n")
-        coeffs = C_AO[perm, i] * scale
+        coeffs = (C_AO[:, i] * scale)[perm]
         for j in range(n_AO):
             lines.append(f"  {j + 1:>4d}  {coeffs[j]:16.10f}\n")
 
