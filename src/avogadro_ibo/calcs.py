@@ -506,7 +506,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
     # with energy differences < 1e-4 Ha.  Within symmetric molecules,
     # the PM functional leaves symmetry-equivalent bonds with small
     # residual energy splittings (~1e-5 Ha for benzene C-H σ).
-    DEG_THRESH = 1e-4
+    DEG_THRESH = 2e-4  # ~0.13 kcal/mol; catches all PM convergence noise
     deg_ranges = []
     is_degen = np.zeros(n_orb, dtype=bool)
     group_start = None
