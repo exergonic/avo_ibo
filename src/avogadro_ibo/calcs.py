@@ -836,8 +836,7 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
         if am == 2:
             # Psi4 d order: xx, xy, xz, yy, yz, zz
             # Diagonal (xx/yy/zz): scale 1.0; off-diagonal: 1/3
-            d_norm_in = [1.0, 1.0/np.sqrt(3), 1.0/np.sqrt(3),
-                         1.0, 1.0/np.sqrt(3), 1.0]
+            d_norm_in = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
             for i in range(6):
                 perm[ao + i] = ao + D_PERM[i]
                 scale[ao + i] = d_norm_in[i]
