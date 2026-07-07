@@ -1087,7 +1087,13 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     )
     # NOTE: puream=0 gives Cartesian basis functions, which is what the
     # paper assumes.  Changing this would affect the IAO construction.
-    energy, wfn = psi4.energy(method, return_wfn=True)
+    try:
+        energy, wfn = psi4.energy(method, return_wfn=True)
+    except Exception as e:
+        raise RuntimeError(
+            f"Psi4 SCF failed for {method}/{basis}. "
+            f"Check {calc_dir.name}/psi4.log for details."
+        ) from e
 
     # -- Extract occupied coefficients and overlap matrices ----------------
     Ca = wfn.Ca()
@@ -1161,7 +1167,13 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         psi4.set_options(
             {"basis": "STO-3G", "scf_type": "df", "reference": "rhf", "puream": 0}
         )
-        _, wfn_sto = psi4.energy("hf", return_wfn=True)
+        try:
+            _, wfn_sto = psi4.energy("hf", return_wfn=True)
+        except Exception as e:
+            raise RuntimeError(
+                "HF/STO-3G (IboView-style rendering) failed. "
+                f"Check {calc_dir.name}/psi4.log for details."
+            ) from e
         _write_iao_molden(
             molden_path, wfn_sto, C_IAO_all, occ_all, energies_all, C_IAO_all.shape[1]
         )

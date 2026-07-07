@@ -4,14 +4,9 @@ import argparse
 import sys
 from pathlib import Path
 from .calcs import compute_ibo
+from .calcs import _ELEM_SYMBOLS
 
-_ELEMENT_NUMBERS = {symbol: Z for Z, symbol in enumerate(
-    ["X", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
-     "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
-     "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
-     "Ga", "Ge", "As", "Se", "Br", "Kr",
-     "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
-     "In", "Sn", "Sb", "Te", "I"], start=0)}
+_ELEMENT_NUMBERS = {symbol: Z for Z, symbol in enumerate(_ELEM_SYMBOLS)}
 
 
 def _parse_xyz(path):
