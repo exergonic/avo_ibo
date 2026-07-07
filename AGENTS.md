@@ -48,6 +48,12 @@ Serious professionals can always run their own SCF calculations and then use
   diagonalises $\mathbf{F}^{\rm IAO}$ (spectral theorem ⇒ $\mathbf{F}^{\rm IAO}_{ov}=0$),
   making both overlap-based and Fock-based occ-vir analysis structurally
   impossible.  See `mathematics.md §9` for proof.
+- **IboView-style rendering (default)**: The Molden isosurface uses
+  the STO-3G minimal basis for [GTO] and writes IAO-basis coefficients
+  directly.  This matches IboView's visual output — no repolarization
+  tails, no d-function rendering issues.  An "Include repolarization
+  tails" checkbox reactivates the full cc-pVDZ [GTO] with
+  C_AO_all = C_IAO @ C_IAO_all projection for exact surfaces.
 - **Closed-shell only**: Open-shell systems (radicals, triplets,
   broken-symmetry) are rejected at entry with a clear error.  The
   pipeline treats all occupied MOs as doubly occupied and ignores
@@ -310,6 +316,43 @@ Serious professionals can always run their own SCF calculations and then use
     molecules with basis sets containing d/f functions were affected
     (not water with STO-3G, but methane with cc-pVDZ had noticeable
     asymmetry in C-H σ bonds).
+
+    **Experimental verification (2026-07-07)**:
+    A test script compared Psi4's internal `Ca.np` d-block coefficients
+    against coefficients written by `psi4.molden()` for CH₄ hf/cc-pVDZ
+    (Cartesian, puream=0).  The d-shell on carbon (ao indices 9-14)
+    was extracted from both sources for MOs with non-zero off-diagonal
+    components.  Results:
+
+    ```
+    MO 3 — xy component:
+        Ca (Psi4 internal):      -0.011372
+        psi4.molden() output:    -0.006566
+        ratio: 1.7321 = √3       ← Psi4 scales on output
+
+    MO 3 — xz component:
+        Ca (Psi4 internal):       0.001125
+        psi4.molden() output:     0.000650
+        ratio: 1.7321 = √3        ← Same scaling
+
+    MO 3 — yz component:
+        Ca (Psi4 internal):       0.046088
+        psi4.molden() output:     0.026609
+        ratio: 1.7321 = √3        ← Same scaling
+    ```
+
+    All five MOs with non-zero off-diagonal d (MOs 3, 4, 5, 7, 8)
+    showed identical √3 ratios.  This confirms Psi4 internally uses
+    **shell-normalized Cartesian d-functions** (off-diagonal self-overlap
+    1/3) and applies individual normalization (1/√3) when writing to
+    Molden.  Our `scale` array must match this.
+
+    **Common misconception**: A colleague initially argued that Psi4
+    stores individually-normalized coefficients and that 1/√3 would
+    double-correct.  The experimental data disproves this: Psi4's
+    internal coefficients are unnormalized (shell-normalized
+    convention), and the molden writer applies per-component scaling
+    on output.  Our scale is necessary, not a double correction.
 
     **Fix**: define `d_norm_in` and `f_norm_in` explicitly for **Psi4's
     internal ordering**, where the scale depends on whether the

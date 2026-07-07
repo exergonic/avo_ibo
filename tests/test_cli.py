@@ -99,8 +99,8 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
     assert mo_count == 1, "Expected exactly one [MO] section"
 
     ene_lines = [l for l in molden_text.splitlines() if l.startswith(" Ene=")]
-    assert len(ene_lines) == n_ao, (
-        f"Expected {n_ao} MO entries (full AO basis), got {len(ene_lines)}"
+    assert len(ene_lines) == n_iao, (
+        f"Expected {n_iao} MO entries (IboView-style STO-3G), got {len(ene_lines)}"
     )
 
     ibos = parse_ibos(calc_dir / "ibos.txt")

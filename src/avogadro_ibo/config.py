@@ -8,7 +8,7 @@ CONFIG_PATH = CALCS_DIR / "config.json"
 _DEFAULT_CONFIG = {
     "method": "wb97x-d",
     "basis": "def2-TZVP",
-    "iboview_style": False,
+    "iboview_style": True,
 }
 
 METHODS = ["hf", "b3lyp", "pbe", "pbe0", "wb97x-d", "mn15-l", "m06-2x"]
@@ -83,7 +83,7 @@ def get_config_options():
         "iboview_style": {
             "type": "boolean",
             "label": "IboView-like isosurface (truncate repolarization tails)",
-            "default": config.get("iboview_style", False),
+            "default": config.get("iboview_style", True),
             "order": 5.0,
         },
         "memory_note": {

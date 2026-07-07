@@ -1058,7 +1058,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     # -- Write Molden with IAO-basis orbitals ------------------------------
     iboview_style = _option(options, "iboview_style",
-                            _cfg.get("iboview_style", False))
+                            _cfg.get("iboview_style", True))
     molden_path = calc_dir / "ibo.molden"
     if iboview_style:
         sto_mol = psi4.geometry(mol_spec)
