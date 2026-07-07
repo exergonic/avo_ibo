@@ -1197,17 +1197,17 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     iboview_style = _option(options, "iboview_style",
                             _cfg.get("iboview_style", False))
     molden_path = calc_dir / "ibo.molden"
+    C_mo = C_IAO @ C_IAO_all  # (n_AO, n_orb)
     if iboview_style:
-        _write_minimal_iao_molden(
-            molden_path, wfn, C_IAO_all, occ_all, energies_all,
-            C_IAO_all.shape[1], bas_min,
-        )
-    else:
-        C_mo = C_IAO @ C_IAO_all  # (n_AO, n_orb)
-        _write_iao_molden(
-            molden_path, wfn, C_mo, occ_all, energies_all,
-            C_IAO_all.shape[1],
-        )
+        # Project onto minimal-basis subspace to remove repolarization
+        # tails, matching IboView's visual appearance.
+        M = S12.T @ np.linalg.solve(S_full, S12)          # (n_min, n_min)
+        coeffs_min = np.linalg.solve(M, S12.T @ C_mo)     # (n_min, n_orb)
+        C_mo = np.linalg.solve(S_full, S12 @ coeffs_min)  # (n_AO, n_orb)
+    _write_iao_molden(
+        molden_path, wfn, C_mo, occ_all, energies_all,
+        C_IAO_all.shape[1],
+    )
     molden_text = molden_path.read_text(encoding="utf-8")
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
