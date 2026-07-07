@@ -67,10 +67,12 @@ Serious professionals can always run their own SCF calculations and then use
   resolution, 3d metal support, and per-molecule orbital patterns.
 - **Named calc directories**: `calcs/{name}_NNN/` replaces `calcs/last/`;
   name from `cjson["name"]` or first-occurrence molecular formula (not Hill).
-- **Molden writer d/f ordering verified**: `D_PERM = [0, 3, 5, 1, 2, 4]` and
-  `D_NORM` confirmed correct against Psi4's own `molden_cartesian_order` array
-  and `cartD` normalization matrix in `writer.cc`. Verified by physical MO
-  coefficient patterns (S-O π bond: only dxz component non-zero).
+- **Molden writer d/f ordering**: `D_PERM = [0, 3, 5, 1, 2, 4]` maps
+  Psi4-internal Cartesian d order (xx, xy, xz, yy, yz, zz) to Molden
+  standard (xx, yy, zz, xy, xz, yz).  Normalization factors (`d_norm_in`,
+  `f_norm_in`) are defined for Psi4's *input* positions so off-diagonal
+  components are scaled before permutation — a critical ordering bug
+  (Gotcha 27) was fixed on 2026-07-07.
 
 ### Tested Molecules (hf/cc-pVDZ)
 - **Methane** (9 IAOs): C core + 4 C-H σ (sp³-like) + 4 C-H σ*
@@ -278,6 +280,44 @@ Serious professionals can always run their own SCF calculations and then use
     components visible in the full AO basis.  The analysis table (IAO-basis,
     clean) and isosurface (full-AO-basis, small tails) differ slightly;
     this is mathematically unavoidable.
+27. **D/f normalization applied to wrong Psi4 ordering (2026-07-07)**:
+    The original D_NORM/F_NORM in `_write_iao_molden()` were defined for
+    Molden output positions but applied to Psi4 input positions.  Psi4's
+    CCA convention uses unnormalized Cartesian Gaussians: off-diagonal
+    d (xy, xz, yz) and f (xxy, xyz, etc.) have self-overlap < 1, so their
+    coefficients must be scaled to match the Molden convention which
+    includes angular normalization factors.
+
+    **Psi4 Cartesian d order**: xx(0), xy(1), xz(2), yy(3), yz(4), zz(5).
+    Off-diagonal are indices 1, 2, 4 (xy, xz, yz), needing 1/√3 scaling.
+
+    **Molden standard d order**: xx(0), yy(1), zz(2), xy(3), xz(4), yz(5).
+    Off-diagonal are indices 3, 4, 5 (xy, xz, yz), also needing 1/√3.
+
+    The old code `scale[ao + i] = D_NORM[i]` used D_NORM = [1, 1, 1,
+    1/√3, 1/√3, 1/√3] — this is the Molden-ordered norm.  But `scale`
+    multiplies Psi4-ordered input coefficients *before* permuting them
+    to Molden order via `(coeffs * scale)[perm]`.  So Psi4 position
+    1 (xy, off-diagonal) received scale 1.0 instead of 1/√3, while
+    Psi4 position 3 (yy, diagonal) received scale 1/√3 — the
+    normalization landed on the wrong d-components.
+
+    **Symptom**: asymmetric d-contributions in every orbital with
+    d-character, making even simple σ bonds look lopsided.  The
+    effect was identical for both `ibo.molden` and `canonical.molden`
+    (though the canonical file comes from Psi4 itself, Avogadro's
+    parser applies the same Molden-ordering assumption).  Only
+    molecules with basis sets containing d/f functions were affected
+    (not water with STO-3G, but methane with cc-pVDZ had noticeable
+    asymmetry in C-H σ bonds).
+
+    **Fix**: define `d_norm_in` and `f_norm_in` explicitly for **Psi4's
+    internal ordering**, where the scale depends on whether the
+    *input* component is diagonal or off-diagonal in Psi4's convention:
+      `d_norm_in = [1.0, 1/√3, 1/√3, 1.0, 1/√3, 1.0]`
+    This correctly scales Psi4 xy(1)/xz(2)/yz(4) by 1/√3 and leaves
+    diagonal xx(0)/yy(3)/zz(5) at 1.0.  Then `perm[ao + i] = ao + D_PERM[i]`
+    maps the scaled values to Molden output order.
 
 ## Relevant Files
 
