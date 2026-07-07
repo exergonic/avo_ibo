@@ -232,16 +232,19 @@ def _localize_ibos(
                     np.add.at(Qij, atom_of, ci * cj)
 
                     if exponent == 2:
-                        # Pipek-Mezey p=2 (convex)
+                        # Pipek-Mezey p=2 (Appendix D)
+                        # A_ij = Σ_A [-2(q_ii² + q_jj²) + 4·q_ii·q_jj + 4·q_ij²]
+                        # B_ij = Σ_A 4·q_ij·(q_ii - q_jj)
+                        # φ = 0.25·atan2(B, -A)  [from tan(4φ) = B/-A]
                         Aij = 0.0
                         Bij = 0.0
                         for A in range(n_atoms):
                             qii, qjj, qij = Qii[A], Qjj[A], Qij[A]
-                            Aij += -qii * qii - qjj * qjj + 2.0 * qij * qij
+                            Aij += -2.0 * qii * qii - 2.0 * qjj * qjj + 4.0 * qii * qjj + 4.0 * qij * qij
                             Bij += 4.0 * qij * (qii - qjj)
                         if abs(Aij) <= conv:
                             continue
-                        phi = 0.5 * np.arctan2(Bij, -Aij)
+                        phi = 0.25 * np.arctan2(Bij, -Aij)
                         grad_term = 2.0
                     elif exponent == 4:
                         # Pipek-Mezey p=4 (eq 4).  The published Appendix D
