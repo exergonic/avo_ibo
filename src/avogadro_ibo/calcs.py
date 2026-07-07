@@ -518,6 +518,65 @@ def _ionic_pct(pop, A, B):
     return num / den * 100.0 if den > 1e-12 else 0.0
 
 
+def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char, elem, am_of, atom_of, c):
+    """Return a classification label string for one IAO-basis orbital.
+
+    Classifies occupied orbitals as Core, LP, σ/π bond, 2e3c, or Deloc,
+    and virtual orbitals as the corresponding antibond (*) type.
+    """
+    if oc > 1.5:
+        if pop[top_A] > 0.99 and s_char > 0.75:
+            return f"{_elem_symbol(elem[top_A])}(Core)"
+        elif pop[top_A] > 0.90:
+            return f"{_elem_symbol(elem[top_A])}(LP)"
+        elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
+            pfrac_A = _p_frac(c, am_of, top_A, atom_of)
+            pfrac_B = _p_frac(c, am_of, top_B, atom_of)
+            bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
+            a, b = sorted([top_A, top_B])
+            symA = _elem_symbol(elem[a])
+            symB = _elem_symbol(elem[b])
+            return f"{symA}-{symB} {bond_type}"
+        elif pop[top_A] > 0.70:
+            symA = _elem_symbol(elem[top_A])
+            if s_char > 0.5:
+                return f"{symA}(LP-s)"
+            else:
+                return f"{symA}(LP)"
+        else:
+            if len(order) >= 3 and pop[order[2]] > 0.10 and (len(order) < 4 or pop[order[3]] <= 0.03):
+                atoms = sorted(
+                    [order[0], order[1], order[2]],
+                    key=lambda i: (_elem_symbol(elem[i]), i),
+                )
+                syms = "-".join(_elem_symbol(elem[a]) for a in atoms)
+                return f"{syms} 2e3c"
+            else:
+                return "Deloc"
+    else:
+        if pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
+            pfrac_A = _p_frac(c, am_of, top_A, atom_of)
+            pfrac_B = _p_frac(c, am_of, top_B, atom_of)
+            bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
+            a, b = sorted([top_A, top_B])
+            symA = _elem_symbol(elem[a])
+            symB = _elem_symbol(elem[b])
+            return f"{symA}-{symB} {bond_type}*"
+        elif len(order) >= 3 and pop[order[2]] > 0.08:
+            pfrac_top = _p_frac(c, am_of, top_A, atom_of)
+            symA = _elem_symbol(elem[top_A])
+            return f"{symA} π*" if pfrac_top > 0.85 else f"{symA} anti*"
+        elif pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
+            a, b = sorted([top_A, top_B])
+            symA = _elem_symbol(elem[a])
+            symB = _elem_symbol(elem[b])
+            return f"{symA}-{symB} anti*"
+        elif pop[top_A] > 0.50:
+            return f"{_elem_symbol(elem[top_A])}(virt)"
+        else:
+            return "Virt"
+
+
 def _analyze_ibos(
     C_IAO_all,
     occ_all,
@@ -621,65 +680,9 @@ def _analyze_ibos(
         s_char, p_char, d_char = _spd_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
 
         # Determine orbital type
-        if oc > 1.5:
-            # Occupied — classify like before
-            if pop[top_A] > 0.99 and s_char > 0.75:
-                orbid = f"{_elem_symbol(elem[top_A])}(Core)"
-            elif pop[top_A] > 0.90:
-                orbid = f"{_elem_symbol(elem[top_A])}(LP)"
-            elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
-                pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
-                pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
-                bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
-                a, b = sorted([top_A, top_B])
-                symA = _elem_symbol(elem[a])
-                symB = _elem_symbol(elem[b])
-                orbid = f"{symA}-{symB} {bond_type}"
-            elif pop[top_A] > 0.70:
-                symA = _elem_symbol(elem[top_A])
-                if s_char > 0.5:
-                    orbid = f"{symA}(LP-s)"
-                else:
-                    orbid = f"{symA}(LP)"
-            else:
-                # Check for 2-electron 3-center bond
-                if (
-                    len(order) >= 3
-                    and pop[order[2]] > 0.10
-                    and (len(order) < 4 or pop[order[3]] <= 0.03)
-                ):
-                    atoms = sorted(
-                        [order[0], order[1], order[2]],
-                        key=lambda i: (_elem_symbol(elem[i]), i),
-                    )
-                    syms = "-".join(_elem_symbol(elem[a]) for a in atoms)
-                    orbid = f"{syms} 2e3c"
-                else:
-                    orbid = "Deloc"
-        else:
-            # Virtual — classify as antibonding counterpart (no "2e3c": 0 e⁻)
-            if pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
-                pfrac_A = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
-                pfrac_B = _p_frac(C_IAO_all[:, orb], am_of, top_B, atom_of)
-                bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
-                a, b = sorted([top_A, top_B])
-                symA = _elem_symbol(elem[a])
-                symB = _elem_symbol(elem[b])
-                orbid = f"{symA}-{symB} {bond_type}*"
-            elif len(order) >= 3 and pop[order[2]] > 0.08:
-                # Delocalized antibond — label by dominant atom's character
-                pfrac_top = _p_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
-                symA = _elem_symbol(elem[top_A])
-                orbid = f"{symA} π*" if pfrac_top > 0.85 else f"{symA} anti*"
-            elif pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
-                a, b = sorted([top_A, top_B])
-                symA = _elem_symbol(elem[a])
-                symB = _elem_symbol(elem[b])
-                orbid = f"{symA}-{symB} anti*"
-            elif pop[top_A] > 0.50:
-                orbid = f"{_elem_symbol(elem[top_A])}(virt)"
-            else:
-                orbid = "Virt"
+        orbid = _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char,
+                                  d_char, elem, am_of, atom_of,
+                                  C_IAO_all[:, orb])
 
         orbid_labels[orb] = orbid
 
