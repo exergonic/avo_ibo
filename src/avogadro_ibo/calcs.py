@@ -607,6 +607,9 @@ def _analyze_ibos(
         pop = np.zeros(n_atoms, dtype=np.float64)
         np.add.at(pop, atom_of, sq)
         if oc > 1.5:
+            # RHF-only: occ=2.0 per occupied orbital.  UHF would need
+            # separate alpha/beta occupancy arrays — unreachable due
+            # to the closed-shell guard in compute_ibo.
             atom_pop += pop * oc  # accumulate electron count per atom
 
         # Dominant atom and its population
@@ -722,6 +725,8 @@ def _analyze_ibos(
         )
 
     lines.append("")
+    # RHF-only: total = 2 × nocc.  The UHF branch (else nocc) is
+    # unreachable — closed-shell guard prevents open-shell in compute_ibo.
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
 
     # Footnote for degenerate manifolds
@@ -796,6 +801,9 @@ def _format_charge_decomposition(atom_pop, elem):
         Net charge = Z_A - Q_A
 
     ``atom_pop[A]`` is Q_A as a float.  ``elem`` gives atomic numbers.
+    RHF-only: assumes occ=2.0 per occupied orbital.  UHF would need
+    separate alpha/beta populations — unreachable due to the
+    closed-shell guard in compute_ibo.
     """
     lines = ["", "--- Charge Decomposition ---"]
     header = f"  {'Atom':>4}  {'Z':>3}  {'Pop':>8}  {'Net Charge':>10}"
