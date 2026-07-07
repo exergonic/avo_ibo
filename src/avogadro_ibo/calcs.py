@@ -20,6 +20,7 @@ import numpy as np
 # Helper: extract per-function atom index and angular momentum from a BasisSet
 # ---------------------------------------------------------------------------
 
+
 def _get_basis_maps(basis):
     """
     Return arrays mapping each basis function in *basis* to its atom center
@@ -46,8 +47,8 @@ def _get_basis_maps(basis):
     # This matches STO-3G's aufbau ordering of shells.
     _P_AM_START = {0: 1, 1: 2, 2: 3}
     _P_SUBTYPE = {
-        1: ['px', 'py', 'pz'],              # Psi4 Cartesian p order: x, y, z
-        2: ['dxx', 'dxy', 'dxz', 'dyy', 'dyz', 'dzz'],  # Psi4 Cartesian d order
+        1: ["px", "py", "pz"],  # Psi4 Cartesian p order: x, y, z
+        2: ["dxx", "dxy", "dxz", "dyy", "dyz", "dzz"],  # Psi4 Cartesian d order
     }
 
     next_n_per_atom = {}
@@ -64,22 +65,25 @@ def _get_basis_maps(basis):
         shell_n = next_n
         next_n_per_atom[key] = next_n + 1
 
-        subtypes = _P_SUBTYPE.get(am, [''] * nfunc)
+        subtypes = _P_SUBTYPE.get(am, [""] * nfunc)
         for f_idx in range(nfunc):
             atom_of.append(atom)
             am_of.append(am)
             n_of.append(shell_n)
-            dtype_of.append(subtypes[f_idx] if f_idx < len(subtypes) else '')
+            dtype_of.append(subtypes[f_idx] if f_idx < len(subtypes) else "")
 
-    return (np.array(atom_of, dtype=np.int32),
-            np.array(am_of, dtype=np.int32),
-            np.array(n_of, dtype=np.int32),
-            dtype_of)
+    return (
+        np.array(atom_of, dtype=np.int32),
+        np.array(am_of, dtype=np.int32),
+        np.array(n_of, dtype=np.int32),
+        dtype_of,
+    )
 
 
 # ---------------------------------------------------------------------------
 # IAO construction   (Appendix C of Knizia JCTC 2013)
 # ---------------------------------------------------------------------------
+
 
 def _build_iao_basis(S, S12, S_min, C_occ):
     """
@@ -109,10 +113,10 @@ def _build_iao_basis(S, S12, S_min, C_occ):
     except np.linalg.LinAlgError:
         S_work = S + np.eye(S.shape[0], dtype=np.float64) * 1e-12
         L_S, low_S = cho_factor(S_work)
-    P12 = cho_solve((L_S, low_S), S12)            # (n_AO, n_min)
+    P12 = cho_solve((L_S, low_S), S12)  # (n_AO, n_min)
 
     # (2) Occupied MOs expressed in the minimal basis
-    C_occ_min = S12.T @ C_occ                     # (n_min, n_occ)
+    C_occ_min = S12.T @ C_occ  # (n_min, n_occ)
 
     # (3) Solve S_min @ C_tilde = C_occ_min
     try:
@@ -120,10 +124,10 @@ def _build_iao_basis(S, S12, S_min, C_occ):
     except np.linalg.LinAlgError:
         S_min_work = S_min + np.eye(S_min.shape[0], dtype=np.float64) * 1e-12
         L_min, low_min = cho_factor(S_min_work)
-    C_tilde = cho_solve((L_min, low_min), C_occ_min)   # (n_min, n_occ)
+    C_tilde = cho_solve((L_min, low_min), C_occ_min)  # (n_min, n_occ)
 
     # (4) Metric in the occupied space
-    S_tilde = C_occ_min.T @ C_tilde                    # (n_occ, n_occ)
+    S_tilde = C_occ_min.T @ C_tilde  # (n_occ, n_occ)
 
     # (5) Solve S_tilde @ C_tilde_2bar^T = C_tilde^T
     try:
@@ -132,25 +136,27 @@ def _build_iao_basis(S, S12, S_min, C_occ):
         S_tilde = S_tilde + np.eye(S_tilde.shape[0], dtype=np.float64) * 1e-12
         L_tilde, low_tilde = cho_factor(S_tilde)
     C_tilde_2bar_T = cho_solve((L_tilde, low_tilde), C_tilde.T)  # (n_occ, n_min)
-    C_tilde_2bar = C_tilde_2bar_T.T                          # (n_min, n_occ)
+    C_tilde_2bar = C_tilde_2bar_T.T  # (n_min, n_occ)
 
     # (6) Residual part of occupied MOs beyond the minimal projection
-    T4 = C_occ - P12 @ C_tilde_2bar                  # (n_AO, n_occ)
+    T4 = C_occ - P12 @ C_tilde_2bar  # (n_AO, n_occ)
 
     # (7) Construct IAO coefficients
-    C_IAO = P12 + T4 @ C_occ_min.T                   # (n_AO, n_min)
+    C_IAO = P12 + T4 @ C_occ_min.T  # (n_AO, n_min)
 
     # (8) Symmetric (Loewdin) orthogonalisation of IAOs
     #     Find M^{-1/2} where M = C_IAO^T @ S @ C_IAO
-    metric = C_IAO.T @ S @ C_IAO                     # (n_min, n_min)
+    metric = C_IAO.T @ S @ C_IAO  # (n_min, n_min)
     evals, evecs = np.linalg.eigh(metric)
-    evals = np.maximum(evals, 1e-14)  # guard against near-zero from near-linear-dependence
-    C_IAO = C_IAO @ (evecs @ np.diag(evals ** -0.5) @ evecs.T)
+    evals = np.maximum(
+        evals, 1e-14
+    )  # guard against near-zero from near-linear-dependence
+    C_IAO = C_IAO @ (evecs @ np.diag(evals**-0.5) @ evecs.T)
 
     # Express the occupied MOs in the orthonormal IAO basis.
     # Since IAOs span the occupied space (by construction),
     # C_IAO @ C_IAO_occ = C_occ should hold exactly.
-    C_IAO_occ = C_IAO.T @ S @ C_occ                # (n_min, n_occ)
+    C_IAO_occ = C_IAO.T @ S @ C_occ  # (n_min, n_occ)
 
     return C_IAO, C_IAO_occ
 
@@ -159,8 +165,10 @@ def _build_iao_basis(S, S12, S_min, C_occ):
 # Pipek-Mezey localisation in the IAO basis   (eq 4 and Appendix D)
 # ---------------------------------------------------------------------------
 
-def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12,
-                   exponents=(2, 4), cayley_deg=0.0, seed=42):
+
+def _localize_ibos(
+    C_occ, atom_of, max_iter=2048, conv=1e-12, exponents=(2, 4), cayley_deg=0.0, seed=42
+):
     """
     Localise the occupied orbitals in the IAO basis by maximising
 
@@ -202,8 +210,7 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12,
         sigma = cayley_deg * np.pi / 180.0
         A = rng.normal(0, sigma, (n_occ, n_occ))
         A = (A - A.T) / 2  # anti-symmetric
-        U = np.linalg.solve(np.eye(n_occ) - 0.5 * A,
-                            np.eye(n_occ) + 0.5 * A)
+        U = np.linalg.solve(np.eye(n_occ) - 0.5 * A, np.eye(n_occ) + 0.5 * A)
         C_occ[:] = C_occ @ U
 
     total_sweeps = 0
@@ -246,10 +253,16 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12,
                         Bij = 0.0
                         for A in range(n_atoms):
                             qii, qjj, qij = Qii[A], Qjj[A], Qij[A]
-                            qii_2 = qii * qii; qjj_2 = qjj * qjj; qij_2 = qij * qij
-                            Aij += (-qii_2 * qii_2 - qjj_2 * qjj_2
-                                    + 6.0 * (qii_2 + qjj_2) * qij_2
-                                    + qii_2 * qii * qjj + qii * qjj_2 * qjj)
+                            qii_2 = qii * qii
+                            qjj_2 = qjj * qjj
+                            qij_2 = qij * qij
+                            Aij += (
+                                -qii_2 * qii_2
+                                - qjj_2 * qjj_2
+                                + 6.0 * (qii_2 + qjj_2) * qij_2
+                                + qii_2 * qii * qjj
+                                + qii * qjj_2 * qjj
+                            )
                             Bij += 4.0 * qij * (qii_2 * qii - qjj_2 * qjj)
                         if abs(Aij) <= conv:
                             continue
@@ -282,6 +295,7 @@ def _localize_ibos(C_occ, atom_of, max_iter=2048, conv=1e-12,
 # Resolve on-atom degeneracies that PM cannot separate
 # ---------------------------------------------------------------------------
 
+
 def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
     """
     Diagonalise F_IAO within each group of occupied orbitals that share
@@ -300,7 +314,7 @@ def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
     n_IAO, n_occ = C_occ.shape
     n_atoms = int(np.max(atom_of)) + 1
 
-    sq = C_occ ** 2
+    sq = C_occ**2
     pop = np.zeros((n_occ, n_atoms), dtype=np.float64)
     for i in range(n_occ):
         np.add.at(pop[i], atom_of, sq[:, i])
@@ -318,8 +332,8 @@ def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
         n_g = len(indices)
         if n_g < 2:
             continue
-        C_block = C_occ[:, indices]                     # (n_IAO, n_g)
-        Fb = C_block.T @ (F_IAO @ C_block)              # (n_g, n_g)
+        C_block = C_occ[:, indices]  # (n_IAO, n_g)
+        Fb = C_block.T @ (F_IAO @ C_block)  # (n_g, n_g)
         evals, evecs = np.linalg.eigh(Fb)
         C_occ[:, indices] = C_block @ evecs
 
@@ -330,12 +344,60 @@ def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
 
 # Periodic-table lookup for element symbols
 _ELEM_SYMBOLS = [
-    "X", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
-    "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
-    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
-    "Ga", "Ge", "As", "Se", "Br", "Kr",
-    "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
-    "In", "Sn", "Sb", "Te", "I",
+    "X",
+    "H",
+    "He",
+    "Li",
+    "Be",
+    "B",
+    "C",
+    "N",
+    "O",
+    "F",
+    "Ne",
+    "Na",
+    "Mg",
+    "Al",
+    "Si",
+    "P",
+    "S",
+    "Cl",
+    "Ar",
+    "K",
+    "Ca",
+    "Sc",
+    "Ti",
+    "V",
+    "Cr",
+    "Mn",
+    "Fe",
+    "Co",
+    "Ni",
+    "Cu",
+    "Zn",
+    "Ga",
+    "Ge",
+    "As",
+    "Se",
+    "Br",
+    "Kr",
+    "Rb",
+    "Sr",
+    "Y",
+    "Zr",
+    "Nb",
+    "Mo",
+    "Tc",
+    "Ru",
+    "Rh",
+    "Pd",
+    "Ag",
+    "Cd",
+    "In",
+    "Sn",
+    "Sb",
+    "Te",
+    "I",
 ]
 
 
@@ -355,11 +417,11 @@ def _d_spherical_weights(c, atom_idx, atom_of, am_of):
     # Psi4 Cartesian d order: xx, xy, xz, yy, yz, zz
     c_xx, c_xy, c_xz, c_yy, c_yz, c_zz = c[idx[:6]]
     return {
-        'dxy':    c_xy ** 2,
-        'dxz':    c_xz ** 2,
-        'dyz':    c_yz ** 2,
-        'dz2':    (-c_xx - c_yy + 2 * c_zz) ** 2,
-        'dx2y2':  (c_xx - c_yy) ** 2,
+        "dxy": c_xy**2,
+        "dxz": c_xz**2,
+        "dyz": c_yz**2,
+        "dz2": (-c_xx - c_yy + 2 * c_zz) ** 2,
+        "dx2y2": (c_xx - c_yy) ** 2,
     }
 
 
@@ -378,7 +440,7 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
         return ""
 
     parts = []
-    for am_label, am_val in [('s', 0), ('p', 1), ('d', 2)]:
+    for am_label, am_val in [("s", 0), ("p", 1), ("d", 2)]:
         idx_am = np.where((atom_of == top_atom) & (am_of == am_val))[0]
         if len(idx_am) == 0:
             continue
@@ -396,7 +458,7 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
 
         # Determine dominant subtype
         subtype = ""
-        if am_val == 1:   # p-orbitals: px, py, pz
+        if am_val == 1:  # p-orbitals: px, py, pz
             st_counts = {}
             for fi in idx_am:
                 st = func_dtype[fi]
@@ -406,7 +468,7 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
                 top_st = max(st_counts, key=st_counts.get)
                 if st_counts[top_st] > 0.5 * total_am:
                     subtype = top_st  # e.g. "pz"
-        elif am_val == 2:   # d-orbitals: dxy, dxz, dyz, dz2, dx2y2
+        elif am_val == 2:  # d-orbitals: dxy, dxz, dyz, dz2, dx2y2
             d_weights = _d_spherical_weights(c, top_atom, atom_of, am_of)
             if d_weights:
                 top_st = max(d_weights, key=d_weights.get)
@@ -439,7 +501,7 @@ def _wiberg_per_ibo(pop, occ, A, B):
     ionic, no shared density) to 1 (pure covalent 2c-2e bond with 50/50
     sharing).
     """
-    return float(occ ** 2 * pop[A] * pop[B])
+    return float(occ**2 * pop[A] * pop[B])
 
 
 def _ionic_pct(pop, A, B):
@@ -456,9 +518,20 @@ def _ionic_pct(pop, A, B):
     return num / den * 100.0 if den > 1e-12 else 0.0
 
 
-def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
-                  atom_of, am_of, func_n, func_dtype,
-                  elem, method, basis, ref):
+def _analyze_ibos(
+    C_IAO_all,
+    occ_all,
+    energies_all,
+    nocc,
+    atom_of,
+    am_of,
+    func_n,
+    func_dtype,
+    elem,
+    method,
+    basis,
+    ref,
+):
     """
     Build a formatted IBO analysis table covering all IAO-basis orbitals.
 
@@ -473,7 +546,9 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
 
     lines = []
     orbid_labels = [""] * n_orb
-    atom_pop = np.zeros(n_atoms, dtype=np.float64)  # accumulated per-atom electron counts
+    atom_pop = np.zeros(
+        n_atoms, dtype=np.float64
+    )  # accumulated per-atom electron counts
     lines.append(f"IBO Analysis  ({method}/{basis}, {ref.upper()})")
     lines.append("")
 
@@ -487,7 +562,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         comp_parts = []
         for A in order[:4]:
             if pop[A] > 0.02:
-                sym = f"{_elem_symbol(elem[A])}{A+1}"
+                sym = f"{_elem_symbol(elem[A])}{A + 1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
@@ -532,7 +607,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         pop = np.zeros(n_atoms, dtype=np.float64)
         np.add.at(pop, atom_of, sq)
         if oc > 1.5:
-            atom_pop += pop * oc       # accumulate electron count per atom
+            atom_pop += pop * oc  # accumulate electron count per atom
 
         # Dominant atom and its population
         order = np.argsort(-pop)
@@ -568,10 +643,16 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                     orbid = f"{symA}(LP)"
             else:
                 # Check for 2-electron 3-center bond
-                if len(order) >= 3 and pop[order[2]] > 0.10 and (len(order) < 4 or pop[order[3]] <= 0.03):
-                    atoms = sorted([order[0], order[1], order[2]],
-                                  key=lambda i: (_elem_symbol(elem[i]), i))
-                    syms = '-'.join(_elem_symbol(elem[a]) for a in atoms)
+                if (
+                    len(order) >= 3
+                    and pop[order[2]] > 0.10
+                    and (len(order) < 4 or pop[order[3]] <= 0.03)
+                ):
+                    atoms = sorted(
+                        [order[0], order[1], order[2]],
+                        key=lambda i: (_elem_symbol(elem[i]), i),
+                    )
+                    syms = "-".join(_elem_symbol(elem[a]) for a in atoms)
                     orbid = f"{syms} 2e3c"
                 else:
                     orbid = "Deloc"
@@ -605,7 +686,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         comp_parts = []
         for A in order[:4]:
             if pop[A] > 0.02:
-                sym = f"{_elem_symbol(elem[A])}{A+1}"
+                sym = f"{_elem_symbol(elem[A])}{A + 1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
@@ -617,8 +698,9 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
                 if elem[A] != 1 and pop[A] > 0.02:
                     hybrid_atom = A
                     break
-        hybrid = _hybrid_str(C_IAO_all[:, orb], am_of, atom_of,
-                              func_n, func_dtype, hybrid_atom)
+        hybrid = _hybrid_str(
+            C_IAO_all[:, orb], am_of, atom_of, func_n, func_dtype, hybrid_atom
+        )
         if hybrid_atom != top_A:
             hybrid = f"{_elem_symbol(elem[hybrid_atom])}: {hybrid}"
 
@@ -636,7 +718,7 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
             hl = "<- LUMO"
         degen_tag = " †" if is_degen[orb] else ""
         lines.append(
-            f"  {orb+1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
+            f"  {orb + 1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
             f"{dom:>5.3f}  {orbid:>{16 - len(degen_tag)}}{degen_tag}  "
             f"{comp:<{comp_width}}  {hybrid:<22}  "
             f"{ion_str:>5}  {hl:>9}"
@@ -650,16 +732,15 @@ def _analyze_ibos(C_IAO_all, occ_all, energies_all, nocc,
         deg_groups = []
         for start, end in deg_ranges:
             deg_groups.append(f"{start + 1}-{end}")
-        lines.append(f"  † Orbitals {', '.join(deg_groups)} form degenerate "
-                     f"manifolds (ΔE < {DEG_THRESH:.0e} Ha).  Small energy "
-                     f"differences within each manifold are PM convergence noise.")
+        lines.append(
+            f"  † Orbitals {', '.join(deg_groups)} form degenerate manifolds (ΔE < {DEG_THRESH:.0e} Ha).\n"
+            f"  Small energy differences within each manifold are PM convergence noise and do not indicate true energy splittings."
+        )
 
     charge_section = _format_charge_decomposition(atom_pop, elem)
     lines.append(charge_section)
 
-    net_charges = [
-        float(int(round(elem[A])) - atom_pop[A]) for A in range(n_atoms)
-    ]
+    net_charges = [float(int(round(elem[A])) - atom_pop[A]) for A in range(n_atoms)]
     return "\n".join(lines), orbid_labels, net_charges
 
 
@@ -680,8 +761,8 @@ def _format_total_wiberg(C_IAO_occ, atom_of, elem):
     Only pairs with W_AB > 0.01 are shown.
     """
     # RHF: D = 2 · C_occ @ C_occ.T  (occupied density in orthonormal IAO basis)
-    D = 2.0 * C_IAO_occ @ C_IAO_occ.T       # (n_min, n_min)
-    D_sq = D ** 2
+    D = 2.0 * C_IAO_occ @ C_IAO_occ.T  # (n_min, n_min)
+    D_sq = D**2
 
     n_atoms = len(elem)
     W = np.zeros((n_atoms, n_atoms), dtype=np.float64)
@@ -735,8 +816,7 @@ def _format_charge_decomposition(atom_pop, elem):
         total_z += Z
     lines.append("-" * len(header))
     lines.append(
-        f"Total:  {total_z:>3d}  {total_pop:>8.3f}  "
-        f"{total_z - total_pop:>+10.3f}"
+        f"Total:  {total_z:>3d}  {total_pop:>8.3f}  {total_z - total_pop:>+10.3f}"
     )
     return "\n".join(lines)
 
@@ -782,6 +862,7 @@ def _p_frac(c, am_of, atom, atom_of):
 # Molden writer using IAO-basis orbitals
 # ---------------------------------------------------------------------------
 
+
 def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     """
     Write a Molden file whose [MO] section contains IAO-basis orbitals.
@@ -801,6 +882,7 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     # function values.  Use shell.original_coef(p) for direct GTO output.
     import numpy as np
     import psi4
+
     tmp = path.with_suffix(".molden.tmp")
     psi4.molden(wfn, str(tmp))
     text = tmp.read_text(encoding="utf-8")
@@ -832,16 +914,31 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
         if am == 2:
             # Psi4 d order: xx, xy, xz, yy, yz, zz
             # Diagonal (xx/yy/zz): scale 1.0; off-diagonal: 1/3
-            d_norm_in = [1.0, 1.0/np.sqrt(3), 1.0/np.sqrt(3),
-                         1.0, 1.0/np.sqrt(3), 1.0]
+            d_norm_in = [
+                1.0,
+                1.0 / np.sqrt(3),
+                1.0 / np.sqrt(3),
+                1.0,
+                1.0 / np.sqrt(3),
+                1.0,
+            ]
             for i in range(6):
                 perm[ao + i] = ao + D_PERM[i]
                 scale[ao + i] = d_norm_in[i]
         elif am == 3:
             # Psi4 f order: xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz
-            f_norm_in = [1.0, 1.0/np.sqrt(5), 1.0/np.sqrt(5),
-                         1.0/np.sqrt(5), 1.0/np.sqrt(15), 1.0/np.sqrt(5),
-                         1.0, 1.0/np.sqrt(5), 1.0/np.sqrt(5), 1.0]
+            f_norm_in = [
+                1.0,
+                1.0 / np.sqrt(5),
+                1.0 / np.sqrt(5),
+                1.0 / np.sqrt(5),
+                1.0 / np.sqrt(15),
+                1.0 / np.sqrt(5),
+                1.0,
+                1.0 / np.sqrt(5),
+                1.0 / np.sqrt(5),
+                1.0,
+            ]
             for i in range(10):
                 perm[ao + i] = ao + F_PERM[i]
                 scale[ao + i] = f_norm_in[i]
@@ -859,16 +956,16 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     for i in range(n_orb):
         ei = energies[i]
         oi = occ[i]
-        lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n"
-                     f" Occup= {oi:14.10f}\n")
+        lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n Occup= {oi:14.10f}\n")
         coeffs = (C_AO[:, i] * scale)[perm]
         for j in range(n_AO):
             lines.append(f"  {j + 1:>4d}  {coeffs[j]:16.10f}\n")
 
     # Pad with dummy orbitals so Avogadro's MO slot count matches [GTO]
     for i in range(n_orb, n_AO):
-        lines.append(f" Sym= A\n Ene= {0.0:15.10f}\n Spin= Alpha\n"
-                     f" Occup= {0.0:14.10f}\n")
+        lines.append(
+            f" Sym= A\n Ene= {0.0:15.10f}\n Spin= Alpha\n Occup= {0.0:14.10f}\n"
+        )
         for j in range(n_AO):
             lines.append(f"  {j + 1:>4d}  {0.0:16.10f}\n")
 
@@ -879,9 +976,11 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
 # Molecule name helpers
 # ---------------------------------------------------------------------------
 
+
 def _mol_formula(numbers):
     """Molecular formula from atomic number list, preserving first-occurrence order."""
     from collections import Counter
+
     counts = Counter(numbers)
     seen = set()
     parts = []
@@ -896,14 +995,16 @@ def _mol_formula(numbers):
 def _sanitize_name(name):
     """Sanitize a string for use as a filesystem directory name."""
     import re
-    s = re.sub(r'[^a-zA-Z0-9]', '_', str(name))
-    s = re.sub(r'_+', '_', s).strip('_')
+
+    s = re.sub(r"[^a-zA-Z0-9]", "_", str(name))
+    s = re.sub(r"_+", "_", s).strip("_")
     return s[:50] or "molecule"
 
 
 # ---------------------------------------------------------------------------
 # Top-level entry point
 # ---------------------------------------------------------------------------
+
 
 def _option(options, key, default):
     v = options.get(key, default)
@@ -964,24 +1065,28 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     ref = "rhf"
 
     geom_lines = "\n".join(
-        f"  {elem[i]:3d}  {coords[3*i]:12.8f}  {coords[3*i+1]:12.8f} "
-        f"{coords[3*i+2]:12.8f}"
+        f"  {elem[i]:3d}  {coords[3 * i]:12.8f}  {coords[3 * i + 1]:12.8f} "
+        f"{coords[3 * i + 2]:12.8f}"
         for i in range(len(elem))
     )
-    mol_spec = f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient\nsymmetry c1"
+    mol_spec = (
+        f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient\nsymmetry c1"
+    )
     mol = psi4.geometry(mol_spec)
 
     _cfg = _load_config()
     basis = _option(options, "basis", _cfg.get("basis", "cc-pVDZ"))
     method = _option(options, "method", _cfg.get("method", "hf"))
-    psi4.set_options({
-        "basis": basis,
-        "scf_type": "df",
-        "reference": ref,
-        "e_convergence": 1e-8,
-        "d_convergence": 1e-8,
-        "puream": 0,
-    })
+    psi4.set_options(
+        {
+            "basis": basis,
+            "scf_type": "df",
+            "reference": ref,
+            "e_convergence": 1e-8,
+            "d_convergence": 1e-8,
+            "puream": 0,
+        }
+    )
     # NOTE: puream=0 gives Cartesian basis functions, which is what the
     # paper assumes.  Changing this would affect the IAO construction.
     energy, wfn = psi4.energy(method, return_wfn=True)
@@ -997,7 +1102,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     S_min = mints.ao_overlap(bas_min, bas_min).np
     S12 = mints.ao_overlap(wfn.basisset(), bas_min).np
 
-    C_occ = Ca.np[:, :nocc].copy()           # (n_AO, n_occ)
+    C_occ = Ca.np[:, :nocc].copy()  # (n_AO, n_occ)
 
     # -- Build IAO basis (Appendix C) --------------------------------------
     C_IAO, C_IAO_occ = _build_iao_basis(S_full, S12, S_min, C_occ)
@@ -1008,12 +1113,11 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     atom_of, am_of, func_n, func_dtype = _get_basis_maps(bas_min)  # (n_min,) each
 
     # -- Pipek-Mezey localisation in IAO basis (eq 4 / Appendix D) --------
-    _localize_ibos(C_IAO_occ, atom_of,
-                   max_iter=2048, conv=1e-12)
+    _localize_ibos(C_IAO_occ, atom_of, max_iter=2048, conv=1e-12)
 
     # -- Compute orbital energies from Fock matrix -------------------------
-    F_AO = wfn.Fa().np                              # (n_AO, n_AO)
-    F_IAO = C_IAO.T @ F_AO @ C_IAO                 # (n_min, n_min)
+    F_AO = wfn.Fa().np  # (n_AO, n_AO)
+    F_IAO = C_IAO.T @ F_AO @ C_IAO  # (n_min, n_min)
 
     # -- Resolve on-atom degeneracies that PM cannot separate --------------
     # The PM functional uses atomic populations n_A(i), so orbitals on the
@@ -1027,23 +1131,22 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     )
 
     # -- Valence-virtual IAOs via SVD  (IboView MakeValenceVirtuals) -------
-    C_vir = Ca.np[:, nocc:]                         # (n_AO, n_vir)
-    SIbVir = C_IAO.T @ S_full @ C_vir               # (n_min, n_vir)
+    C_vir = Ca.np[:, nocc:]  # (n_AO, n_vir)
+    SIbVir = C_IAO.T @ S_full @ C_vir  # (n_min, n_vir)
     U_svd, Sigma, _ = np.linalg.svd(SIbVir, full_matrices=False)
     n_val_vir = int(np.sum(Sigma > 1e-8))
-    U_val = U_svd[:, :n_val_vir]                    # (n_min, n_val_vir)
+    U_val = U_svd[:, :n_val_vir]  # (n_min, n_val_vir)
 
     # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
     if n_val_vir > 1:
-        _localize_ibos(U_val, atom_of,
-                       max_iter=2048, conv=1e-12)
+        _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
 
     vir_energies = np.array(
         [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]
     )
 
     # -- Combined IAO-basis orbital set, sorted by energy ------------------
-    C_IAO_all = np.hstack([C_IAO_occ, U_val])       # (n_min, n_orb)
+    C_IAO_all = np.hstack([C_IAO_occ, U_val])  # (n_min, n_orb)
     occ_all = np.array([2.0] * nocc + [0.0] * n_val_vir)
     energies_all = np.concatenate([occ_energies, vir_energies])
 
@@ -1053,24 +1156,32 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     energies_all = energies_all[order]
 
     # -- Write Molden with IAO-basis orbitals ------------------------------
-    iboview_style = _option(options, "iboview_style",
-                            _cfg.get("iboview_style", True))
+    iboview_style = _option(options, "iboview_style", _cfg.get("iboview_style", True))
     molden_path = calc_dir / "ibo.molden"
     if iboview_style:
         sto_mol = psi4.geometry(mol_spec)
-        psi4.set_options({"basis": "STO-3G", "scf_type": "df",
-                          "reference": "rhf", "puream": 0})
+        psi4.set_options(
+            {"basis": "STO-3G", "scf_type": "df", "reference": "rhf", "puream": 0}
+        )
         _, wfn_sto = psi4.energy("hf", return_wfn=True)
-        _write_iao_molden(molden_path, wfn_sto, C_IAO_all, occ_all,
-                          energies_all, C_IAO_all.shape[1])
-        psi4.set_options({
-            "basis": basis, "scf_type": "df", "reference": ref,
-            "e_convergence": 1e-8, "d_convergence": 1e-8, "puream": 0,
-        })
+        _write_iao_molden(
+            molden_path, wfn_sto, C_IAO_all, occ_all, energies_all, C_IAO_all.shape[1]
+        )
+        psi4.set_options(
+            {
+                "basis": basis,
+                "scf_type": "df",
+                "reference": ref,
+                "e_convergence": 1e-8,
+                "d_convergence": 1e-8,
+                "puream": 0,
+            }
+        )
     else:
         C_AO_all = C_IAO @ C_IAO_all  # (n_AO, n_orb)
-        _write_iao_molden(molden_path, wfn, C_AO_all, occ_all,
-                          energies_all, C_IAO_all.shape[1])
+        _write_iao_molden(
+            molden_path, wfn, C_AO_all, occ_all, energies_all, C_IAO_all.shape[1]
+        )
     molden_text = molden_path.read_text(encoding="utf-8")
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
@@ -1079,15 +1190,22 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     # -- IBO analysis table -------------------------------------------------
     msg, labels, net_charges = _analyze_ibos(
-        C_IAO_all, occ_all, energies_all, nocc,
-        atom_of, am_of, func_n, func_dtype,
-        elem, method, basis, ref,
+        C_IAO_all,
+        occ_all,
+        energies_all,
+        nocc,
+        atom_of,
+        am_of,
+        func_n,
+        func_dtype,
+        elem,
+        method,
+        basis,
+        ref,
     )
     cjson["atoms"]["partialCharges"] = [round(c, 4) for c in net_charges]
     # -- Total Wiberg bond order section -----------------------------------
-    wiberg_section = _format_total_wiberg(
-        C_IAO_all[:, :nocc], atom_of, elem
-    )
+    wiberg_section = _format_total_wiberg(C_IAO_all[:, :nocc], atom_of, elem)
     msg += wiberg_section
     analysis_path = calc_dir / "ibos.txt"
     analysis_path.write_text(msg, encoding="utf-8")
@@ -1098,7 +1216,6 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         "molden": molden_text,
         "cjson": cjson,
         "calcDir": str(calc_dir),
-        "message":
-            f"IBO analysis saved to {calc_dir.name}/ibos.txt\n"
-            f"Canonical MOs: {calc_dir.name}/canonical.molden",
+        "message": f"IBO analysis saved to {calc_dir.name}/ibos.txt\n"
+        f"Canonical MOs: {calc_dir.name}/canonical.molden",
     }
