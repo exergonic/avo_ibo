@@ -570,7 +570,7 @@ def _analyze_ibos(
     comp_width += 2
 
     header = (
-        f"  {'#':>3}  {'Occ':>7}  {'Energy':>10}  {'DOM':>5}  "
+        f"  {'#':>3}  {'Occ':>7}  {'Energy':>10}  "
         f"{'Type':>16}  {{:<{comp_width}}}  {'Hybrid':<22}  "
         f"{'Ion%':>5}  {'H/L':>9}"
     ).format("Composition")
@@ -613,7 +613,6 @@ def _analyze_ibos(
         order = np.argsort(-pop)
         top_A = order[0]
         top_B = order[1]
-        dom = pop[top_A] ** 2 + pop[top_B] ** 2
 
         # s/p/d breakdown on the dominant atom (single pass)
         s_char, p_char, d_char = _spd_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
@@ -717,7 +716,7 @@ def _analyze_ibos(
         degen_tag = " †" if is_degen[orb] else ""
         lines.append(
             f"  {orb + 1:>3d}  {oc:>7.3f}  {energies_all[orb]:>10.6f}  "
-            f"{dom:>5.3f}  {orbid:>{16 - len(degen_tag)}}{degen_tag}  "
+            f"{orbid:>{16 - len(degen_tag)}}{degen_tag}  "
             f"{comp:<{comp_width}}  {hybrid:<22}  "
             f"{ion_str:>5}  {hl:>9}"
         )

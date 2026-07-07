@@ -59,15 +59,14 @@ def parse_ibos(path):
             # H/L marker (if present) adds "<-" and "HOMO"/"LUMO" as trailing tokens
             if len(cols) >= 4 and cols[-2] == "<-" and cols[-1] in ("HOMO", "LUMO"):
                 ion_raw = cols[-3]
-                middle = cols[4:-3]
+                middle = cols[3:-3]
             else:
                 ion_raw = cols[-1]
-                middle = cols[4:-1]
+                middle = cols[3:-1]
             entry = {
                 "idx": int(cols[0]),
                 "occ": float(cols[1]),
                 "ene": float(cols[2]),
-                "dom": float(cols[3]),
                 "ion_pct": ion_raw if ion_raw == "---" else float(ion_raw),
             }
             if len(middle) >= 2 and middle[1] in ("σ", "σ*", "π", "π*", "anti*"):
@@ -128,8 +127,8 @@ def test_water_on_atom_resolution():
     assert result.returncode == 0
 
     ibos = parse_ibos(_find_calc_dir("water") / "ibos.txt")
-    lps = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4 and o["dom"] > 0.99 and o["ene"] > -10]
-    assert len(lps) == 2, f"Expected 2 O LPs with DOM≈1, got {len(lps)}"
+    lps = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4 and "(LP)" in o.get("label", "")]
+    assert len(lps) == 2, f"Expected 2 O LPs, got {len(lps)}"
 
     lps_sorted = sorted(lps, key=lambda o: o["ene"])
     s_lp, p_lp = lps_sorted[0], lps_sorted[1]
@@ -153,10 +152,10 @@ def test_methane_pattern():
     occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
     assert len(occ) == 5
 
-    core = next(o for o in occ if o["dom"] > 0.99)
+    core = next(o for o in occ if "(Core)" in o.get("label", ""))
     assert "C(Core)" in (_find_calc_dir("methane") / "ibos.txt").read_text(encoding="utf-8")
 
-    ch_sigmas = [o for o in occ if o["dom"] < 0.99]
+    ch_sigmas = [o for o in occ if "(Core)" not in o.get("label", "")]
     assert len(ch_sigmas) == 4
     energies = {round(o["ene"], 3) for o in ch_sigmas}
     assert len(energies) == 1, f"C-H sigma energies should be degenerate, got {energies}"
@@ -175,7 +174,7 @@ def test_ammonia_lp():
     occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
     assert len(occ) == 5
 
-    lps = [o for o in occ if o["dom"] > 0.99 and o["ene"] > -10]
+    lps = [o for o in occ if "(LP)" in o.get("label", "")]
     assert len(lps) == 1, f"Expected 1 N LP, got {len(lps)}"
 
 
