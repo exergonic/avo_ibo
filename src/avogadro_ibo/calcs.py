@@ -521,14 +521,19 @@ def _ionic_pct(pop, A, B):
     return num / den * 100.0 if den > 1e-12 else 0.0
 
 
-def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char, elem, am_of, atom_of, c):
+def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
+                      elem, am_of, atom_of, func_n, c):
     """Return a classification label string for one IAO-basis orbital.
 
     Classifies occupied orbitals as Core, LP, σ/π bond, 2e3c, or Deloc,
     and virtual orbitals as the corresponding antibond (*) type.
     """
     if oc > 1.5:
-        if pop[top_A] > 0.99 and s_char > 0.75:
+        # Determine principal quantum number of the dominant s-contribution
+        # on the top atom.  Only n=1 (1s) is a true core; 2s/3s are valence.
+        _s_idx = np.where((atom_of == top_A) & (am_of == 0))[0]
+        _s_n = int(func_n[_s_idx[np.argmax(c[_s_idx] ** 2)]]) if len(_s_idx) else 0
+        if pop[top_A] > 0.99 and s_char > 0.75 and _s_n == 1:
             return f"{_elem_symbol(elem[top_A])}(Core)"
         elif pop[top_A] > 0.90:
             return f"{_elem_symbol(elem[top_A])}(LP)"
@@ -684,7 +689,7 @@ def _analyze_ibos(
 
         # Determine orbital type
         orbid = _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char,
-                                  d_char, elem, am_of, atom_of,
+                                  d_char, elem, am_of, atom_of, func_n,
                                   C_IAO_all[:, orb])
 
         orbid_labels[orb] = orbid
