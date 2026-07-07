@@ -615,10 +615,8 @@ def _analyze_ibos(
         top_B = order[1]
         dom = pop[top_A] ** 2 + pop[top_B] ** 2
 
-        # s/p/d breakdown on the dominant atom
-        s_char = _s_char(C_IAO_all[:, orb], am_of, top_A, atom_of)
-        p_char = _p_char(C_IAO_all[:, orb], am_of, top_A, atom_of)
-        d_char = _d_char(C_IAO_all[:, orb], am_of, top_A, atom_of)
+        # s/p/d breakdown on the dominant atom (single pass)
+        s_char, p_char, d_char = _spd_frac(C_IAO_all[:, orb], am_of, top_A, atom_of)
 
         # Determine orbital type
         if oc > 1.5:
@@ -828,31 +826,24 @@ def _elem_symbol(Z):
     return f"E{Z}"
 
 
-def _s_char(c, am_of, atom, atom_of):
-    """Fraction of s-orbital (am=0) contribution on the given atom."""
-    idx = np.where((atom_of == atom) & (am_of == 0))[0]
-    return float(np.sum(c[idx] ** 2)) if len(idx) else 0.0
-
-
-def _p_char(c, am_of, atom, atom_of):
-    """Fraction of p-orbital (am=1) contribution on the given atom."""
-    idx = np.where((atom_of == atom) & (am_of == 1))[0]
-    return float(np.sum(c[idx] ** 2)) if len(idx) else 0.0
-
-
-def _d_char(c, am_of, atom, atom_of):
-    """Fraction of d-orbital (am=2) contribution on the given atom."""
-    idx = np.where((atom_of == atom) & (am_of == 2))[0]
-    return float(np.sum(c[idx] ** 2)) if len(idx) else 0.0
+def _spd_frac(c, am_of, atom, atom_of):
+    """Return (s_char, p_char, d_char) for the given atom in one pass."""
+    idx = np.where(atom_of == atom)[0]
+    if len(idx) == 0:
+        return 0.0, 0.0, 0.0
+    am_atom = am_of[idx]
+    c_atom = c[idx] ** 2
+    s = float(np.sum(c_atom[am_atom == 0])) if np.any(am_atom == 0) else 0.0
+    p = float(np.sum(c_atom[am_atom == 1])) if np.any(am_atom == 1) else 0.0
+    d = float(np.sum(c_atom[am_atom == 2])) if np.any(am_atom == 2) else 0.0
+    return s, p, d
 
 
 def _p_frac(c, am_of, atom, atom_of):
     """p/s/d ratio on the given atom; 0 if no density."""
-    _s = _s_char(c, am_of, atom, atom_of)
-    _p = _p_char(c, am_of, atom, atom_of)
-    _d = _d_char(c, am_of, atom, atom_of)
-    _t = _s + _p + _d
-    return _p / _t if _t > 0 else 0.0
+    s, p, d = _spd_frac(c, am_of, atom, atom_of)
+    total = s + p + d
+    return p / total if total > 0 else 0.0
 
 
 # -- (canonical MO deloc analysis removed 2026-06-30; canonical.molden below)--
