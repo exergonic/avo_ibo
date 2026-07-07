@@ -3,7 +3,7 @@ authors = [{ name = "Billy Wayne McCann", email = "thebillywayne@gmail.com" }]
 dependencies = []
 name = "avogadro_ibo"
 requires-python = ">= 3.11"
-version = "0.2.0"
+version = "0.3.0"
 
 [project.scripts]
 avogadro-ibo = "avogadro_ibo:main"
