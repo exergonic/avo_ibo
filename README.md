@@ -66,21 +66,21 @@ Calculations are run in `calcs/last/` in the current working directory:
 
 ## Limitations
 
-* **Closed-shell only.** 
+* **Closed-shell only.**  
   The IAO/IBO pipeline treats all occupied
   orbitals as doubly occupied (RHF-style).  Open-shell systems
   (radicals, triplet states, broken-symmetry calculations) are not
   supported.  The SCF will still run, but the orbital construction,
   analysis, and Molden output will be invalid.
 
-* **Symmetric molecules.**   
+* **Symmetric molecules.**  
   Pipek-Mezey localization uses fixed sequential Jacobi sweeps.  For
   highly symmetric molecules, symmetry-equivalent orbitals may show
   small (sub-milliHartree) energy splittings (a known consequence of
   the orthogonality constraint — see Knizia JCTC 2013 and
   `mathematics.md`).
 
-* **Analysis Table vs. Isosurface Tails**
+* **Analysis Table vs. Isosurface Tails**  
   The IBO analysis table (`ibos.txt`) reports orbital compositions in the
   IAO basis, where populations are clean and bond assignments are crisp.
   The Molden isosurfaces are rendered in the full SCF basis via the
