@@ -13,7 +13,7 @@ plugin.
 * On-atom degeneracy resolution via post-PM Fock diagonalization
 * Valence-virtual IBOs via SVD projection of canonical virtual MOs onto IAO space
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
-* Analysis table (`calcs/last/ibos.txt`) — occupancy, energy, DOM, bond type, atomic composition, s/p/d hybridization
+* Analysis table (`calcs/ibos.txt`) — occupancy, energy, DOM, bond type, atomic composition, s/p/d hybridization
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
 
 
@@ -30,7 +30,7 @@ Orbitals appear in the **Molecular Orbitals** panel.
 ### Development Setup
 Requires [pixi](https://pixi.sh).
 
-```powershell
+```shell
 git clone https://github.com/exergonic/avo_ibo.git
 cd avo_ibo
 pixi install
@@ -41,15 +41,15 @@ The lock file uses v6 format (safe to ignore — the version of pixi
 bundled with Avogadro v0.66.0 reads v6 natively).
 
 ### Standalone CLI
-```powershell
+```shell
 pixi run python -m avogadro_ibo molecule.xyz
 ```
 
-Writes to `calcs/last/` (ibo.molden, canonical.molden, ibos.txt, psi4.log).
+Writes to `calcs/` (ibo.molden, canonical.molden, ibos.txt, psi4.log).
 
 ### pip (no pixi)
 
-```powershell
+```shell
 pip install git+https://github.com/exergonic/avo_ibo.git
 ```
 
@@ -57,14 +57,14 @@ Psi4 must be installed separately via conda.
 
 ## Data location
 
-Calculations are run in `calcs/last/` in the current working directory:
+Calculations are run in `calcs/` in the current working directory:
 
 * `ibo.molden` — IAO-basis orbitals for visualization
 * `ibos.txt` — analysis table with per-orbital data
 * `canonical.molden` — canonical MOs for reference
 * `psi4.log` — Psi4 SCF output
 
-## Limitations
+## Limitations and Considerations
 
 * **Closed-shell only.**  
   The IAO/IBO pipeline treats all occupied
