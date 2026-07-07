@@ -860,8 +860,62 @@ def _p_frac(c, am_of, atom, atom_of):
 
 
 # ---------------------------------------------------------------------------
-# Molden writer using IAO-basis orbitals
+# Molden writers using IAO-basis orbitals
 # ---------------------------------------------------------------------------
+
+
+def _write_minimal_iao_molden(path, wfn, C_IAO, occ, energies, n_orb, min_basis):
+    """
+    Write a Molden file with IAO-basis coefficients, STO-3G [GTO].
+
+    This is equivalent to IboView's output: the [GTO] section uses the
+    minimal (STO-3G) basis, and the [MO] coefficients are the IAO-basis
+    coefficients written directly.  The STO-3G basis has no d/f functions,
+    so no D_PERM/D_NORM reordering is needed.  No dummy padding (n_orb
+    matches the minimal-basis size).
+    """
+    import numpy as np
+
+    mol = wfn.molecule()
+    n_atoms = mol.natom()
+    n_AO = min_basis.nbf()
+
+    lines = ["[Atoms] (AU)\n"]
+    for a in range(n_atoms):
+        sym = mol.symbol(a)
+        Z = int(mol.Z(a))
+        x, y, z = mol.x(a), mol.y(a), mol.z(a)
+        lines.append(
+            f" {sym:<4s}{a + 1:>4d}{Z:>5d}"
+            f"  {x:15.10f}  {y:15.10f}  {z:15.10f}\n"
+        )
+
+    lines.append("[GTO]\n")
+    for a in range(n_atoms):
+        lines.append(f" {a + 1} 0\n")
+        for sh in range(min_basis.nshell()):
+            if min_basis.shell_to_center(sh) == a:
+                shell = min_basis.shell(sh)
+                am = shell.am
+                nprim = shell.nprimitive
+                name = "s" if am == 0 else "p" if am == 1 else "d" if am == 2 else "f"
+                lines.append(f" {name} {nprim:>3d}  1.00\n")
+                for p in range(nprim):
+                    exp_val = shell.exp(p)
+                    coef_val = shell.original_coef(p)
+                    lines.append(f"  {exp_val:20.10f}  {coef_val:20.10f}\n")
+
+    lines.append("\n[MO]\n")
+    for i in range(n_orb):
+        ei = energies[i]
+        oi = occ[i]
+        lines.append(
+            f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n Occup= {oi:14.10f}\n"
+        )
+        for j in range(n_AO):
+            lines.append(f"  {j + 1:>4d}  {C_IAO[j, i]:16.10f}\n")
+
+    path.write_text("".join(lines), encoding="utf-8")
 
 
 def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
@@ -1142,17 +1196,18 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     # -- Write Molden ------------------------------------------------
     iboview_style = _option(options, "iboview_style",
                             _cfg.get("iboview_style", False))
+    molden_path = calc_dir / "ibo.molden"
     if iboview_style:
-        n_AO_full = C_IAO.shape[0]
-        C_mo = np.zeros((n_AO_full, C_IAO_all.shape[1]))
-        C_mo[:C_IAO_all.shape[0], :] = C_IAO_all
+        _write_minimal_iao_molden(
+            molden_path, wfn, C_IAO_all, occ_all, energies_all,
+            C_IAO_all.shape[1], bas_min,
+        )
     else:
         C_mo = C_IAO @ C_IAO_all  # (n_AO, n_orb)
-
-    molden_path = calc_dir / "ibo.molden"
-    _write_iao_molden(
-        molden_path, wfn, C_mo, occ_all, energies_all, C_IAO_all.shape[1],
-    )
+        _write_iao_molden(
+            molden_path, wfn, C_mo, occ_all, energies_all,
+            C_IAO_all.shape[1],
+        )
     molden_text = molden_path.read_text(encoding="utf-8")
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
