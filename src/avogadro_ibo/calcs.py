@@ -819,23 +819,11 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     # Molden standard d: xx, yy, zz, xy, xz, yz
     # Off-diagonal d (xy, xz, yz) need 1/√3 scaling.
     D_PERM = [0, 3, 5, 1, 2, 4]
-    D_NORM = [1.0, 1.0, 1.0, 1.0 / np.sqrt(3.0),
-              1.0 / np.sqrt(3.0), 1.0 / np.sqrt(3.0)]
     #
     # Psi4 Cartesian f:  xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz
     # Molden standard f: xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
     # (F-support included for forward-compatibility; cc-pVDZ does not have f.)
     F_PERM = [0, 6, 9, 3, 1, 2, 5, 8, 7, 4]
-    F_NORM = [
-        1.0, 1.0, 1.0,                              # xxx, yyy, zzz (diag)
-        1.0 / np.sqrt(5.0),                          # xyy
-        1.0 / np.sqrt(5.0),                          # xxy
-        1.0 / np.sqrt(5.0),                          # xxz
-        1.0 / np.sqrt(5.0),                          # xzz
-        1.0 / np.sqrt(5.0),                          # yzz
-        1.0 / np.sqrt(5.0),                          # yyz
-        1.0 / np.sqrt(15.0),                         # xyz
-    ]
 
     n_AO = C_AO.shape[0]
     perm = np.arange(n_AO)
@@ -846,13 +834,21 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
         am = bas.shell(sh).am
         nf = bas.shell(sh).nfunction
         if am == 2:
+            # Psi4 d order: xx, xy, xz, yy, yz, zz
+            # Diagonal (xx/yy/zz): scale 1.0; off-diagonal: 1/3
+            d_norm_in = [1.0, 1.0/np.sqrt(3), 1.0/np.sqrt(3),
+                         1.0, 1.0/np.sqrt(3), 1.0]
             for i in range(6):
                 perm[ao + i] = ao + D_PERM[i]
-                scale[ao + i] = D_NORM[i]
+                scale[ao + i] = d_norm_in[i]
         elif am == 3:
+            # Psi4 f order: xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz
+            f_norm_in = [1.0, 1.0/np.sqrt(5), 1.0/np.sqrt(5),
+                         1.0/np.sqrt(5), 1.0/np.sqrt(15), 1.0/np.sqrt(5),
+                         1.0, 1.0/np.sqrt(5), 1.0/np.sqrt(5), 1.0]
             for i in range(10):
                 perm[ao + i] = ao + F_PERM[i]
-                scale[ao + i] = F_NORM[i]
+                scale[ao + i] = f_norm_in[i]
         ao += nf
 
     # Keep everything before the [MO] section
