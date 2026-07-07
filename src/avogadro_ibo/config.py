@@ -8,6 +8,7 @@ CONFIG_PATH = CALCS_DIR / "config.json"
 _DEFAULT_CONFIG = {
     "method": "wb97x-d",
     "basis": "def2-TZVP",
+    "iboview_style": False,
 }
 
 METHODS = ["hf", "b3lyp", "pbe", "pbe0", "wb97x-d", "mn15-l", "m06-2x"]
@@ -79,6 +80,12 @@ def get_config_options():
             "default": config.get("mult", 1),
             "order": 4.0,
         },
+        "iboview_style": {
+            "type": "boolean",
+            "label": "IboView-like isosurface (truncate repolarization tails)",
+            "default": config.get("iboview_style", False),
+            "order": 5.0,
+        },
         "memory_note": {
             "type": "text",
             "label": "Note",
@@ -106,7 +113,7 @@ def update_config(avo_input):
     options = avo_input.get("options", {})
     config = load_config()
     changed = False
-    for key in ("method", "basis", "charge", "mult"):
+    for key in ("method", "basis", "charge", "mult", "iboview_style"):
         if key in options:
             config[key] = options[key]
             changed = True

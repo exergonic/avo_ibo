@@ -38,6 +38,8 @@ def main():
                         help="Total charge (default: config or 0)")
     parser.add_argument("--spin", "--mult", type=int, default=None, dest="spin",
                         help="Spin multiplicity (default: config or 1)")
+    parser.add_argument("--iboview-style", action="store_true",
+                        help="Truncate repolarization tails (IboView-like isosurface)")
     args = parser.parse_args()
 
     try:
@@ -64,6 +66,8 @@ def main():
         options["method"] = args.method
     if args.basis:
         options["basis"] = args.basis
+    if args.iboview_style:
+        options["iboview_style"] = True
     result = compute_ibo(cjson, options, charge=charge, spin=spin)
     print(result.get("message", "done"))
 

@@ -864,67 +864,68 @@ def _p_frac(c, am_of, atom, atom_of):
 # ---------------------------------------------------------------------------
 
 
-def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
+def _write_iao_molden(path, wfn, C_mo, occ, energies, n_orb, basis_for_gto):
     """
-    Write a Molden file whose [MO] section contains IAO-basis orbitals.
+    Write a Molden file with [MOs] containing IAO-basis orbitals.
 
-    The [Atoms] and [GTO] header sections are copied from Psi4's own Molden
-    output; only the [MO] block is replaced with the IAO-basis orbitals.
-
-    The [MO] section is padded with zero-energy dummy orbitals up to n_AO
-    total entries so Avogadro's MO slot count matches the [GTO] basis set
-    size, preventing uninitialised-slot noise.
+    The [GTO] section is generated from *basis_for_gto* using Psi4's
+    original_coef convention (raw primitive coefficients without
+    normalization — the Molden reader re-applies it).  D/f permutation
+    and normalization are applied to [MO] coefficients as needed.
     """
-    # NOTE: The [GTO] header is copied from Psi4's own molden() output, so
-    # the primitive coefficients come from Psi4 (original_coef convention).
-    # If any future code path writes [GTO] directly using shell.coef(p),
-    # note that shell.coef(p) includes primitive normalization — the Molden
-    # reader would re-apply normalization, producing incorrect basis
-    # function values.  Use shell.original_coef(p) for direct GTO output.
     import numpy as np
-    import psi4
 
-    tmp = path.with_suffix(".molden.tmp")
-    psi4.molden(wfn, str(tmp))
-    text = tmp.read_text(encoding="utf-8")
-    tmp.unlink()
+    mol = wfn.molecule()
+    n_atoms = mol.natom()
+    n_AO = basis_for_gto.nbf()
 
-    # Build index permutation and re-scaling vector to convert Psi4 internal AO
-    # order to Molden standard.  Psi4's CCA convention uses unnormalized Cartesian
-    # Gaussians (off-diagonal d/f have self-overlap < 1); the Molden/Gaussian
-    # convention includes the angular normalization factor.
-    #
-    # Psi4 Cartesian d:  xx, xy, xz, yy, yz, zz
-    # Molden standard d: xx, yy, zz, xy, xz, yz
-    # Off-diagonal d (xy, xz, yz) need 1/√3 scaling.
+    # -- Build [Atoms] section --
+    lines = ["[Atoms] (AU)\n"]
+    for a in range(n_atoms):
+        sym = mol.symbol(a)
+        Z = int(mol.Z(a))
+        x, y, z = mol.x(a), mol.y(a), mol.z(a)
+        lines.append(
+            f" {sym:<4s}{a + 1:>4d}{Z:>5d}"
+            f"  {x:15.10f}  {y:15.10f}  {z:15.10f}\n"
+        )
+
+    # -- Build [GTO] section --
+    lines.append("[GTO]\n")
+    for a in range(n_atoms):
+        lines.append(f" {a + 1} 0\n")
+        for sh in range(basis_for_gto.nshell()):
+            if basis_for_gto.shell_to_center(sh) == a:
+                shell = basis_for_gto.shell(sh)
+                am = shell.am
+                nprim = shell.nprimitive
+                name = "s" if am == 0 else "p" if am == 1 else "d" if am == 2 else "f"
+                lines.append(f" {name} {nprim:>3d}  1.00\n")
+                for p in range(nprim):
+                    exp_val = shell.exp(p)
+                    coef_val = shell.original_coef(p)
+                    lines.append(f"  {exp_val:20.10f}  {coef_val:20.10f}\n")
+
+    # -- Permutation and normalization for d/f shells --
     D_PERM = [0, 3, 5, 1, 2, 4]
     D_NORM = [1.0, 1.0, 1.0, 1.0 / np.sqrt(3.0), 1.0 / np.sqrt(3.0), 1.0 / np.sqrt(3.0)]
-    #
-    # Psi4 Cartesian f:  xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz
-    # Molden standard f: xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
-    # (F-support included for forward-compatibility; cc-pVDZ does not have f.)
     F_PERM = [0, 6, 9, 3, 1, 2, 5, 8, 7, 4]
     F_NORM = [
-        1.0,
-        1.0,
-        1.0,  # xxx, yyy, zzz (diag)
-        1.0 / np.sqrt(5.0),  # xyy
-        1.0 / np.sqrt(5.0),  # xxy
-        1.0 / np.sqrt(5.0),  # xxz
-        1.0 / np.sqrt(5.0),  # xzz
-        1.0 / np.sqrt(5.0),  # yzz
-        1.0 / np.sqrt(5.0),  # yyz
-        1.0 / np.sqrt(15.0),  # xyz
+        1.0, 1.0, 1.0,
+        1.0 / np.sqrt(5.0),
+        1.0 / np.sqrt(5.0),
+        1.0 / np.sqrt(5.0),
+        1.0 / np.sqrt(5.0),
+        1.0 / np.sqrt(5.0),
+        1.0 / np.sqrt(5.0),
+        1.0 / np.sqrt(15.0),
     ]
-
-    n_AO = C_AO.shape[0]
     perm = np.arange(n_AO)
     scale = np.ones(n_AO)
-    bas = wfn.basisset()
     ao = 0
-    for sh in range(bas.nshell()):
-        am = bas.shell(sh).am
-        nf = bas.shell(sh).nfunction
+    for sh in range(basis_for_gto.nshell()):
+        am = basis_for_gto.shell(sh).am
+        nf = basis_for_gto.shell(sh).nfunction
         if am == 2:
             for i in range(6):
                 perm[ao + i] = ao + D_PERM[i]
@@ -935,20 +936,13 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
                 scale[ao + i] = F_NORM[i]
         ao += nf
 
-    # Keep everything before the [MO] section
-    mo_tag = "[MO]"
-    idx = text.find(mo_tag)
-    if idx == -1:
-        raise RuntimeError("Psi4 Molden output has no [MO] section")
-    header = text[:idx]
-
-    lines = [header + "\n[MO]\n"]
-
+    # -- Write [MO] section --
+    lines.append("\n[MO]\n")
     for i in range(n_orb):
         ei = energies[i]
         oi = occ[i]
         lines.append(f" Sym= A\n Ene= {ei:15.10f}\n Spin= Alpha\n Occup= {oi:14.10f}\n")
-        coeffs = (C_AO[:, i] * scale)[perm]
+        coeffs = (C_mo[:, i] * scale)[perm]
         for j in range(n_AO):
             lines.append(f"  {j + 1:>4d}  {coeffs[j]:16.10f}\n")
 
@@ -1146,11 +1140,24 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     occ_all = occ_all[order]
     energies_all = energies_all[order]
 
-    # -- Write Molden with IAO-basis orbitals ------------------------------
-    C_AO_all = C_IAO @ C_IAO_all  # (n_AO, n_orb)
+    # -- Write Molden ------------------------------------------------
+    _psi4_basis = psi4.core.BasisSet
+    iboview_style = _option(options, "iboview_style",
+                            _cfg.get("iboview_style", False))
+    if iboview_style:
+        # IboView-compatible: IAO-basis coefficients, STO-3G [GTO]
+        sto3g = _psi4_basis.build(mol, "BASIS", "STO-3G", puream=0)
+        C_mo = C_IAO_all  # (n_min, n_orb)
+        basis_for_gto = sto3g
+    else:
+        # Repolarized: full-AO-projected coefficients, full SCF basis [GTO]
+        C_mo = C_IAO @ C_IAO_all  # (n_AO, n_orb)
+        basis_for_gto = wfn.basisset()
+
     molden_path = calc_dir / "ibo.molden"
     _write_iao_molden(
-        molden_path, wfn, C_AO_all, occ_all, energies_all, C_IAO_all.shape[1]
+        molden_path, wfn, C_mo, occ_all, energies_all, C_IAO_all.shape[1],
+        basis_for_gto,
     )
     molden_text = molden_path.read_text(encoding="utf-8")
 
