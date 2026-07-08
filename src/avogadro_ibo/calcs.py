@@ -1081,9 +1081,10 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         for i in range(len(elem))
     )
     mol_spec = (
-        f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient\nsymmetry c1"
+        f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient"
     )
     mol = psi4.geometry(mol_spec)
+    mol.reset_point_group("c1")
 
     _cfg = _load_config()
     basis = _option(options, "basis", _cfg.get("basis", "cc-pVDZ"))
