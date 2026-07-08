@@ -598,6 +598,7 @@ def _analyze_ibos(
     method,
     basis,
     ref,
+    mol_name="",
 ):
     """
     Build a formatted IBO analysis table covering all IAO-basis orbitals.
@@ -616,7 +617,7 @@ def _analyze_ibos(
     atom_pop = np.zeros(
         n_atoms, dtype=np.float64
     )  # accumulated per-atom electron counts
-    lines.append(f"IBO Analysis  ({method}/{basis}, {ref.upper()})")
+    lines.append(f"IBO Analysis: {mol_name}  ({method}/{basis}, {ref.upper()})")
     lines.append("")
 
     # Pre-pass to size the Composition column to fit the widest entry
@@ -1223,6 +1224,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         method,
         basis,
         ref,
+        mol_name,
     )
     cjson["atoms"]["partialCharges"] = [round(c, 4) for c in net_charges]
     # -- Total Wiberg bond order section -----------------------------------
