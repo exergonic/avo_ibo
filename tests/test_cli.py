@@ -286,12 +286,13 @@ def test_charge_decomposition():
             continue
         cols = line.split()
         if len(cols) >= 4:
-            sym = cols[0]
+            sym_raw = cols[0]
             Z = int(cols[1])
             pop = float(cols[2])
             net = float(cols[3])
             total_pop += pop
             total_z += Z
+            sym = "".join(c for c in sym_raw if c.isalpha())
             if sym == "O":
                 found_o = True
                 assert net < -0.3, f"O net charge {net} should be negative"

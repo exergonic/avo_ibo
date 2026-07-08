@@ -793,14 +793,14 @@ def _format_total_wiberg(C_IAO_occ, atom_of, elem):
             if w > 0.01:
                 symA = _elem_symbol(elem[A])
                 symB = _elem_symbol(elem[B])
-                pairs.append((symA, symB, w))
+                pairs.append((symA, A, symB, B, w))
 
     if not pairs:
         return ""
 
     lines = ["", "", "--- Total Wiberg Bond Orders ---"]
-    for symA, symB, w in sorted(pairs, key=lambda x: -x[2]):
-        lines.append(f"  {symA}-{symB}    {w:>7.3f}")
+    for symA, a, symB, b, w in sorted(pairs, key=lambda x: -x[4]):
+        lines.append(f"  {symA}{a+1}-{symB}{b+1}    {w:>7.3f}")
     return "\n".join(lines)
 
 
@@ -818,7 +818,7 @@ def _format_charge_decomposition(atom_pop, elem):
     closed-shell guard in compute_ibo.
     """
     lines = ["", "--- Charge Decomposition ---"]
-    header = f"  {'Atom':>4}  {'Z':>3}  {'Pop':>8}  {'Net Charge':>10}"
+    header = f"  {'Atom':>5}  {'Z':>3}  {'Pop':>8}  {'Net Charge':>10}"
     lines.append(header)
     lines.append("-" * len(header))
     total_pop = 0.0
@@ -828,7 +828,7 @@ def _format_charge_decomposition(atom_pop, elem):
         pop = atom_pop[A]
         net = Z - pop
         sym = _elem_symbol(Z)
-        lines.append(f"  {sym:>4}  {Z:>3d}  {pop:>8.3f}  {net:>+10.3f}")
+        lines.append(f"  {sym}{A+1:<3}  {Z:>3d}  {pop:>8.3f}  {net:>+10.3f}")
         total_pop += pop
         total_z += Z
     lines.append("-" * len(header))
