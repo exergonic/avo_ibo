@@ -1032,6 +1032,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     atoms_data = cjson.get("atoms", {})
     elem_raw = atoms_data.get("elements", {}).get("number", [])
     mol_name = cjson.get("name", "") or _mol_formula(elem_raw) or "molecule"
+    mol_name = mol_name[:50]
     safe_name = _sanitize_name(mol_name)
     counter = 1
     while (CALCS_DIR / f"{safe_name}_{counter:03d}").exists():
