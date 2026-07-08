@@ -628,7 +628,7 @@ def _analyze_ibos(
         order = np.argsort(-pop)
         comp_parts = []
         for A in order[:4]:
-            if pop[A] > 0.02:
+            if pop[A] > 0.005:
                 sym = f"{_elem_symbol(elem[A])}{A + 1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
@@ -696,7 +696,7 @@ def _analyze_ibos(
 
         comp_parts = []
         for A in order[:4]:
-            if pop[A] > 0.02:
+            if pop[A] > 0.005:
                 sym = f"{_elem_symbol(elem[A])}{A + 1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
