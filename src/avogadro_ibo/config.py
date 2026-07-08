@@ -82,7 +82,7 @@ def get_config_options():
         },
         "iboview_style": {
             "type": "boolean",
-            "label": "IboView-like isosurface (truncate repolarization tails)",
+            "label": "IboView-like isosurface",
             "default": config.get("iboview_style", True),
             "order": 5.0,
         },
