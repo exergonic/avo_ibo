@@ -11,9 +11,9 @@ plugin.
 
 * Occupied and valence-virtual IBOs — Pipek-Mezey localization (p=2 warmup + p=4 refinement, conv 1e-12)
 * On-atom degeneracy resolution via post-PM Fock diagonalization
-* Valence-virtual IBOs via SVD projection of canonical virtual MOs onto IAO space
+* Valence-virtual IBOs via Single Value Decomposition projection of canonical virtual MOs onto IAO space
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
-* Analysis table (`calcs/ibos.txt`) — occupancy, energy, DOM, bond type, atomic composition, s/p/d hybridization
+* Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
 
 
@@ -59,9 +59,10 @@ Psi4 must be installed separately via conda.
 
 Calculations are run in `calcs/` in the current working directory:
 
-* `ibo.molden` — IAO-basis orbitals for visualization
+* `input.xyz` - the input molecule used for calculations
 * `ibos.txt` — analysis table with per-orbital data
-* `canonical.molden` — canonical MOs for reference
+* `ibo.molden` — IAO-basis orbitals for visualization
+* `canonical.molden` — canonical MOs for reference visualization
 * `psi4.log` — Psi4 SCF output
 
 ## Limitations and Considerations
