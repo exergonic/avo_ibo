@@ -1163,7 +1163,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         [C_IAO_occ[:, i].dot(F_IAO @ C_IAO_occ[:, i]) for i in range(nocc)]
     )
 
-    # -- Valence-virtual IAOs via SVD  (IboView MakeValenceVirtuals) -------
+    # -- Valence-virtual IAOs via Single Value Decomposition  (IboView MakeValenceVirtuals) -------
     C_vir = Ca.np[:, nocc:]  # (n_AO, n_vir)
     SIbVir = C_IAO.T @ S_full @ C_vir  # (n_min, n_vir)
     U_svd, Sigma, _ = np.linalg.svd(SIbVir, full_matrices=False)
