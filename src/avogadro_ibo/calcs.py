@@ -1023,6 +1023,18 @@ def _option(options, key, default):
     return v
 
 
+def _write_input_xyz(path, coords, elem, mol_name):
+    """Write an XYZ file from CJSON-style coordinate/element arrays."""
+    n_atoms = len(elem)
+    lines = [f"{n_atoms}\n", f"{mol_name}\n"]
+    for i in range(n_atoms):
+        sym = _elem_symbol(elem[i])
+        lines.append(
+            f"{sym:<3s}  {coords[3*i]:12.8f}  {coords[3*i+1]:12.8f}  {coords[3*i+2]:12.8f}\n"
+        )
+    path.write_text("".join(lines), encoding="utf-8")
+
+
 def compute_ibo(cjson, options, charge, spin, debug=False):
     import logging
     from . import CALCS_DIR
@@ -1064,15 +1076,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
         coords = coords_raw
     elem = atoms["elements"]["number"]
 
-    # Write the input structure as XYZ for offline inspection
-    n_atoms = len(elem)
-    xyz_lines = [f"{n_atoms}\n", f"{mol_name}\n"]
-    for i in range(n_atoms):
-        sym = _elem_symbol(elem[i])
-        xyz_lines.append(
-            f"{sym:<3s}  {coords[3*i]:12.8f}  {coords[3*i+1]:12.8f}  {coords[3*i+2]:12.8f}\n"
-        )
-    (calc_dir / "input.xyz").write_text("".join(xyz_lines), encoding="utf-8")
+    _write_input_xyz(calc_dir / "input.xyz", coords, elem, mol_name)
 
     charge_val = int(cjson.get("properties", {}).get("totalCharge", charge))
     spin_val = int(cjson.get("properties", {}).get("totalSpinMultiplicity", spin))
