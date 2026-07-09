@@ -11,7 +11,7 @@ _DEFAULT_CONFIG = {
     "iboview_style": True,
 }
 
-METHODS = ["HF", "B3LYP", "PBE", "PBE0", "WB97X-D", "MN15-L", "M06-2X"]
+METHODS = ["HF", "B3LYP", "PBE", "PBE0", "wB97X-D", "MN15-L", "M06-2X"]
 BASIS_SETS = [
     "cc-pVDZ",
     "aug-cc-pVDZ",
@@ -85,7 +85,7 @@ def get_config_options():
             "label": "Note",
             "default": (
                 "\nRecommended presets:\n"
-                "  General use (recommended):\t\twB97x-D / def2-TZVP\n"
+                "  General use (recommended):\t\twB97X-D / def2-TZVP\n"
                 "  Small / quick preview:\t\tHF / cc-pVDZ\n"
                 "  Charged / anions:\t\t\twB97x-D / aug-cc-pVDZ\n"
                 "  Transition metals:\t\t\tMN15-L / def2-SVP\n"
