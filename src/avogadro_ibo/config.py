@@ -11,20 +11,14 @@ _DEFAULT_CONFIG = {
     "iboview_style": True,
 }
 
-METHODS = ["hf", "b3lyp", "pbe", "pbe0", "wb97x-d", "mn15-l", "m06-2x"]
+METHODS = ["HF", "B3LYP", "PBE", "PBE0", "WB97X-D", "MN15-L", "M06-2X"]
 BASIS_SETS = [
     "cc-pVDZ",
-    "cc-pVTZ",
     "aug-cc-pVDZ",
-    "aug-cc-pVTZ",
+    "cc-pVTZ",
     "def2-SVP",
-    "def2-TZVP",
     "def2-SVPD",
-    "def2-TZVPD",
-    "6-31G(d,p)",
-    "6-311G(d,p)",
-    "6-31+G(d,p)",
-    "6-311+G(d,p)",
+    "def2-TZVP",
 ]
 
 
@@ -44,7 +38,7 @@ def save_config(config):
 
 def get_config_options():
     config = load_config()
-    method_default = config.get("method", "hf")
+    method_default = config.get("method", "HF")
     basis_default = config.get("basis", "cc-pVDZ")
     return {
         "method": {
@@ -53,7 +47,7 @@ def get_config_options():
             "values": METHODS,
             "default": METHODS.index(method_default)
             if method_default in METHODS
-            else METHODS.index("hf"),
+            else METHODS.index("HF"),
             "order": 1.0,
         },
         "basis": {
@@ -94,7 +88,7 @@ def get_config_options():
                 "  General use (recommended):\t\twB97x-D / def2-TZVP\n"
                 "  Small / quick preview:\t\tHF / cc-pVDZ\n"
                 "  Charged / anions:\t\t\twB97x-D / aug-cc-pVDZ\n"
-                "  Transition metals:\t\t\tMN15-L / def2-TZVP\n"
+                "  Transition metals:\t\t\tMN15-L / def2-SVP\n"
                 "\n"
                 "Only singlet spin multiplicities are currently supported.\n"
                 "Calculations with higher spin multiplicities are not yet supported.\n"
