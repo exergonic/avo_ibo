@@ -27,10 +27,8 @@ test_molden.log
 *.pdf
 
 # calcs/ runtime artifacts (but keep .gitkeep so directory ships with repo)
-calcs/last/*
-!calcs/last/.gitkeep
-calcs/config.json
-calcs/*_*/
+calcs/*
+!calcs/.gitkeep
 
 # Content only on dev branch (stripped from master for plugin distribution)
 examples/
