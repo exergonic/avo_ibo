@@ -1,6 +1,7 @@
 [project]
 authors = [{ name = "Billy Wayne McCann", email = "thebillywayne@gmail.com" }]
 dependencies = []
+license = "BSD-3-Clause"
 name = "avogadro-ibo"
 requires-python = ">= 3.11"
 version = "0.4.0"
