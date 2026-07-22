@@ -1,10 +1,12 @@
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+pixi.lock
 
 # Python cache
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Debug log
 debug_log/
@@ -30,6 +32,13 @@ calcs/last/*
 calcs/config.json
 calcs/*_*/
 
+# Content only on dev branch (stripped from master for plugin distribution)
+examples/
+mathematics/
+tutorial.md
+TROUBLESHOOTING.md
+ROADMAP.md
+
 # Local development notes (LLM context, not for publishing)
 AGENTS.md
 CONTINUITY.md
@@ -42,6 +51,7 @@ paper/
 
 # Reference schemas (kept locally, not published)
 cjson.scheme
+plugin_spec.md
 PLUGIN-SPEC.md
 foo
 
