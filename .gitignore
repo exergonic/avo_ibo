@@ -29,27 +29,22 @@ test_molden.log
 calcs/*
 !calcs/.gitkeep
 
-# Content only on dev branch (stripped from master for plugin distribution)
+# Not shipped to Avogadro users (internal docs, examples, derivations)
+CONTINUITY.md
 examples/
 mathematics/
-tutorial.md
-TROUBLESHOOTING.md
+paper/
 ROADMAP.md
-
-# Local development notes (LLM context, not for publishing)
-CONTINUITY.md
+TROUBLESHOOTING.md
+tutorial.md
 
 # Editor/IDE files
 .vscode/
 
-# Paper draft (tracked locally, not published to GitHub)
-paper/
-
-# Reference schemas (kept locally, not published)
+# Reference schemas (local copies)
 cjson.scheme
 plugin_spec.md
 PLUGIN-SPEC.md
-foo
 
 # local markdown files
 _*.md

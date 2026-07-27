@@ -22,9 +22,11 @@ psi4 = ">=1.10.2,<2"
 pytest = ">=8.3.3"
 ruff = ">=0.7.2"
 
+[tool.pixi.pypi-dependencies]
+avogadro-ibo = { path = ".", editable = true }
+
 [tool.pixi.tasks]
-test = { cmd = "pytest tests/ -v", depends-on = ["_install"] }
-_install = "python -m pip install -e ."
+test = { cmd = "pytest tests/ -v" }
 
 [tool.avogadro]
 minimum-avogadro-version = "1.103"

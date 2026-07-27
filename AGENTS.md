@@ -110,8 +110,8 @@ Serious professionals can always run their own SCF calculations and then use
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Build backend | `uv_build>=0.10.2,<0.11.0` | Avogadro-bundled pixi v0.66.0 doesn't support hatchling |
-| Lock file version | v6 | Bundled pixi v0.66.0 can't read v7 |
-| Package install | `pixi install` + `pip install -e .` (manual, not `[tool.pixi.pypi-dependencies]`) | pypi-dependencies requires lock v7 |
+| Lock file version | v6 | Bundled pixi v0.66.0 reads only v6. pypi-dependencies entries added manually to v6 lock (see Gotcha 28) |
+| Package install | `[tool.pixi.pypi-dependencies]` with `avogadro-ibo = { path = ".", editable = true }` | Required by Avogadro/plugins CI validation; replaces manual `pip install -e .` |
 | Plugin discovery | Symlink in `%LOCALAPPDATA%\OpenChemistry\Avogadro\plugins\` | Avogadro scans this directory |
 | Closed-shell only | `raise ValueError` if spin ≥ 2 | UHF would require separate α/β IAO/PM; β MOs ignored, occupancies wrong — mathematically incorrect output |
 | Psi4 integration | In-process (`import psi4` in compute function) | Simpler, faster, better error handling than subprocess |
@@ -361,6 +361,25 @@ Serious professionals can always run their own SCF calculations and then use
     This correctly scales Psi4 xy(1)/xz(2)/yz(4) by 1/√3 and leaves
     diagonal xx(0)/yy(3)/zz(5) at 1.0.  Then `perm[ao + i] = ao + D_PERM[i]`
     maps the scaled values to Molden output order.
+
+28. **`[tool.pixi.pypi-dependencies]` requires manual v6 lock editing (2026-07-27)**:
+    Avogadro/plugins CI validation checks that pyproject.toml has a
+    `[tool.pixi.pypi-dependencies]` section with `avogadro-ibo = { path = ".", editable = true }`.
+    However, adding this section causes pixi to fetch the conda-pypi mapping from
+    `https://conda-mapping.prefix.dev/` when resolving.  Pixi v0.66.0 (bundled with Avogadro)
+    cannot fetch this mapping (returns 404), and newer pixi (≥0.72) generates v7 lock files
+    which v0.66.0 cannot read.
+
+    **Fix**: Add `[tool.pixi.pypi-dependencies]` to pyproject.toml for validation, but manually
+    add the corresponding pypi entries to the v6 lock file:
+
+    1. Add `    indexes:\n    - https://pypi.org/simple` under the environment's `channels:` block.
+    2. Add `      - pypi: ./` at the end of the platform's package list (e.g. under `win-64:`).
+    3. Add a `pypi: ./` entry in the `packages:` section with `name` and `version` fields.
+
+    The resulting v6 lock file is read natively by v0.66.0 — no mapping fetch needed.
+    Newer pixi versions will warn about the v6 format but won't modify the lock unless
+    explicitly running `pixi install` or `pixi lock`.
 
 ## Relevant Files
 
