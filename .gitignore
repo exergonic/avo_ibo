@@ -48,3 +48,6 @@ PLUGIN-SPEC.md
 
 # local markdown files
 _*.md
+
+# Agents instructions
+AGENTS.md
