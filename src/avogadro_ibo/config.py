@@ -59,26 +59,11 @@ def get_config_options():
             else BASIS_SETS.index("cc-pVDZ"),
             "order": 2.0,
         },
-        "charge": {
-            "type": "integer",
-            "label": "Charge",
-            "minimum": -10,
-            "default": config.get("charge", 0),
-            "order": 3.0,
-        },
-        "mult": {
-            "type": "integer",
-            "label": "Spin Multiplicity",
-            "minimum": 1,
-            "maximum": 1,
-            "default": config.get("mult", 1),
-            "order": 4.0,
-        },
         "iboview_style": {
             "type": "boolean",
             "label": "IboView-like isosurface",
             "default": config.get("iboview_style", True),
-            "order": 5.0,
+            "order": 3.0,
         },
         "memory_note": {
             "type": "text",
@@ -89,9 +74,6 @@ def get_config_options():
                 "  Small / quick preview:\t\tHF / cc-pVDZ\n"
                 "  Charged / anions:\t\t\twB97x-D / aug-cc-pVDZ\n"
                 "  Transition metals:\t\t\tMN15-L / def2-SVP\n"
-                "\n"
-                "Only singlet spin multiplicities are currently supported.\n"
-                "Calculations with higher spin multiplicities are not yet supported.\n"
                 "\n"
                 "Memory requirements increase with system size and basis set.\n"
                 "Larger systems (30+ atoms) with triple-zeta or\n"
@@ -107,7 +89,7 @@ def update_config(avo_input):
     options = avo_input.get("options", {})
     config = load_config()
     changed = False
-    for key in ("method", "basis", "charge", "mult", "iboview_style"):
+    for key in ("method", "basis", "iboview_style"):
         if key in options:
             config[key] = options[key]
             changed = True
