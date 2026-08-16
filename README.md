@@ -15,16 +15,28 @@ plugin.
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
 * Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
+* Full mathematical derivation in [`mathematics.md`](mathematics.md) with paper equation references
 
 
 ## Quick Start
 
 ### Avogadro Plugin (easiest)
-Download this repo from GitHub (Code → Download ZIP).  Unzip it, then in
-Avogadro click **Extensions → Manage Plugins... → Install from Directory...**
-and choose the extracted `avo_ibo` folder.
+Requires [pixi](https://pixi.sh).
 
-**Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
+```powershell
+git clone https://github.com/exergonic/avo_ibo.git
+cd avo_ibo
+pixi install
+```
+
+Then create a symlink so Avogadro finds the plugin (run PowerShell as Administrator):
+
+```powershell
+New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" -Target "C:\path\to\avo_ibo"
+```
+
+Restart Avogadro. Go to **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
+
 Orbitals appear in the **Molecular Orbitals** panel.
 
 ### Development Setup
