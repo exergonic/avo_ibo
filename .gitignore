@@ -32,7 +32,9 @@ calcs/*
 # Not shipped to Avogadro users (internal docs, examples, derivations)
 CONTINUITY.md
 examples/
-mathematics/
+mathematics/_md2typ.py
+mathematics/mathematics.pdf
+mathematics/mathematics.typ
 paper/
 ROADMAP.md
 TROUBLESHOOTING.md
