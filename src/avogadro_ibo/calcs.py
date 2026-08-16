@@ -236,12 +236,13 @@ def _localize_ibos(
                         # A_ij = Σ_A [-2(q_ii² + q_jj²) + 4·q_ii·q_jj + 4·q_ij²]
                         # B_ij = Σ_A 4·q_ij·(q_ii - q_jj)
                         # φ = 0.25·atan2(B, -A)  [from tan(4φ) = B/-A]
-                        Aij = 0.0
-                        Bij = 0.0
-                        for A in range(n_atoms):
-                            qii, qjj, qij = Qii[A], Qjj[A], Qij[A]
-                            Aij += -2.0 * qii * qii - 2.0 * qjj * qjj + 4.0 * qii * qjj + 4.0 * qij * qij
-                            Bij += 4.0 * qij * (qii - qjj)
+                        Aij = np.sum(
+                            -2.0 * Qii * Qii
+                            - 2.0 * Qjj * Qjj
+                            + 4.0 * Qii * Qjj
+                            + 4.0 * Qij * Qij
+                        )
+                        Bij = np.sum(4.0 * Qij * (Qii - Qjj))
                         if abs(Aij) <= conv:
                             continue
                         phi = 0.25 * np.arctan2(Bij, -Aij)
@@ -252,21 +253,17 @@ def _localize_ibos(
                         # (confirmed by Knizia at https://sites.psu.edu/knizia/software/).
                         # These formulas match the corrected reference
                         # implementation (ibo-ref).
-                        Aij = 0.0
-                        Bij = 0.0
-                        for A in range(n_atoms):
-                            qii, qjj, qij = Qii[A], Qjj[A], Qij[A]
-                            qii_2 = qii * qii
-                            qjj_2 = qjj * qjj
-                            qij_2 = qij * qij
-                            Aij += (
-                                -qii_2 * qii_2
-                                - qjj_2 * qjj_2
-                                + 6.0 * (qii_2 + qjj_2) * qij_2
-                                + qii_2 * qii * qjj
-                                + qii * qjj_2 * qjj
-                            )
-                            Bij += 4.0 * qij * (qii_2 * qii - qjj_2 * qjj)
+                        qii_2 = Qii * Qii
+                        qjj_2 = Qjj * Qjj
+                        qij_2 = Qij * Qij
+                        Aij = np.sum(
+                            -qii_2 * qii_2
+                            - qjj_2 * qjj_2
+                            + 6.0 * (qii_2 + qjj_2) * qij_2
+                            + qii_2 * Qii * Qjj
+                            + Qii * qjj_2 * Qjj
+                        )
+                        Bij = np.sum(4.0 * Qij * (qii_2 * Qii - qjj_2 * Qjj))
                         if abs(Aij) <= conv:
                             continue
                         phi = 0.25 * np.arctan2(Bij, -Aij)
@@ -277,11 +274,10 @@ def _localize_ibos(
                     cs = np.cos(phi)
                     sn = np.sin(phi)
 
-                    for mu in range(n_IAO):
-                        old_i = C_occ[mu, i]
-                        old_j = C_occ[mu, j]
-                        C_occ[mu, i] = cs * old_i + sn * old_j
-                        C_occ[mu, j] = cs * old_j - sn * old_i
+                    old_i = C_occ[:, i].copy()
+                    old_j = C_occ[:, j].copy()
+                    C_occ[:, i] = cs * old_i + sn * old_j
+                    C_occ[:, j] = cs * old_j - sn * old_i
 
                     grad_norm += (grad_term * phi * Bij) ** 2
 
@@ -527,6 +523,17 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
 
     Classifies occupied orbitals as Core, LP, σ/π bond, 2e3c, or Deloc,
     and virtual orbitals as the corresponding antibond (*) type.
+
+    Thresholds (DOM-based, matching IboView defaults):
+      Core:  DOM > 0.99 + s-character > 0.75 on n=1 (1s only; 2s/3s are valence)
+      LP:    DOM > 0.90 on one atom
+      σ/π:   DOM_shared > 0.75, both atoms carry density (>0.02);
+             π if p-fraction > 0.85 on both atoms
+      LP-s:  DOM > 0.70, s-character > 0.5 (transitional)
+      2e3c:  3rd atom carries >10% density, 4th atom <3%
+      Deloc: everything else (multi-atom delocalisation)
+      Virtual antibond thresholds follow the same logic with slightly
+      looser cut-offs (0.60 vs 0.75 for shared density).
     """
     if oc > 1.5:
         # Determine principal quantum number of the dominant s-contribution
@@ -890,7 +897,6 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     # note that shell.coef(p) includes primitive normalization — the Molden
     # reader would re-apply normalization, producing incorrect basis
     # function values.  Use shell.original_coef(p) for direct GTO output.
-    import numpy as np
     import psi4
 
     tmp = path.with_suffix(".molden.tmp")
