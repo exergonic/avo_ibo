@@ -94,8 +94,11 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
     assert (calc_dir / "ibos.txt").exists(), "ibos.txt not found"
 
     molden_text = (calc_dir / "ibo.molden").read_text(encoding="utf-8")
-    mo_count = molden_text.count("[MO]")
-    assert mo_count == 1, "Expected exactly one [MO] section"
+    # The Molden format permits exactly one [MO] section; a second would
+    # corrupt the file.  Count section headers precisely (not substring
+    # matches inside e.g. comments).
+    mo_sections = re.findall(r"^\[MO\]$", molden_text, flags=re.MULTILINE)
+    assert len(mo_sections) == 1, f"Expected exactly one [MO] section, got {len(mo_sections)}"
 
     ene_lines = [l for l in molden_text.splitlines() if l.startswith(" Ene=")]
     assert len(ene_lines) == n_iao, (
