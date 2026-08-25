@@ -13,6 +13,8 @@ References:
 Paper equation numbers and appendix references refer to the above.
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 
 
@@ -1151,7 +1153,309 @@ def _write_input_xyz(path, coords, elem, mol_name):
     path.write_text("".join(lines), encoding="utf-8")
 
 
+# ---------------------------------------------------------------------------
+# Typed API (issue #3): pure core + IBOResult
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class IBOResult:
+    """Typed result of the IAO/IBO pipeline (see ``compute_ibo_data``).
+
+    Arrays are plain numpy arrays; no files are written and no persistent
+    configuration is consulted by the producing function.
+
+    Attributes
+    ----------
+    C_IAO : (n_AO, n_min) array
+        Orthonormal IAO coefficients in the AO basis (Knizia App. C).
+    C_IAO_all : (n_min, n_orb) array
+        Localized occupied + valence-virtual orbitals in the IAO basis,
+        sorted ascending by energy.
+    C_AO_all : (n_AO, n_orb) array
+        Full-AO projection, ``C_IAO @ C_IAO_all``.
+    occupations : (n_orb,) array
+        2.0 for occupied orbitals, 0.0 for valence virtuals.
+    energies : (n_orb,) array
+        Fock-diagonal orbital energies (Hartree), ascending.
+    atom_of, am_of, func_n : (n_min,) arrays
+        Per-IAO atom index, angular momentum, principal quantum number.
+    func_dtype : list[str]
+        Per-IAO subtype label ("px"/"py"/"pz"/"dxx"/..., "" for s).
+    elements : list[int]
+        Atomic numbers, input order.
+    coords : list[float]
+        Flattened xyz coordinates, input order and units.
+    n_occ : int
+        Number of occupied orbitals (occupations == 2.0 identifies them;
+        energies are ascending, so they are not a prefix after sorting).
+    partial_charges : (n_atoms,) array
+        IBO charge-decomposition net charges.
+    labels : list[str]
+        Per-orbital classification labels from the analysis pass.
+    analysis_text : str
+        Full human-readable analysis table (incl. Wiberg section) as
+        written to ``ibos.txt`` by the renderer.
+    method, basis, reference : str
+        SCF level used.
+    mol_name : str
+        Display name (cjson name or formula fallback), truncated to 50.
+    mol_spec : str
+        Psi4 geometry specification string (charge/spin + xyz +
+        no_com/no_reorient), usable to rebuild the molecule.
+    scf_energy : float
+        Total SCF energy (Hartree).
+    wfn : object
+        Opaque Psi4 wavefunction handle for renderers that need the
+        working-basis [GTO] section or canonical MOs.  Not part of the
+        stable typed surface.
+    """
+
+    C_IAO: np.ndarray
+    C_IAO_all: np.ndarray
+    C_AO_all: np.ndarray
+    occupations: np.ndarray
+    energies: np.ndarray
+    atom_of: np.ndarray
+    am_of: np.ndarray
+    func_n: np.ndarray
+    func_dtype: list
+    elements: list
+    coords: list
+    n_occ: int
+    partial_charges: np.ndarray
+    labels: list
+    analysis_text: str
+    method: str
+    basis: str
+    reference: str
+    mol_name: str
+    mol_spec: str
+    scf_energy: float
+    wfn: object
+
+
+def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
+    """Pure typed core of the IBO pipeline.
+
+    Runs the SCF (Psi4, in-process), builds the IAO basis, localizes
+    occupied and valence-virtual blocks (Pipek-Mezey p=2 -> p=4),
+    applies both degeneracy resolutions, and performs the composition
+    analysis.  Writes no project files, touches no persistent
+    configuration, and installs no logging handlers -- those are
+    renderer/adapter concerns layered on top by :func:`compute_ibo`.
+
+    Parameters mirror :func:`compute_ibo`: ``cjson`` supplies geometry
+    (and optionally charge/spin via ``properties``); ``options`` may carry
+    ``method``, ``basis``, ``iboview_style``.  Unspecified options fall
+    back to library defaults (hf/cc-pVDZ) rather than the user config
+    file -- callers wanting config persistence should merge it in
+    beforehand.
+
+    Psi4 routes its primary output through process-global state; without
+    a destination it fails on Windows ("PSIOManager cannot get a mirror
+    file handle").  Pass ``psi4_output`` to control that destination;
+    by default a private temporary file is used so library callers need
+    not care.
+
+    Returns
+    -------
+    IBOResult
+
+    Raises
+    ------
+    ValueError
+        On open-shell input (the pipeline is RHF-only).
+    RuntimeError
+        If the Psi4 SCF fails.
+    """
+    atoms = cjson["atoms"]
+    coords_raw = atoms["coords"]
+    coords = coords_raw["3d"] if isinstance(coords_raw, dict) else coords_raw
+    elem = atoms["elements"]["number"]
+
+    elem_raw = cjson.get("atoms", {}).get("elements", {}).get("number", [])
+    mol_name = cjson.get("name", "") or _mol_formula(elem_raw) or "molecule"
+    mol_name = mol_name[:50]
+
+    charge_val = int(cjson.get("properties", {}).get("totalCharge", charge))
+    spin_val = int(cjson.get("properties", {}).get("totalSpinMultiplicity", spin))
+    if spin_val != 1:
+        raise ValueError(
+            f"Open-shell systems are not supported (spin multiplicity "
+            f"= {spin_val}). The IAO pipeline is RHF-only — all "
+            f"occupied MOs are treated as doubly occupied, beta spin "
+            f"is ignored, and charge/spin decomposition would be "
+            f"incorrect."
+        )
+    ref = "rhf"
+
+    geom_lines = "\n".join(
+        f"  {elem[i]:3d}  {coords[3 * i]:12.8f}  {coords[3 * i + 1]:12.8f} "
+        f"{coords[3 * i + 2]:12.8f}"
+        for i in range(len(elem))
+    )
+    mol_spec = (
+        f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient"
+    )
+
+    import psi4
+
+    # Psi4's primary-output routing is process-global; without a
+    # destination the PSIO manager fails on Windows.  Route to a private
+    # temp file by default (the adapter passes its calc-dir log instead).
+    if psi4_output is None:
+        import tempfile
+
+        _tmp_out = tempfile.NamedTemporaryFile(
+            prefix="avo_ibo_psi4_", suffix=".log", delete=False
+        )
+        _tmp_out.close()
+        psi4_output = _tmp_out.name
+    psi4.set_output_file(str(psi4_output), append=True)
+
+    # Register the molecule as Psi4's active geometry and force C1 so the
+    # SCF, the minimal-basis build, and the IBO pipeline all see identical
+    # AO orderings (reset_point_group also reorders shells otherwise).
+    mol = psi4.geometry(mol_spec)
+    mol.reset_point_group("c1")
+
+    basis = _option(options, "basis", "cc-pVDZ")
+    method = _option(options, "method", "hf")
+    psi4.set_options(
+        {
+            "basis": basis,
+            "scf_type": "df",
+            "reference": ref,
+            "e_convergence": 1e-8,
+            "d_convergence": 1e-8,
+            "puream": 0,
+        }
+    )
+    # NOTE: puream=0 gives Cartesian basis functions, which is what the
+    # paper assumes.  Changing this would affect the IAO construction.
+    try:
+        scf_energy, wfn = psi4.energy(method, return_wfn=True)
+    except Exception as e:
+        raise RuntimeError(f"Psi4 SCF failed for {method}/{basis}.") from e
+
+    # -- Extract occupied coefficients and overlap matrices ----------------
+    Ca = wfn.Ca()
+    nocc = wfn.doccpi()[0] + wfn.soccpi()[0]
+    mints = psi4.core.MintsHelper(wfn.basisset())
+
+    S_full = mints.ao_overlap().np
+    bas_min = psi4.core.BasisSet.build(mol, "BASIS", "STO-3G", puream=0)
+    S_min = mints.ao_overlap(bas_min, bas_min).np
+    S12 = mints.ao_overlap(wfn.basisset(), bas_min).np
+
+    C_occ = Ca.np[:, :nocc].copy()  # (n_AO, n_occ)
+
+    # -- Build IAO basis (Appendix C) --------------------------------------
+    C_IAO, C_IAO_occ = _build_iao_basis(S_full, S12, S_min, C_occ)
+
+    atom_of, am_of, func_n, func_dtype = _get_basis_maps(bas_min)
+
+    # -- Pipek-Mezey localisation in IAO basis (eq 4 / Appendix D) --------
+    _localize_ibos(C_IAO_occ, atom_of, max_iter=2048, conv=1e-12)
+
+    # -- Compute orbital energies from Fock matrix -------------------------
+    F_AO = wfn.Fa().np  # (n_AO, n_AO)
+    F_IAO = C_IAO.T @ F_AO @ C_IAO  # (n_min, n_min)
+
+    # -- Resolve on-atom degeneracies that PM cannot separate --------------
+    # PM cannot separate orbitals on the same atom with DOM ~ 1 (e.g. O 2s
+    # vs lone pair); Fock-diagonalise within each such subspace.
+    _resolve_on_atom_mixing(C_IAO_occ, atom_of, F_IAO)
+
+    # -- Resolve bond-flat PM degeneracies (sigma/pi vs banana bonds) ------
+    # PM cannot distinguish orbitals sharing identical per-atom populations
+    # — the {sigma, pi} plane of a symmetric bond.  See NOTES.md.
+    _resolve_flat_degeneracies(C_IAO_occ, atom_of, F_IAO)
+
+    occ_energies = np.array(
+        [C_IAO_occ[:, i].dot(F_IAO @ C_IAO_occ[:, i]) for i in range(nocc)]
+    )
+
+    # -- Valence-virtual IAOs via SVD  (IboView MakeValenceVirtuals) -------
+    C_vir = Ca.np[:, nocc:]  # (n_AO, n_vir)
+    SIbVir = C_IAO.T @ S_full @ C_vir  # (n_min, n_vir)
+    U_svd, Sigma, _ = np.linalg.svd(SIbVir, full_matrices=False)
+    n_val_vir = int(np.sum(Sigma > 1e-8))
+    U_val = U_svd[:, :n_val_vir]  # (n_min, n_val_vir)
+
+    # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
+    if n_val_vir > 1:
+        _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
+        # NOTE: no bond-flat tie-break here.  The SVD valence-virtual block
+        # retains near-null-singular-value residual columns (sigma ~ 0.01)
+        # that are functionally degenerate with real antibonds; rotating
+        # across them mixes pi* with delocalized junk.  Revisit only after
+        # the virtual block gets explicit junk-column hygiene.
+
+    vir_energies = np.array(
+        [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]
+    )
+
+    # -- Combined IAO-basis orbital set, sorted by energy ------------------
+    C_IAO_all = np.hstack([C_IAO_occ, U_val])  # (n_min, n_orb)
+    occ_all = np.array([2.0] * nocc + [0.0] * n_val_vir)
+    energies_all = np.concatenate([occ_energies, vir_energies])
+
+    order = np.argsort(energies_all)
+    C_IAO_all = C_IAO_all[:, order]
+    occ_all = occ_all[order]
+    energies_all = energies_all[order]
+    C_AO_all = C_IAO @ C_IAO_all  # (n_AO, n_orb)
+
+    # -- Composition analysis ----------------------------------------------
+    msg, labels, net_charges = _analyze_ibos(
+        C_IAO_all,
+        occ_all,
+        energies_all,
+        nocc,
+        atom_of,
+        am_of,
+        func_n,
+        func_dtype,
+        elem,
+        method,
+        basis,
+        ref,
+        mol_name,
+    )
+    msg += _format_total_wiberg(C_IAO_all[:, :nocc], atom_of, elem)
+
+    return IBOResult(
+        C_IAO=C_IAO,
+        C_IAO_all=C_IAO_all,
+        C_AO_all=C_AO_all,
+        occupations=occ_all,
+        energies=energies_all,
+        atom_of=atom_of,
+        am_of=am_of,
+        func_n=func_n,
+        func_dtype=func_dtype,
+        elements=list(elem),
+        coords=list(coords),
+        n_occ=int(nocc),
+        partial_charges=np.asarray(net_charges),
+        labels=labels,
+        analysis_text=msg,
+        method=method,
+        basis=basis,
+        reference=ref,
+        mol_name=mol_name,
+        mol_spec=mol_spec,
+        scf_energy=float(scf_energy),
+        wfn=wfn,
+    )
+
+
 def compute_ibo(cjson, options, charge, spin, debug=False):
+    """Avogadro adapter: typed core + renderers, preserving the exact
+    plugin JSON contract (files under calcs/{name}_NNN/, molden strings,
+    message).  See :func:`compute_ibo_data` for the typed surface."""
     import logging
     from . import CALCS_DIR
     from .config import load_config as _load_config
@@ -1183,145 +1487,35 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
 
     psi4.set_output_file(str(calc_dir / "psi4.log"), append=True)
 
-    # -- Parse input geometry and options -----------------------------------
+    # -- Merge persistent config into options (adapter concern) ------------
+    _cfg = _load_config()
+    opts = dict(options)
+    for key in ("basis", "method", "iboview_style"):
+        if key not in opts and key in _cfg:
+            opts[key] = _cfg[key]
+
+    # Write input.xyz BEFORE the SCF so it survives SCF failures.
     atoms = cjson["atoms"]
     coords_raw = atoms["coords"]
-    if isinstance(coords_raw, dict):
-        coords = coords_raw["3d"]
-    else:
-        coords = coords_raw
+    coords = coords_raw["3d"] if isinstance(coords_raw, dict) else coords_raw
     elem = atoms["elements"]["number"]
-
     _write_input_xyz(calc_dir / "input.xyz", coords, elem, mol_name)
 
-    charge_val = int(cjson.get("properties", {}).get("totalCharge", charge))
-    spin_val = int(cjson.get("properties", {}).get("totalSpinMultiplicity", spin))
-    if spin_val != 1:
-        raise ValueError(
-            f"Open-shell systems are not supported (spin multiplicity "
-            f"= {spin_val}). The IAO pipeline is RHF-only — all "
-            f"occupied MOs are treated as doubly occupied, beta spin "
-            f"is ignored, and charge/spin decomposition would be "
-            f"incorrect."
-        )
-    ref = "rhf"
-
-    geom_lines = "\n".join(
-        f"  {elem[i]:3d}  {coords[3 * i]:12.8f}  {coords[3 * i + 1]:12.8f} "
-        f"{coords[3 * i + 2]:12.8f}"
-        for i in range(len(elem))
-    )
-    mol_spec = (
-        f"{charge_val} {spin_val}\n{geom_lines}\nno_com\nno_reorient"
-    )
-    mol = psi4.geometry(mol_spec)
-    mol.reset_point_group("c1")
-
-    _cfg = _load_config()
-    basis = _option(options, "basis", _cfg.get("basis", "cc-pVDZ"))
-    method = _option(options, "method", _cfg.get("method", "hf"))
-    psi4.set_options(
-        {
-            "basis": basis,
-            "scf_type": "df",
-            "reference": ref,
-            "e_convergence": 1e-8,
-            "d_convergence": 1e-8,
-            "puream": 0,
-        }
-    )
-    # NOTE: puream=0 gives Cartesian basis functions, which is what the
-    # paper assumes.  Changing this would affect the IAO construction.
     try:
-        energy, wfn = psi4.energy(method, return_wfn=True)
+        res = compute_ibo_data(cjson, opts, charge, spin,
+                               psi4_output=calc_dir / "psi4.log")
+    except (ValueError, RuntimeError):
+        raise
     except Exception as e:
         raise RuntimeError(
-            f"Psi4 SCF failed for {method}/{basis}. "
-            f"Check {calc_dir.name}/psi4.log for details."
+            f"{e} Check {calc_dir.name}/psi4.log for details."
         ) from e
 
-    # -- Extract occupied coefficients and overlap matrices ----------------
-    Ca = wfn.Ca()
-    nocc = wfn.doccpi()[0] + wfn.soccpi()[0]
-    mints = psi4.core.MintsHelper(wfn.basisset())
-
-    # Full-AO overlap, full-minimal cross overlap, minimal overlap
-    S_full = mints.ao_overlap().np
-    bas_min = psi4.core.BasisSet.build(mol, "BASIS", "STO-3G", puream=0)
-    S_min = mints.ao_overlap(bas_min, bas_min).np
-    S12 = mints.ao_overlap(wfn.basisset(), bas_min).np
-
-    C_occ = Ca.np[:, :nocc].copy()  # (n_AO, n_occ)
-
-    # -- Build IAO basis (Appendix C) --------------------------------------
-    C_IAO, C_IAO_occ = _build_iao_basis(S_full, S12, S_min, C_occ)
-
-    # -- Atom / angular-momentum map for the minimal basis -----------------
-    # Each IAO inherits the atom and AM from the minimal-basis function
-    # it was built from.
-    atom_of, am_of, func_n, func_dtype = _get_basis_maps(bas_min)  # (n_min,) each
-
-    # -- Pipek-Mezey localisation in IAO basis (eq 4 / Appendix D) --------
-    _localize_ibos(C_IAO_occ, atom_of, max_iter=2048, conv=1e-12)
-
-    # -- Compute orbital energies from Fock matrix -------------------------
-    F_AO = wfn.Fa().np  # (n_AO, n_AO)
-    F_IAO = C_IAO.T @ F_AO @ C_IAO  # (n_min, n_min)
-
-    # -- Resolve on-atom degeneracies that PM cannot separate --------------
-    # The PM functional uses atomic populations n_A(i), so orbitals on the
-    # same atom with DOM ≈ 1 are degenerate (O 2s and O lone pair mix
-    # arbitrarily).  Diagonalise F_IAO within each such subspace to restore
-    # energy ordering (s-rich lowest, p-rich highest).
-    _resolve_on_atom_mixing(C_IAO_occ, atom_of, F_IAO)
-
-    # -- Resolve bond-flat PM degeneracies (sigma/pi vs banana bonds) ------
-    # PM cannot distinguish orbitals sharing identical per-atom populations
-    # — the {sigma, pi} plane of a symmetric bond (and its antibond).  On
-    # symmetry-broken geometries Jacobi sweeps may converge to mixed
-    # "banana" solutions; rotate such functionally-degenerate pairs to
-    # their Fock-diagonal (aufbau) basis.  See NOTES.md.
-    _resolve_flat_degeneracies(C_IAO_occ, atom_of, F_IAO)
-
-    occ_energies = np.array(
-        [C_IAO_occ[:, i].dot(F_IAO @ C_IAO_occ[:, i]) for i in range(nocc)]
-    )
-
-    # -- Valence-virtual IAOs via Single Value Decomposition  (IboView MakeValenceVirtuals) -------
-    C_vir = Ca.np[:, nocc:]  # (n_AO, n_vir)
-    SIbVir = C_IAO.T @ S_full @ C_vir  # (n_min, n_vir)
-    U_svd, Sigma, _ = np.linalg.svd(SIbVir, full_matrices=False)
-    n_val_vir = int(np.sum(Sigma > 1e-8))
-    U_val = U_svd[:, :n_val_vir]  # (n_min, n_val_vir)
-
-    # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
-    if n_val_vir > 1:
-        _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
-        # NOTE: no bond-flat tie-break here.  The SVD valence-virtual block
-        # retains near-null-singular-value residual columns (sigma ~ 0.01)
-        # that are functionally degenerate with real antibonds; rotating
-        # across them mixes pi* with delocalized junk.  Revisit only after
-        # the virtual block gets explicit junk-column hygiene.
-
-    vir_energies = np.array(
-        [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]
-    )
-
-    # -- Combined IAO-basis orbital set, sorted by energy ------------------
-    C_IAO_all = np.hstack([C_IAO_occ, U_val])  # (n_min, n_orb)
-    occ_all = np.array([2.0] * nocc + [0.0] * n_val_vir)
-    energies_all = np.concatenate([occ_energies, vir_energies])
-
-    order = np.argsort(energies_all)
-    C_IAO_all = C_IAO_all[:, order]
-    occ_all = occ_all[order]
-    energies_all = energies_all[order]
-
     # -- Write Molden with IAO-basis orbitals ------------------------------
-    iboview_style = _option(options, "iboview_style", _cfg.get("iboview_style", True))
+    iboview_style = _option(opts, "iboview_style", True)
     molden_path = calc_dir / "ibo.molden"
     if iboview_style:
-        sto_mol = psi4.geometry(mol_spec)
+        sto_mol = psi4.geometry(res.mol_spec)
         psi4.set_options(
             {"basis": "STO-3G", "scf_type": "df", "reference": "rhf", "puream": 0}
         )
@@ -1333,51 +1527,37 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
                 f"Check {calc_dir.name}/psi4.log for details."
             ) from e
         _write_iao_molden(
-            molden_path, wfn_sto, C_IAO_all, occ_all, energies_all, C_IAO_all.shape[1]
+            molden_path, wfn_sto, res.C_IAO_all, res.occupations,
+            res.energies, res.C_IAO_all.shape[1],
         )
         psi4.set_options(
             {
-                "basis": basis,
+                "basis": res.basis,
                 "scf_type": "df",
-                "reference": ref,
+                "reference": res.reference,
                 "e_convergence": 1e-8,
                 "d_convergence": 1e-8,
                 "puream": 0,
             }
         )
     else:
-        C_AO_all = C_IAO @ C_IAO_all  # (n_AO, n_orb)
         _write_iao_molden(
-            molden_path, wfn, C_AO_all, occ_all, energies_all, C_IAO_all.shape[1]
+            molden_path, res.wfn, res.C_AO_all, res.occupations,
+            res.energies, res.C_IAO_all.shape[1],
         )
     molden_text = molden_path.read_text(encoding="utf-8")
 
     # -- Canonical Molden (for reference in Avogadro's MO surface dialog) ---
     canon_path = calc_dir / "canonical.molden"
-    psi4.molden(wfn, str(canon_path))
+    psi4.molden(res.wfn, str(canon_path))
 
-    # -- IBO analysis table -------------------------------------------------
-    msg, labels, net_charges = _analyze_ibos(
-        C_IAO_all,
-        occ_all,
-        energies_all,
-        nocc,
-        atom_of,
-        am_of,
-        func_n,
-        func_dtype,
-        elem,
-        method,
-        basis,
-        ref,
-        mol_name,
-    )
-    cjson["atoms"]["partialCharges"] = [round(c, 4) for c in net_charges]
-    # -- Total Wiberg bond order section -----------------------------------
-    wiberg_section = _format_total_wiberg(C_IAO_all[:, :nocc], atom_of, elem)
-    msg += wiberg_section
+    # -- Analysis table ------------------------------------------------------
     analysis_path = calc_dir / "ibos.txt"
-    analysis_path.write_text(msg, encoding="utf-8")
+    analysis_path.write_text(res.analysis_text, encoding="utf-8")
+
+    cjson["atoms"]["partialCharges"] = [
+        round(c, 4) for c in res.partial_charges
+    ]
 
     return {
         "readProperties": True,
