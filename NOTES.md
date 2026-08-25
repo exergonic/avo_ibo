@@ -107,15 +107,44 @@ eyeballing.
 
 | Decision | Choice | Why |
 |---|---|---|
-| PM schedule | p=2 warmup → p=4 refine, fixed sweep order, no Cayley rotation | Cayley (IboView's RotateVectorsRandomly) measurably worsens symmetry-equivalent splits here (AGENTS.md Gotcha 20); fixed order gives best degeneracy |
-| PM convergence | grad norm < 1e-12, max 2048 sweeps | Tighter than typical; keeps near-degenerate manifolds honest |
+| PM schedule | p=2 warmup → p=4 refine, fixed sweep order, no Cayley rotation | Determinism is a feature: IboView's `LocalizeVectors` applies an *unconditionally*, wall-clock-seeded 18° Cayley perturbation to every block it localizes (CtOrbLoc.cpp `if (1)` guard, seed = `g_LastSeedOffset++ + 1e6·Second()`), so its output on functionally-degenerate manifolds is non-reproducible in principle. Fixed order from canonical MOs gives best degeneracy here (Gotcha 20). |
+| PM convergence | grad norm < 1e-12, max 2048 sweeps | Matches modern IboView exactly (`LocOpt.ThrLoc = 1e-12`, hard override at IvIao.cpp:471 of the older `min(1e-6, 1e-2·ThrGrad)`; see cgk's 2019 comment on core/lone-pair mixing under the loose value) |
 | Basis conventions | Cartesian (`puream=0`) everywhere, SCF basis user-selectable | Psi4 spherical-harmonics Molden output silently misrenders in Avogadro 2 (Gotcha 16); Cartesian matches the paper's assumption |
 | Pipeline symmetry | C1 for the IBO pipeline; native point group only for `canonical.molden` | Individual IBOs need not respect irreps; canonical MOs render prettier when they do |
 | Formula ordering | First occurrence, not Hill | Preserves input atom order (SO₃ reads better than O3S) |
 | Closed-shell only | Reject spin ≥ 2 at entry | RHF-style double occupancy is baked into IAO/PM/analysis; UHF is a rewrite, not a flag (README "Limitations") |
 | Donor–acceptor analysis | None; structurally impossible | Occupied block diagonalizes F^IAO, so its occ–vir block vanishes identically — mathematics.md §9 |
-| Test fixtures encode requirements, not incidents | No fixture from the 2026-08 ethene investigation | Running an analysis on a bad geometry is not a requirement; revisit if a real molecule (e.g. a non-planar conjugated system at its own optimum) needs this code path covered |
+| Test fixtures encode requirements, not incidents | COT tub fixture added (2026-08-24); synthetic-perturbation test rejected | The bad ethene geometry itself is not a requirement; COT is — a real non-planar conjugated π system at its own equilibrium, guarding σ/π character and tie-breaker inertness. If trigger-path coverage is ever needed, generate the perturbation programmatically at test runtime from ethene.xyz (synthetic stimulus, clearly labeled), never as a memorialized "molecule". |
 | Structure provenance | PubChem 3D structures are untrusted until re-optimized by us (wB97X-D3/def2-TZVP via ORCA) | Unvetted PubChem geometries caused the 2026-08-24 ethene confusion; see also user protocol |
+
+## IboView source audit (2026-08-24, ibo-view.20211019-RevA)
+
+Findings from reading `IvIao.cpp` and `MicroScf/CtOrbLoc.cpp` directly,
+relevant to parity claims and future work:
+
+1. **Valence-virtual SVD cutoff is identical**: keep σ > 1e-8
+   (`AllocAndComputeSvd` + loop at IvIao.cpp:111).  Our port was faithful;
+   the near-null residual columns exist in IboView too.
+2. **Why they don't scramble on junk columns**: virtual-block energies are
+   *not* Fock diagonals.  `MakeOrbitalEnergies_General` computes
+   ε_new = Σₖ |⟨refₖ|new⟩|² · ε_canonₖ — overlap-weighted averages of
+   canonical MO energies over the full reference set.  Comment admits the
+   scheme needs cleanup.  Consequence for us: our Fock-diagonal energies
+   plus cross-block energy sorting is where junk columns become dangerous;
+   any future fix should either adopt an IboView-style energy estimate or
+   exclude weak columns from ordering-sensitive paths.
+3. **They localize all four case blocks** through the same
+   `LocalizeVectors` (RHF: occupied + valence-virtual), so our pre-existing
+   virtual localization matches their structure.
+4. **Random perturbation is unconditional and time-seeded**: the `if (1)`
+   guard at CtOrbLoc.cpp applies an 18° Cayley rotation to every localized
+   block; `FRandomNumberGenerator` seeds from wall clock (`CxRandom.h`).
+   Bit-parity with IBOView on degenerate manifolds is therefore impossible
+   in principle — and their own output varies run to run there.
+5. **The Hessian gate handles one-center cases only**: pairs are skipped
+   when |A_ij| ≤ ThrLoc; the comment cites lone-pair/same-center mixing.
+   No two-center bond-flat handling exists in either implementation — our
+   `_resolve_flat_degeneracies` fills that gap rather than duplicating one.
 
 ## Verified against code (2026-08-24)
 

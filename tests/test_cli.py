@@ -28,6 +28,11 @@ MOLECULES = [
     ("ammonia.xyz", "ammonia", 30, 8, 5, 3),
     ("benzene.xyz", "benzene", 120, 36, 21, 15),
     ("zncl2.xyz", "zncl2", 87, 37, 32, 5),
+    # Non-planar conjugated pi system (D2d tub).  Guards that the
+    # bond-flat degeneracy resolution stays inert at a real molecule's
+    # own equilibrium: four ~99%-p C-C pi orbitals, pi-HOMO/pi*-LUMO,
+    # no sp^3-like banana bonds.
+    ("cyclooctatetraene.xyz", "cyclooctatetraene", 160, 48, 28, 20),
 ]
 
 
@@ -217,6 +222,49 @@ def test_benzene_symmetry():
     emin = min(ch_energies)
     assert (emax - emin) < 1e-4, (
         f"C-H σ energies split by {emax - emin:.6f} Ha (limit < 1e-4)"
+    )
+
+
+def test_cyclooctatetraene_pi_system():
+    """COT tub: non-planar conjugated π system stays σ + π at its equilibrium.
+
+    The D₂d tub is a real molecule whose geometry is not planar, exercising
+    the bond-flat degeneracy resolution on a genuine input rather than an
+    idealized one.  Expected: four C-C π orbitals of ~99% p-character
+    (π-HOMO, π*-LUMO), no sp³-like banana bonds, and near-degenerate
+    symmetry-equivalent bonds.
+    """
+    xyz_path = FILES_DIR / "cyclooctatetraene.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", "--charge", "0", "--spin", "1", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=300,
+    )
+    assert result.returncode == 0
+
+    calc_dir = _find_calc_dir("cyclooctatetraene")
+    text = (calc_dir / "ibos.txt").read_text(encoding="utf-8")
+    ibos = parse_ibos(calc_dir / "ibos.txt")
+    occ = [o for o in ibos if abs(o["occ"] - 2.0) < 1e-4]
+    assert len(occ) == 28
+
+    pi_lines = [
+        s for s in text.splitlines()
+        if s.strip()[:1].isdigit() and "C-C π" in s and "π*" not in s
+    ]
+    assert len(pi_lines) == 4, f"expected 4 C-C pi orbitals, got {len(pi_lines)}"
+    for s in pi_lines:
+        # ~99% p-character: a banana bond would carry substantial 2s weight
+        assert re.search(r"9[7-9]% 2p", s), f"C-C pi not p-dominated: {s}"
+
+    pi_star_lines = [s for s in text.splitlines() if "C-C π*" in s]
+    assert len(pi_star_lines) == 4, (
+        f"expected 4 C-C pi* orbitals, got {len(pi_star_lines)}"
+    )
+
+    # π-HOMO / π*-LUMO assignment
+    assert any("<- HOMO" in s for s in pi_lines), "HOMO marker not on a C-C pi"
+    assert any("<- LUMO" in s for s in pi_star_lines), (
+        "LUMO marker not on a C-C pi*"
     )
 
 
