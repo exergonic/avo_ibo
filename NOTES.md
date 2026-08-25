@@ -10,17 +10,38 @@ plugin-development guide in [tutorial.md](tutorial.md).
 
 ## Open items
 
-- **Typed API** ([#3](https://github.com/exergonic/avo_ibo/issues/3)):
-  `compute_ibo()` returns display strings and side-effect files today; a
-  typed return would make the core usable as a library.
 - **pixi-pack distribution** ([#7](https://github.com/exergonic/avo_ibo/issues/7)):
   self-extracting environment archive so users need neither pixi nor conda.
   Not yet shipped — the v6-lock manual-editing dance (AGENTS.md Gotcha 28)
   is the friction point this would remove.
-- **Bond-flat degeneracy resolution** (below): implemented for the occupied
+- **Virtual-block junk-column hygiene** (see IboView audit below): either
+  adopt their overlap-weighted energy scheme or exclude weak SVD columns
+  from ordering-sensitive paths; unlocks a σ*/π* tie-break later.
+- **Bond-flat degeneracy resolution**: implemented for the occupied
   block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
-  until the SVD valence-virtual columns get junk-hygiene (see NOTE in
-  `compute_ibo`).
+  until the junk-column hygiene above.
+
+## Typed API (issue #3, landed 2026-08-25)
+
+`compute_ibo_data(cjson, options, charge=0, spin=1) -> IBOResult` is the
+pure core: no project files, no config reads, no logger wiring.  Options
+fall back to library defaults (hf/cc-pVDZ); callers wanting persistence
+merge `config.load_config()` beforehand.  `compute_ibo()` remains the
+Avogadro adapter (calc dirs, psi4 logging, molden rendering, JSON
+contract) and is verified byte-for-byte identical pre/post refactor on
+all six suite molecules.
+
+Psi4 global-state lessons now encoded in the core:
+
+- Primary-output routing is mandatory on Windows — without
+  `psi4.set_output_file(...)` the PSIO manager dies ("cannot get a mirror
+  file handle").  Core defaults to a private temp file; adapter passes
+  its calc-dir log.
+- Molecule registration (`psi4.geometry` + `reset_point_group("c1")`)
+  must happen before SCF inside the core — it defines AO ordering for
+  everything downstream.
+- Psi4 aux files (`timer.dat`) land in cwd; library callers in read-only
+  directories will fail regardless of output routing.
 
 ## Next step: resolve bond-flat PM degeneracies
 
