@@ -338,6 +338,116 @@ def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
 
 
 # ---------------------------------------------------------------------------
+# Resolve bond-flat PM degeneracies (sigma/pi vs banana bonds)
+# ---------------------------------------------------------------------------
+
+
+def _resolve_flat_degeneracies(C_occ, atom_of, F_IAO, flat_tol=1e-6,
+                               fock_tol=1e-8, pm_exponent=4):
+    """
+    Rotate PM-functionally-degenerate orbital pairs to their Fock-diagonal
+    basis.
+
+    The PM functional measures per-atom populations only.  When two orbitals
+    share identical population vectors n_A(i) = n_A(j) on every atom — the
+    {sigma, pi} plane of a symmetric two-centre bond, its antibond
+    counterpart, or two orbitals on one atom — every rotation within the
+    pair leaves L unchanged.  Jacobi sweeps neither prefer nor repair such
+    mixtures, so on symmetry-broken geometries the converged picture
+    (sigma+pi vs two banana bonds) is decided by the SCF-seeded trajectory,
+    not by the functional.
+
+    Detection mirrors the PM sweep itself: a pair is *flat* when rotating
+    it by 45 degrees changes L by less than *flat_tol* relative to |L|.
+    Among flat pairs, only *Fock-coupled* ones (|F_ij| > *fock_tol*) are
+    touched; they are rotated by the minimal Jacobi angle that zeroes F_ij,
+    so the aufbau (energy) ordering emerges without perturbing anything
+    else.  Flat pairs that are already Fock-diagonal yield phi = 0 exactly
+    and are left byte-identical.  Non-flat pairs (any real population
+    asymmetry) sit in a steep PM bowl, never satisfy the tolerance, and are
+    never modified — the same principle as _resolve_on_atom_mixing, extended
+    from one atom to two.
+
+    Parameters are modified in place.
+
+    Returns
+    -------
+    int : number of pairs rotated.
+    """
+    n_IAO, n_occ = C_occ.shape
+    if n_occ < 2:
+        return 0
+    n_atoms = int(np.max(atom_of)) + 1
+    p = pm_exponent
+    if p not in (2, 4):
+        raise ValueError(f"Unsupported PM exponent: {p}")
+
+    FC = F_IAO @ C_occ  # (n_IAO, n_occ), for Fock couplings
+
+    def _pair_pops(a, b):
+        pa = np.zeros(n_atoms)
+        pb = np.zeros(n_atoms)
+        np.add.at(pa, atom_of, a * a)
+        np.add.at(pb, atom_of, b * b)
+        return pa, pb
+
+    n_rotated = 0
+    for i in range(1, n_occ):
+        ci = C_occ[:, i]
+        Fi = FC[:, i]
+        tii = float(ci.dot(Fi))
+        for j in range(i):
+            cj = C_occ[:, j]
+
+            # PM functional value of the pair now and at a 45-degree
+            # rotation.  Other orbitals are unaffected by the pair
+            # rotation, so pair-only L decides flatness.
+            pi, pj = _pair_pops(ci, cj)
+            L0 = float(np.sum(pi**p) + np.sum(pj**p))
+            if L0 <= 0.0:
+                continue
+            r2 = 1.0 / np.sqrt(2.0)
+            pr, ps = _pair_pops(r2 * (ci + cj), r2 * (cj - ci))
+            L45 = float(np.sum(pr**p) + np.sum(ps**p))
+
+            # Converged PM makes every pair a local maximum; any change in
+            # L beyond tolerance means the functional actively distinguishes
+            # the pair (covers both directions in case PM exited at
+            # max_iter before full convergence).
+            if abs(L0 - L45) / abs(L0) > flat_tol:
+                continue
+
+            # Flat pair: break the tie only if the Fock matrix actually
+            # couples the two states.  Purely relative tolerance: SCF dust
+            # (~1e-8 relative) must not trigger a microscopic rotation,
+            # while genuinely coupled flat pairs (ratio ~0.4 in the failing
+            # ethene case) fire robustly.  Already-diagonal pairs stay
+            # byte-identical.
+            tij = float(ci.dot(FC[:, j]))
+            tjj = float(cj.dot(FC[:, j]))
+            if abs(tij) <= fock_tol * max(abs(tii), abs(tjj)):
+                continue
+
+            # Minimal 2x2 Jacobi rotation zeroing F_ij:
+            #   <i'|F|j'> = cs (t_jj - t_ii) + (c^2 - s^2) t_ij = 0
+            phi = 0.5 * np.arctan2(2.0 * tij, tii - tjj)
+            c_, s_ = np.cos(phi), np.sin(phi)
+            # Copy before writing: ci/cj and Fi are views into C_occ/FC;
+            # the second assignment must read the ORIGINAL columns.
+            old_i = ci.copy()
+            old_j = cj.copy()
+            old_fi = Fi.copy()
+            old_fj = FC[:, j].copy()
+            C_occ[:, i] = c_ * old_i + s_ * old_j
+            C_occ[:, j] = -s_ * old_i + c_ * old_j
+            FC[:, i] = c_ * old_fi + s_ * old_fj
+            FC[:, j] = -s_ * old_fi + c_ * old_fj
+            n_rotated += 1
+
+    return n_rotated
+
+
+# ---------------------------------------------------------------------------
 # IBO analysis table
 # ---------------------------------------------------------------------------
 
@@ -1165,6 +1275,14 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     # energy ordering (s-rich lowest, p-rich highest).
     _resolve_on_atom_mixing(C_IAO_occ, atom_of, F_IAO)
 
+    # -- Resolve bond-flat PM degeneracies (sigma/pi vs banana bonds) ------
+    # PM cannot distinguish orbitals sharing identical per-atom populations
+    # — the {sigma, pi} plane of a symmetric bond (and its antibond).  On
+    # symmetry-broken geometries Jacobi sweeps may converge to mixed
+    # "banana" solutions; rotate such functionally-degenerate pairs to
+    # their Fock-diagonal (aufbau) basis.  See NOTES.md.
+    _resolve_flat_degeneracies(C_IAO_occ, atom_of, F_IAO)
+
     occ_energies = np.array(
         [C_IAO_occ[:, i].dot(F_IAO @ C_IAO_occ[:, i]) for i in range(nocc)]
     )
@@ -1179,6 +1297,11 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
     if n_val_vir > 1:
         _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
+        # NOTE: no bond-flat tie-break here.  The SVD valence-virtual block
+        # retains near-null-singular-value residual columns (sigma ~ 0.01)
+        # that are functionally degenerate with real antibonds; rotating
+        # across them mixes pi* with delocalized junk.  Revisit only after
+        # the virtual block gets explicit junk-column hygiene.
 
     vir_energies = np.array(
         [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]

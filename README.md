@@ -11,11 +11,14 @@ plugin.
 
 * Occupied and valence-virtual IBOs — Pipek-Mezey localization (p=2 warmup + p=4 refinement, conv 1e-12)
 * On-atom degeneracy resolution via post-PM Fock diagonalization
-* Valence-virtual IBOs via Single Value Decomposition projection of canonical virtual MOs onto IAO space
+* Valence-virtual IBOs via singular value decomposition projection of canonical virtual MOs onto IAO space
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
 * Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
-* Full mathematical derivation in [`mathematics.md`](mathematics.md) with paper equation references
+* Full mathematical derivation in [`mathematics/mathematics.md`](mathematics/mathematics.md) with paper equation references
+
+Project notebooks: [NOTES.md](NOTES.md) (open items, design decisions),
+[AGENTS.md](AGENTS.md) (development context and gotchas).
 
 
 ## Quick Start
