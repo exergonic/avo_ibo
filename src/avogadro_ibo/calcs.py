@@ -923,6 +923,66 @@ def _format_total_wiberg(C_IAO_occ, atom_of, elem):
     return "\n".join(lines)
 
 
+def _format_wiberg_by_type(C_IAO_occ, atom_of, am_of, elem):
+    """Format per-orbital Wiberg bond orders split into σ and π parts.
+
+    Each occupied IBO k contributes occ_k² · P_A · P_B to the bond order
+    between its top two atoms A, B (the same per-orbital formula the
+    analysis table uses; see ``_wiberg_per_ibo``).  The contribution is
+    classed as σ or π by the p-fraction of the orbital on both atoms
+    (p > 0.85 on both → π, else σ — the classifier's own rule).
+
+    The per-orbital sum differs from the density-matrix Wiberg total
+    above (which includes cross-orbital D² terms); both definitions are
+    shown and the header says so.
+    """
+    n_occ = C_IAO_occ.shape[1]
+    n_atoms = len(elem)
+    sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+
+    for k in range(n_occ):
+            c = C_IAO_occ[:, k]
+            sq = c**2
+            pop = np.zeros(n_atoms, dtype=np.float64)
+            np.add.at(pop, atom_of, sq)
+            order = np.argsort(-pop)
+            A, B = int(order[0]), int(order[1])
+            # Same two-centre gate as the classifier: 3c-2e bridges and
+            # delocalised rings (benzene π: top-2 ≈ 0.33) fall below 0.75
+            # and would attribute arbitrary pair contributions via tie-breaks.
+            if pop[A] + pop[B] < 0.75 or pop[B] < 0.02:
+                continue
+            w = _wiberg_per_ibo(pop, 2.0, A, B)  # RHF: occ = 2.0
+            pa = _p_frac(c, am_of, A, atom_of)
+            pb = _p_frac(c, am_of, B, atom_of)
+            a, b = sorted((A, B))
+            if pa > 0.85 and pb > 0.85:
+                pi[a, b] += w
+            else:
+                sigma[a, b] += w
+
+    rows = []
+    for A in range(n_atoms):
+        for B in range(A + 1, n_atoms):
+            total = sigma[A, B] + pi[A, B]
+            if total > 0.01:
+                symA = _elem_symbol(elem[A])
+                symB = _elem_symbol(elem[B])
+                rows.append((symA, A, symB, B, sigma[A, B], pi[A, B], total))
+
+    if not rows:
+        return ""
+
+    lines = ["", "--- Wiberg Bond Orders by Type (σ/π per-IBO) ---",
+             "  W_AB = Σ occ²·P_A·P_B over occupied IBOs (top-two-atom",
+             "  attribution). σ+π may differ slightly from the",
+             "  density-matrix total above — different definitions."]
+    for symA, a, symB, b, s, p, t in sorted(rows, key=lambda x: -x[6]):
+        lines.append(f"  {symA}{a+1}-{symB}{b+1}    σ {s:>7.3f}   π {p:>7.3f}   σ+π {t:>7.3f}")
+    return "\n".join(lines)
+
+
 def _format_charge_decomposition(atom_pop, elem):
     """
     Format a charge decomposition table from accumulated IAO populations.
@@ -1425,6 +1485,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
         mol_name,
     )
     msg += _format_total_wiberg(C_IAO_all[:, :nocc], atom_of, elem)
+    msg += _format_wiberg_by_type(C_IAO_all[:, :nocc], atom_of, am_of, elem)
 
     return IBOResult(
         C_IAO=C_IAO,

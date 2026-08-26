@@ -303,6 +303,44 @@ def test_zncl2_bond_order():
             )
 
 
+def test_ethene_sig_pi_wiberg_split():
+    """Ethene C=C resolves into σ + π per-orbital Wiberg contributions.
+
+    The by-type section reports the per-IBO definition (occ²·P_A·P_B),
+    which must show the double bond as σ ≈ 1.0 plus π ≈ 1.0, and each
+    C-H as σ only.  Benzene-style delocalized π must NOT appear (its
+    top-two population sum fails the two-centre gate).
+    """
+    xyz_path = FILES_DIR / "ethene.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", "--charge", "0", "--spin", "1", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0
+
+    text = (_find_calc_dir("ethene") / "ibos.txt").read_text(encoding="utf-8")
+    assert "Wiberg Bond Orders by Type (σ/π per-IBO)" in text
+
+    # Parse the by-type section: rows are "  C1-C2    σ 1.000   π 1.000   σ+π 2.000"
+    sec = text.split("Wiberg Bond Orders by Type")[1]
+    rows = {}
+    for line in sec.splitlines():
+        m = re.match(r"^\s*([A-Za-z]+\d+)-([A-Za-z]+\d+)\s+σ\s+([\d.]+)\s+π\s+([\d.]+)", line)
+        if m:
+            rows[(m.group(1), m.group(2))] = (float(m.group(3)), float(m.group(4)))
+
+    cc = [v for k, v in rows.items() if k[0].startswith("C") and k[1].startswith("C")]
+    assert cc, f"expected a C-C row in by-type section, got rows {list(rows)}"
+    sig, pi = cc[0]
+    assert 0.9 < sig < 1.1, f"C-C σ Wiberg expected ≈1.0, got {sig}"
+    assert 0.9 < pi < 1.1, f"C-C π Wiberg expected ≈1.0, got {pi}"
+
+    # Every C-H row must be σ-only
+    for k, (sig, pi) in rows.items():
+        if (k[0].startswith("C") and k[1].startswith("H")) or (k[0].startswith("H") and k[1].startswith("C")):
+            assert pi < 0.01, f"C-H row {k} has spurious π contribution {pi}"
+
+
 def test_charge_decomposition():
     """Water: charge decomposition sums to 10, O negative, H positive."""
     xyz_path = FILES_DIR / "water.xyz"

@@ -21,6 +21,37 @@ plugin-development guide in [tutorial.md](tutorial.md).
   block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
   until the junk-column hygiene above.
 
+## Ideas parked for the future (2026-08-26, not active work items)
+
+Ranked roughly by value/cost; none is planned.  Feature-complete verdict
+vs. Knizia's single-geometry palette: yes (see open-items discussion of
+2026-08-26); the trajectory/electron-flow class is a second plugin, not an
+extension.
+
+- **σ/π Wiberg decomposition**: IMPLEMENTED 2026-08-26
+  (`_format_wiberg_by_type`, section "Wiberg Bond Orders by Type" in
+  ibos.txt).  Per-orbital W_AB = occ²·P_A·P_B summed by σ/π class; the
+  header states it differs from the density-matrix total (cross-orbital
+  D² terms), so both are shown.
+- **Charge decomposition by orbital class**: split of Q_A into core/LP/
+  bonding contributions per atom.  Low cost (all machinery exists).
+- **d-electron count / oxidation-state readout for metals**: sum of
+  d-character IBO populations on a metal centre; low cost, useful for
+  the ZnCl₂-style tests.  Requires care on d/σ mixing (SO₃ d-polarization
+  class of ambiguity).
+- **HOMO–LUMO gap summary block**: energies already computed; a headline
+  ΔE in the table footer.  Trivial cost.
+- **Aromaticity index (multi-centre bond order)** e.g. 6-centre index for
+  benzene: research-flavoured, medium cost; probably not worth it for a
+  student audience.
+- **Trajectory / electron-flow analysis** (Knizia–Klein 2015 Angew
+  "Electron Flow in Reaction Mechanisms"; 2018 cPCET-vs-HAT): requires
+  consuming pre-computed IRC paths (ORCA/Gaussian output or xyz series) —
+  NOT running IRCs, which stays out of scope.  A second plugin class:
+  per-frame SCF exists, but the Avogadro one-call-per-molecule protocol
+  needs a file-reading command and per-frame rendering.  Not planned
+  unless adoption or teaching demand materialises.
+
 ## Typed API (issue #3, landed 2026-08-25)
 
 `compute_ibo_data(cjson, options, charge=0, spin=1) -> IBOResult` is the
