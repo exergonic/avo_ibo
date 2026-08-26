@@ -565,7 +565,7 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
         for fi in idx_am:
             n_key = func_n[fi]
             n_counts[n_key] = n_counts.get(n_key, 0.0) + c[fi] ** 2
-        dominant_n = max(n_counts, key=n_counts.get)
+        dominant_n = max(n_counts, key=lambda k: n_counts[k])
 
         # Determine dominant subtype
         subtype = ""
@@ -576,7 +576,7 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
                 if st:
                     st_counts[st] = st_counts.get(st, 0.0) + c[fi] ** 2
             if st_counts:
-                top_st = max(st_counts, key=st_counts.get)
+                top_st = max(st_counts, key=lambda k: st_counts[k])
                 if st_counts[top_st] > 0.5 * total_am:
                     subtype = top_st  # e.g. "pz"
         elif am_val == 2:  # d-orbitals: dxy, dxz, dyz, dz2, dx2y2
