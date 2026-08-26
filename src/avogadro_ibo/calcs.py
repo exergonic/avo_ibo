@@ -17,6 +17,10 @@ from dataclasses import dataclass
 
 import numpy as np
 
+# 1 Hartree in electron-volts (CODATA 2018).  Only used for the
+# human-facing HOMO-LUMO gap line; all internal energies stay in Ha.
+HA_TO_EV = 27.211386245988
+
 
 # ---------------------------------------------------------------------------
 # Helper: extract per-function atom index and angular momentum from a BasisSet
@@ -860,6 +864,26 @@ def _analyze_ibos(
     # unreachable — closed-shell guard prevents open-shell in compute_ibo.
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
 
+    # Frontier-orbital summary.  HOMO/LUMO are found by occupancy, not by
+    # rank position: energies_all is ascending but not guaranteed to be a
+    # strict occupied-then-virtual prefix after sorting (see IBOResult).
+    occ_idx = np.where(occ_all > 1.5)[0]
+    vir_idx = np.where(occ_all < 0.5)[0]
+    if len(occ_idx) and len(vir_idx):
+        homo_i = int(occ_idx[np.argmax(energies_all[occ_idx])])
+        lumo_i = int(vir_idx[np.argmin(energies_all[vir_idx])])
+        gap_ha = energies_all[lumo_i] - energies_all[homo_i]
+        gap_ev = gap_ha * HA_TO_EV
+        lines.append("")
+        lines.append("--- Frontier Orbital Energies ---")
+        lines.append(
+            f"  HOMO ({orbid_labels[homo_i]}, orb {homo_i + 1}): {energies_all[homo_i]:>10.6f} Ha"
+        )
+        lines.append(
+            f"  LUMO ({orbid_labels[lumo_i]}, orb {lumo_i + 1}): {energies_all[lumo_i]:>10.6f} Ha"
+        )
+        lines.append(f"  HOMO-LUMO gap: {gap_ha:>10.6f} Ha = {gap_ev:>7.3f} eV")
+
     # Footnote for degenerate manifolds
     if deg_ranges:
         deg_groups = []
@@ -942,25 +966,25 @@ def _format_wiberg_by_type(C_IAO_occ, atom_of, am_of, elem):
     pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
 
     for k in range(n_occ):
-            c = C_IAO_occ[:, k]
-            sq = c**2
-            pop = np.zeros(n_atoms, dtype=np.float64)
-            np.add.at(pop, atom_of, sq)
-            order = np.argsort(-pop)
-            A, B = int(order[0]), int(order[1])
-            # Same two-centre gate as the classifier: 3c-2e bridges and
-            # delocalised rings (benzene π: top-2 ≈ 0.33) fall below 0.75
-            # and would attribute arbitrary pair contributions via tie-breaks.
-            if pop[A] + pop[B] < 0.75 or pop[B] < 0.02:
-                continue
-            w = _wiberg_per_ibo(pop, 2.0, A, B)  # RHF: occ = 2.0
-            pa = _p_frac(c, am_of, A, atom_of)
-            pb = _p_frac(c, am_of, B, atom_of)
-            a, b = sorted((A, B))
-            if pa > 0.85 and pb > 0.85:
-                pi[a, b] += w
-            else:
-                sigma[a, b] += w
+        c = C_IAO_occ[:, k]
+        sq = c**2
+        pop = np.zeros(n_atoms, dtype=np.float64)
+        np.add.at(pop, atom_of, sq)
+        order = np.argsort(-pop)
+        A, B = int(order[0]), int(order[1])
+        # Same two-centre gate as the classifier: 3c-2e bridges and
+        # delocalised rings (benzene π: top-2 ≈ 0.33) fall below 0.75
+        # and would attribute arbitrary pair contributions via tie-breaks.
+        if pop[A] + pop[B] < 0.75 or pop[B] < 0.02:
+            continue
+        w = _wiberg_per_ibo(pop, 2.0, A, B)  # RHF: occ = 2.0
+        pa = _p_frac(c, am_of, A, atom_of)
+        pb = _p_frac(c, am_of, B, atom_of)
+        a, b = sorted((A, B))
+        if pa > 0.85 and pb > 0.85:
+            pi[a, b] += w
+        else:
+            sigma[a, b] += w
 
     rows = []
     for A in range(n_atoms):

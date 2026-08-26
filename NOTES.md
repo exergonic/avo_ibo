@@ -39,8 +39,11 @@ extension.
   d-character IBO populations on a metal centre; low cost, useful for
   the ZnCl₂-style tests.  Requires care on d/σ mixing (SO₃ d-polarization
   class of ambiguity).
-- **HOMO–LUMO gap summary block**: energies already computed; a headline
-  ΔE in the table footer.  Trivial cost.
+- **HOMO–LUMO gap summary block**: IMPLEMENTED 2026-08-26 (section
+  "Frontier Orbital Energies" in ibos.txt).  HOMO/LUMO selected by
+  occupancy, not rank (energies_all ascending is not guaranteed to be a
+  strict occ-then-vir prefix); gap in Ha and eV (CODATA 2018
+  HA_TO_EV).  Ethene test: π-HOMO / π*-LUMO, gap = LUMO − HOMO.
 - **Aromaticity index (multi-centre bond order)** e.g. 6-centre index for
   benzene: research-flavoured, medium cost; probably not worth it for a
   student audience.

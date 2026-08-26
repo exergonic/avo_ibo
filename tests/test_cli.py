@@ -256,7 +256,10 @@ def test_cyclooctatetraene_pi_system():
         # ~99% p-character: a banana bond would carry substantial 2s weight
         assert re.search(r"9[7-9]% 2p", s), f"C-C pi not p-dominated: {s}"
 
-    pi_star_lines = [s for s in text.splitlines() if "C-C π*" in s]
+    pi_star_lines = [
+        s for s in text.splitlines()
+        if s.strip()[:1].isdigit() and "C-C π*" in s
+    ]
     assert len(pi_star_lines) == 4, (
         f"expected 4 C-C pi* orbitals, got {len(pi_star_lines)}"
     )
@@ -339,6 +342,32 @@ def test_ethene_sig_pi_wiberg_split():
     for k, (sig, pi) in rows.items():
         if (k[0].startswith("C") and k[1].startswith("H")) or (k[0].startswith("H") and k[1].startswith("C")):
             assert pi < 0.01, f"C-H row {k} has spurious π contribution {pi}"
+
+
+def test_frontier_orbital_summary():
+    """Ethene: frontier block exists and gap = LUMO − HOMO internally consistent."""
+    xyz_path = FILES_DIR / "ethene.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", "--charge", "0", "--spin", "1", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0
+
+    text = (_find_calc_dir("ethene") / "ibos.txt").read_text(encoding="utf-8")
+    m = re.search(
+        r"HOMO \([^)]*\):\s+(-?[\d.]+) Ha\n"
+        r"\s+LUMO \([^)]*\):\s+(-?[\d.]+) Ha\n"
+        r"\s+HOMO-LUMO gap:\s+(-?[\d.]+) Ha\s+=\s+(-?[\d.]+) eV",
+        text,
+    )
+    assert m, "frontier orbital summary block missing or malformed"
+    e_homo, e_lumo, gap_ha, gap_ev = (float(v) for v in m.groups())
+    assert abs(gap_ha - (e_lumo - e_homo)) < 1e-6, "gap Ha ≠ LUMO − HOMO"
+    assert abs(gap_ev - gap_ha * 27.211386245988) < 1e-3, "gap eV conversion wrong"
+    assert gap_ha > 0, "gap should be positive (HOMO below LUMO for RHF)"
+    assert "C-C π" in text.split("Frontier Orbital Energies")[1].splitlines()[1], (
+        "HOMO should be the C-C π orbital of ethene"
+    )
 
 
 def test_charge_decomposition():
