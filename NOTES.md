@@ -135,7 +135,7 @@ eyeballing.
 | Pipeline symmetry | C1 for the IBO pipeline; native point group only for `canonical.molden` | Individual IBOs need not respect irreps; canonical MOs render prettier when they do |
 | Formula ordering | First occurrence, not Hill | Preserves input atom order (SO₃ reads better than O3S) |
 | Closed-shell only | Reject spin ≥ 2 at entry | RHF-style double occupancy is baked into IAO/PM/analysis; UHF is a rewrite, not a flag (README "Limitations") |
-| Donor–acceptor analysis | None; structurally impossible | Occupied block diagonalizes F^IAO, so its occ–vir block vanishes identically — mathematics.md §9 |
+| Donor–acceptor analysis | None; structurally impossible | Occupied block diagonalizes F^IAO, so its occ–vir block vanishes identically — mathematics.md §10 |
 | Test fixtures encode requirements, not incidents | COT tub fixture added (2026-08-24); synthetic-perturbation test rejected | The bad ethene geometry itself is not a requirement; COT is — a real non-planar conjugated π system at its own equilibrium, guarding σ/π character and tie-breaker inertness. If trigger-path coverage is ever needed, generate the perturbation programmatically at test runtime from ethene.xyz (synthetic stimulus, clearly labeled), never as a memorialized "molecule". |
 | Structure provenance | PubChem 3D structures are untrusted until re-optimized by us (wB97X-D3/def2-TZVP via ORCA) | Unvetted PubChem geometries caused the 2026-08-24 ethene confusion; see also user protocol |
 
