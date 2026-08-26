@@ -42,8 +42,9 @@ extension.
 - **HOMO–LUMO gap summary block**: IMPLEMENTED 2026-08-26 (section
   "Frontier Orbital Energies" in ibos.txt).  HOMO/LUMO selected by
   occupancy, not rank (energies_all ascending is not guaranteed to be a
-  strict occ-then-vir prefix); gap in Ha and eV (CODATA 2018
-  HA_TO_EV).  Ethene test: π-HOMO / π*-LUMO, gap = LUMO − HOMO.
+  strict occ-then-vir prefix); gap in Ha, eV and kcal/mol (CODATA 2018
+  HA_TO_EV / HA_TO_KCAL).  Ethene test: π-HOMO / π*-LUMO,
+  gap = LUMO − HOMO.
 - **Aromaticity index (multi-centre bond order)** e.g. 6-centre index for
   benzene: research-flavoured, medium cost; probably not worth it for a
   student audience.

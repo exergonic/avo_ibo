@@ -357,13 +357,14 @@ def test_frontier_orbital_summary():
     m = re.search(
         r"HOMO \([^)]*\):\s+(-?[\d.]+) Ha\n"
         r"\s+LUMO \([^)]*\):\s+(-?[\d.]+) Ha\n"
-        r"\s+HOMO-LUMO gap:\s+(-?[\d.]+) Ha\s+=\s+(-?[\d.]+) eV",
+        r"\s+HOMO-LUMO gap:\s+(-?[\d.]+) Ha\s+=\s+(-?[\d.]+) eV\s+=\s+(-?[\d.]+) kcal/mol",
         text,
     )
     assert m, "frontier orbital summary block missing or malformed"
-    e_homo, e_lumo, gap_ha, gap_ev = (float(v) for v in m.groups())
+    e_homo, e_lumo, gap_ha, gap_ev, gap_kcal = (float(v) for v in m.groups())
     assert abs(gap_ha - (e_lumo - e_homo)) < 1e-6, "gap Ha ≠ LUMO − HOMO"
     assert abs(gap_ev - gap_ha * 27.211386245988) < 1e-3, "gap eV conversion wrong"
+    assert abs(gap_kcal - gap_ha * 627.5094740631) < 0.1, "gap kcal/mol conversion wrong"
     assert gap_ha > 0, "gap should be positive (HOMO below LUMO for RHF)"
     assert "C-C π" in text.split("Frontier Orbital Energies")[1].splitlines()[1], (
         "HOMO should be the C-C π orbital of ethene"

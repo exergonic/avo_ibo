@@ -17,9 +17,11 @@ from dataclasses import dataclass
 
 import numpy as np
 
-# 1 Hartree in electron-volts (CODATA 2018).  Only used for the
-# human-facing HOMO-LUMO gap line; all internal energies stay in Ha.
+# 1 Hartree in electron-volts (CODATA 2018) and in kcal/mol
+# (2625.4996394799 kJ/mol ÷ 4.184).  Only used for the human-facing
+# HOMO-LUMO gap line; all internal energies stay in Ha.
 HA_TO_EV = 27.211386245988
+HA_TO_KCAL = 627.5094740631
 
 
 # ---------------------------------------------------------------------------
@@ -874,6 +876,7 @@ def _analyze_ibos(
         lumo_i = int(vir_idx[np.argmin(energies_all[vir_idx])])
         gap_ha = energies_all[lumo_i] - energies_all[homo_i]
         gap_ev = gap_ha * HA_TO_EV
+        gap_kcal = gap_ha * HA_TO_KCAL
         lines.append("")
         lines.append("--- Frontier Orbital Energies ---")
         lines.append(
@@ -882,7 +885,9 @@ def _analyze_ibos(
         lines.append(
             f"  LUMO ({orbid_labels[lumo_i]}, orb {lumo_i + 1}): {energies_all[lumo_i]:>10.6f} Ha"
         )
-        lines.append(f"  HOMO-LUMO gap: {gap_ha:>10.6f} Ha = {gap_ev:>7.3f} eV")
+        lines.append(
+            f"  HOMO-LUMO gap: {gap_ha:>10.6f} Ha = {gap_ev:>7.3f} eV = {gap_kcal:>8.1f} kcal/mol"
+        )
 
     # Footnote for degenerate manifolds
     if deg_ranges:
