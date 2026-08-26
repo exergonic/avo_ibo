@@ -11,6 +11,7 @@ plugin.
 
 * Occupied and valence-virtual IBOs — Pipek-Mezey localization (p=2 warmup + p=4 refinement, conv 1e-12)
 * On-atom degeneracy resolution via post-PM Fock diagonalization
+* Bond-flat degeneracy resolution — flat {σ, π} planes of symmetric bonds are Fock-diagonalised so distorted geometries yield σ+π (not banana bonds) deterministically
 * Valence-virtual IBOs via singular value decomposition projection of canonical virtual MOs onto IAO space
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
 * Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders

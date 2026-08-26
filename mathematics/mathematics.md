@@ -46,7 +46,7 @@ $$
 The default method is HF with the cc-pVDZ basis and Cartesian
 ($\mathtt{puream}=0$) functions.  The occupied block
 $\mathbf{C}^{\mathrm{occ}} \in \mathbb{R}^{n_{\mathrm{AO}} \times n_{\mathrm{occ}}}$ is
-extracted from the converged solution (`calcs.py:509`).
+extracted from the converged solution (`compute_ibo_data()`).
 
 ---
 
@@ -69,7 +69,7 @@ $$
 (\mathbf{P}^{12})_{\mu\alpha} \,\lvert\chi_\mu\rangle .
 $$
 
-`calcs.py:64–65`
+`_build_iao_basis()`
 
 ### 3.2 Express occupied MOs in the minimal basis
 
@@ -83,7 +83,7 @@ $$
 = (\mathbf{S}^{12\,T} \mathbf{C}^{\mathrm{occ}})_{\alpha i}.
 $$
 
-`calcs.py:68`
+`_build_iao_basis()`
 
 ### 3.3 Depolarisation — solve $\mathbf{S}^{\mathrm{min}} \tilde{\mathbf{C}} = \mathbf{C}^{\mathrm{occ},min}$
 
@@ -97,7 +97,7 @@ $$
 $$
 
 $(\mathbf{S}^{\mathrm{min}})^{-1}$ is obtained via Cholesky factorisation.
-`calcs.py:70–72`
+`_build_iao_basis()`
 
 ### 3.4 Occupied-space metric
 
@@ -109,7 +109,7 @@ $$
   \mathbf{C}^{\mathrm{occ},min}.
 $$
 
-`calcs.py:75`
+`_build_iao_basis()`
 
 ### 3.5 Inverse metric — $\tilde{\mathbf{C}}^{(2)}$
 
@@ -121,7 +121,7 @@ $$
 \tilde{\mathbf{C}}^{(2)} = \tilde{\mathbf{C}} \tilde{\mathbf{S}}^{-1}.
 $$
 
-`calcs.py:78–80`
+`_build_iao_basis()`
 
 ### 3.6 Tight residual — $\mathbf{T}^{(4)}$
 
@@ -133,7 +133,7 @@ $$
    - \mathbf{P}^{12} \tilde{\mathbf{C}}^{(2)}.
 $$
 
-`calcs.py:83`
+`_build_iao_basis()`
 
 The columns of $\mathbf{T}^{(4)}$ are the occupied-space vectors that
 the minimal basis alone cannot describe.
@@ -152,7 +152,7 @@ $$
 In matrix form: $(\mathbf{C}^{\mathrm{IAO}})_{\mu\alpha}$
 is the coefficient of AO function $\lvert\chi_\mu\rangle$ in IAO $\lvert\phi_\alpha\rangle$.
 
-`calcs.py:86`
+`_build_iao_basis()`
 
 ### 3.8 Symmetric (Löwdin) orthogonalisation
 
@@ -172,7 +172,7 @@ $$
 
 Now $\langle\phi_{\alpha}|\phi_{\beta}\rangle = (\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$.
 
-`calcs.py:90–92`
+`_build_iao_basis()`
 
 ### 3.9 Express occupied orbitals in the IAO basis
 
@@ -186,7 +186,7 @@ $$
 Because IAOs span the occupied space (by construction), this is a
 unitary rotation and $\mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ} = \mathbf{C}^{\mathrm{occ}}$ is exact.
 
-`calcs.py:97`
+`_build_iao_basis()`
 
 ---
 
@@ -223,10 +223,10 @@ nearest local maximum for the fixed sequential sweep order
 All PAO-like methods that use the PM functional on an orthogonal
 minimal basis converge to the same nearest local maximum without
 symmetry breaking, as long as the sweep order is fixed and
-reproducible.  The line-reference at the bottom of this section
-is therefore a stub; the actual localisation code begins at §4.2.
+reproducible.  The anchor below therefore covers the whole sweep
+routine; the walk-through of its two passes begins at §4.2.
 
-`calcs.py:147–148`
+`_localize_ibos()`
 
 ### 4.2 p=2 warm-start
 
@@ -251,7 +251,7 @@ where $n_{ij}(A) = \sum_{\alpha\in A} C^{\mathrm{IAO},occ}_{\alpha i} C^{\mathrm
 The angle is $\frac{1}{4}$ because the leading power in the trigonometric
 expansion is $4\theta$ (i.e. $\tan(4\phi) = B/-A$), the same as for $p=4$.
 
-`calcs.py:175–186`
+`_localize_ibos()`
 
 ### 4.3 p=4 refine ($L$ from Eq. 4)
 
@@ -275,7 +275,7 @@ $$
 The angle is $\frac{1}{4}$ (not $\frac{1}{2}$) because the leading
 power in the trigonometric expansion is $4\theta$.
 
-`calcs.py:187–205`
+`_localize_ibos()`
 
 ### 4.4 Jacobi sweep algorithm
 
@@ -299,7 +299,7 @@ improve the energy degeneracy of symmetry-equivalent bonds; it
 merely changes which nearby local maximum is selected, typically
 producing a worse (less symmetric) result.
 
-`calcs.py:159–226`
+`_localize_ibos()`
 
 ### 4.5 Convergence criterion
 
@@ -312,7 +312,7 @@ After each sweep the gradient norm is:
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
 $\Vert\nabla L\Vert < 10^{-12}$ or 2048 sweeps are reached.
 
-`calcs.py:218–224`
+`_localize_ibos()`
 
 ---
 
@@ -322,7 +322,9 @@ The PM functional depends only on atomic populations $n_A(i)$, so any
 rotation **within** a subspace of orbitals that all have $n_A(i) \approx 1$
 on the same atom leaves $L$ unchanged.  This is the **on-atom degeneracy**
 problem — for example, the O 1s, O 2s, and O lone-pair orbitals of water
-mix arbitrarily after PM localisation.
+mix arbitrarily after PM localisation.  The two-centre analogue
+of this problem — flat $\{\sigma, \pi\}$ planes of orbitals sharing
+the same atom pair — is treated in Section 6.
 
 ### 5.1 Detection
 
@@ -338,7 +340,7 @@ If $\delta_i > 0.99$, the orbital is essentially mono-atomic.
 Orbitals sharing the same dominant atom $A$ and meeting this threshold
 form a group.
 
-`calcs.py:256–263`
+`_resolve_on_atom_mixing()`
 
 ### 5.2 Fock diagonalisation
 
@@ -368,18 +370,96 @@ The eigenvalues $\mathbf{\lambda}$ become the new orbital energies
 (aufbau ordering), and the eigenvectors give the cleanly separated
 orbitals (e.g. s-rich lowest, p-rich highest).
 
-`calcs.py:247–254`
+`_resolve_on_atom_mixing()`
 
 ---
 
-## 6 Valence-virtual IAOs via SVD
+## 6 Fock resolution of bond-flat degeneracies
+
+Section 5 breaks subspaces whose orbitals share **one** dominant atom.
+A second class of flat directions involves orbitals spanning the **same
+pair** of atoms $A$, $B$.  The canonical example is the
+$\{\sigma, \pi\}$ plane of a symmetric double bond: every rotation
+inside the plane keeps each orbital's atomic populations at
+
+$$
+[n_A, n_B] = [\frac{1}{2}, \frac{1}{2}],
+$$
+
+so the PM functional (**Eq. 4**) is *stationary across the whole plane*
+and cannot distinguish the $\sigma + \pi$ picture from two equivalent
+bent ("banana") bonds.  Idealized, symmetry-pure geometries escape
+because their canonical MOs give $B_{ij} = 0$ exactly and the sweeps
+never rotate; any symmetry-broken geometry lets the Jacobi trajectory
+drift to whichever nearby stationary point SCF noise dictates —
+$\sigma/\pi$ on some inputs, bananas on others.  IboView exhibits the
+same ambiguity.  The $\{\sigma^*, \pi^*\}$ plane of the virtual block
+is flat in the same way.
+
+### 6.1 Detection
+
+After PM convergence, evaluate each occupied pair $(i, j)$ as converged
+and under a 45-degree rotation,
+
+$$
+\mathbf{c}_i' = 2^{-1/2}(\mathbf{c}_i + \mathbf{c}_j),
+\qquad
+\mathbf{c}_j' = 2^{-1/2}(\mathbf{c}_j - \mathbf{c}_i),
+$$
+
+and form $\Delta L_{ij} = L_{ij} - L_{ij}'$, the change in the pair's
+contribution to (**Eq. 4**).  The pair is **functionally flat** when
+
+$$
+\frac{|\Delta L_{ij}|}{L_{ij}} \le 10^{-6}.
+$$
+
+
+### 6.2 The Fock coupling gate
+
+Flatness alone does not justify rotation: pairs that are already
+Fock-diagonal must be left byte-identical.  Rotation therefore requires a 
+*real* coupling relative to the diagonal scales,
+
+$$
+\left| F^{\mathrm{IAO}}_{ij} \right| \gt
+10^{-6} \max(\left| F^{\mathrm{IAO}}_{ii} \right|,
+\left| F^{\mathrm{IAO}}_{jj} \right|),
+$$
+
+### 6.3 Minimal rotation
+
+When both gates fire, rotate the pair by the Jacobi angle that zeroes
+the coupling,
+
+$$
+\tan 2\varphi =
+\frac{2 F^{\mathrm{IAO}}_{ij}}
+      {F^{\mathrm{IAO}}_{jj} - F^{\mathrm{IAO}}_{ii}},
+$$
+
+$$
+\mathbf{c}_i \leftarrow \cos\varphi \, \mathbf{c}_i -
+\sin\varphi \, \mathbf{c}_j,
+\qquad
+\mathbf{c}_j \leftarrow \sin\varphi \, \mathbf{c}_i +
+\cos\varphi \, \mathbf{c}_j.
+$$
+
+The pass runs on the **occupied block only**.  
+
+`_resolve_flat_degeneracies()`
+
+---
+
+## 7 Valence-virtual IAOs via SVD
 
 The IAO basis ($n_{\mathrm{min}}$ functions) accounts for all occupied
 orbitals but typically only a fraction of the virtual space.  The
 valence-virtual IAOs span the part of the canonical virtual space
 that has non-negligible overlap with the IAO basis.
 
-### 6.1 SVD of the cross overlap
+### 7.1 SVD of the cross overlap
 
 $$
 \mathbf{S}^{\mathrm{IbVir}} = (\mathbf{C}^{\mathrm{IAO}})^{T}
@@ -394,9 +474,9 @@ $$
 \mathbf{S}^{\mathrm{IbVir}} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^{T}.
 $$
 
-`calcs.py:550–552`
+`compute_ibo_data()`
 
-### 6.2 Truncation
+### 7.2 Truncation
 
 Keep only singular values $\sigma_k > 10^{-8}$:
 
@@ -410,19 +490,19 @@ $$
 \mathbf{U}^{\mathrm{val}} = \mathbf{U}_{:,:n_{\mathrm{val\,vir}}}.
 $$
 
-`calcs.py:553–554`
+`compute_ibo_data()`
 
-### 6.3 Localise the virtual block
+### 7.3 Localise the virtual block
 
 The SVD-projected virtuals are delocalised because each right-singular
 vector mixes many canonical virtuals.  The same PM $p=2\to p=4$
 procedure (Section 4) is applied to $\mathbf{U}^{\mathrm{val}}$.
 
-`calcs.py:557–559`
+`compute_ibo_data()`
 
 ---
 
-## 7 Orbital energies
+## 8 Orbital energies
 
 Orbital energies are not canonical eigenvalues after localisation.  They
 are computed as the diagonal of the Fock matrix in the basis of the
@@ -450,15 +530,15 @@ $$
                       \mathbf{C}^{\mathrm{IAO}}.
 $$
 
-`calcs.py:534–546, 561–563`
+`compute_ibo_data()`
 
 ---
 
-## 8 Analysis table
+## 9 Analysis table
 
 The analysis written to `ibos.txt` computes per-orbital descriptors.
 
-### 8.1 DOM (Eq. 2)
+### 9.1 DOM (Eq. 2)
 
 $$
 \delta_i = n_A(i)^2 + n_B(i)^2,
@@ -469,9 +549,9 @@ $$
 A DOM of 1.00 means the orbital is entirely on one atom (core or lone
 pair); 0.50 means a perfectly shared diatomic bond.
 
-`calcs.py:298–301`
+`_analyze_ibos()`
 
-### 8.2 s/p/d character on the dominant atom
+### 9.2 s/p/d character on the dominant atom
 
 Fraction of the orbital density on the dominant atom $A$ that comes from
 functions of each angular momentum $l$ (0=s, 1=p, 2=d):
@@ -489,9 +569,9 @@ $$
 
 The hybridisation label is "${s}\%$ s + ${p}\%$ p + ${d}\%$ d".
 
-`calcs.py:304–306, 385–400`
+`_hybrid_str()`
 
-### 8.3 Bond-type classification
+### 9.3 Bond-type classification
 
 | Condition | Label |
 |-----------|-------|
@@ -501,18 +581,18 @@ The hybridisation label is "${s}\%$ s + ${p}\%$ p + ${d}\%$ d".
 | $n_A(i) + n_B(i) > 0.75$, otherwise | `A-B sigma` |
 | Virtual and $n_A(i)+n_B(i) > 0.60$ | `A-B anti*` |
 
-`calcs.py:309–351`
+`_classify_orbital()`
 
 ---
 
-## 9 Why occ-vir delocalization analysis is impossible in the IAO basis
+## 10 Why occ-vir delocalization analysis is impossible in the IAO basis
 
 A donor/acceptor delocalization analysis (like NBO second-order perturbation
 theory) requires non-zero off-diagonal Fock matrix elements between occupied
 and virtual orbitals.  In the IAO basis, these are **exactly zero** by
 construction — not a numerical approximation, but a mathematical identity.
 
-### 9.1 Occupied MOs are eigenvectors of $\mathbf{F}^{\mathrm{IAO}}$
+### 10.1 Occupied MOs are eigenvectors of $\mathbf{F}^{\mathrm{IAO}}$
 
 Let $\mathbf{c}_k$ be the $k$-th occupied canonical MO (column of
 $\mathbf{C}^{\mathrm{occ}}$).  The Roothaan–Hall equation gives:
@@ -553,7 +633,7 @@ Each column of $\mathbf{C}^{\mathrm{IAO},occ}$ is an exact eigenvector of
 $\mathbf{F}^{\mathrm{IAO}}$ with eigenvalue $\varepsilon_k$.  This holds for
 the **raw** canonical occupied MOs before any PM localisation.
 
-### 9.2 Spectral theorem $\Rightarrow$ $\mathbf{F}^{\mathrm{IAO}}_{ov} = \mathbf{0}$
+### 10.2 Spectral theorem $\Rightarrow$ $\mathbf{F}^{\mathrm{IAO}}_{ov} = \mathbf{0}$
 
 Since $\mathbf{F}^{\mathrm{IAO}}$ is a real symmetric matrix, eigenvectors
 corresponding to different eigenvalues are orthogonal.  The occupied
@@ -561,7 +641,7 @@ eigenvectors (columns of $\mathbf{C}^{\mathrm{IAO},occ}$) span a subspace
 $\mathcal{O} \subset \mathbb{R}^{n_{\mathrm{min}}}$, and the virtual eigenvectors
 span the orthogonal complement $\mathcal{V} = \mathcal{O}^{\perp}$.
 
-The valence-virtual IAO coefficients $\mathbf{U}^{\mathrm{val}}$ (Section 6)
+The valence-virtual IAO coefficients $\mathbf{U}^{\mathrm{val}}$ (Section 7)
 live in $\mathcal{V}$ because the SVD of $\mathbf{S}^{\mathrm{IbVir}}$ extracts
 the part of the canonical virtual space that projects into the IAO subspace
 but is orthogonal to the occupied space.  Therefore:
@@ -583,12 +663,12 @@ identically zero.  This is **not** a numerical truncation — it follows
 from the spectral theorem applied to the symmetric matrix
 $\mathbf{F}^{\mathrm{IAO}}$.
 
-### 9.3 Consequences for delocalization analysis
+### 10.3 Consequences for delocalization analysis
 
 | Analysis type | Mathematical requirement | IAO-basis value | Why |
 |---|---|---|---|
 | Overlap-based donor/acceptor | $\langle\psi_i^{\mathrm{occ}}|\psi_j^{\mathrm{vir}}\rangle$ | $0$ | $\mathcal{O} \perp \mathcal{V}$ in orthonormal IAO basis |
-| Fock-based (NBO E2) | $F_{ij}^2 / (\varepsilon_j - \varepsilon_i)$ | $0$ | $F_{ov} = 0$ (Section 9.2) |
+| Fock-based (NBO E2) | $F_{ij}^2 / (\varepsilon_j - \varepsilon_i)$ | $0$ | $F_{ov} = 0$ (Section 10.2) |
 | Orbital mixing coefficient | $F_{ij} / (\varepsilon_j - \varepsilon_i)$ | $0$ | Same reason |
 
 The only way to obtain non-zero $F_{ov}$ would be to abandon the IAO
@@ -597,7 +677,7 @@ canonical virtuals contain diffuse and Rydberg character that pollutes
 the chemically meaningful valence picture — exactly what the IAO
 construction is designed to filter out.
 
-### 9.4 Numerical verification
+### 10.4 Numerical verification
 
 For water/cc-pVDZ ($n_{\mathrm{min}}=7$, $n_{\mathrm{occ}}=5$, $n_{\mathrm{val\,vir}}=2$):
 
@@ -608,7 +688,7 @@ For water/cc-pVDZ ($n_{\mathrm{min}}=7$, $n_{\mathrm{occ}}=5$, $n_{\mathrm{val\,
 Both are zero to within numerical noise, confirming the mathematical
 identity.
 
-### 9.5 Why NBO can report non-zero E(2) but IAO cannot
+### 10.5 Why NBO can report non-zero E(2) but IAO cannot
 
 NBO's occupied Lewis-structure orbitals are **not** an exact, lossless
 rotation of the canonical occupied MOs.  By design, each NBO carries

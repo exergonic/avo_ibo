@@ -10,10 +10,10 @@ plugin-development guide in [tutorial.md](tutorial.md).
 
 ## Open items
 
-- **pixi-pack distribution** ([#7](https://github.com/exergonic/avo_ibo/issues/7)):
-  self-extracting environment archive so users need neither pixi nor conda.
-  Not yet shipped — the v6-lock manual-editing dance (AGENTS.md Gotcha 28)
-  is the friction point this would remove.
+- **pixi-pack distribution**: deliberately deferred (2026-08-26).  The
+  ~1 GB self-extracting environment archive isn't justified at current
+  adoption; revisit only if usage grows.  The working recipe stays in
+  [tutorial.md §17](tutorial.md).
 - **Virtual-block junk-column hygiene** (see IboView audit below): either
   adopt their overlap-weighted energy scheme or exclude weak SVD columns
   from ordering-sensitive paths; unlocks a σ*/π* tie-break later.
@@ -43,7 +43,7 @@ Psi4 global-state lessons now encoded in the core:
 - Psi4 aux files (`timer.dat`) land in cwd; library callers in read-only
   directories will fail regardless of output routing.
 
-## Next step: resolve bond-flat PM degeneracies
+## Bond-flat PM degeneracies: resolved for the occupied block
 
 ### Observation (2026-08-24, ethene_024 vs ethene_025)
 
@@ -70,7 +70,8 @@ same non-reason. The same flatness holds for σ*/π* (LUMO assignment).
 
 Mirror `_resolve_on_atom_mixing`, which already breaks the *same-atom* flat
 subspaces (O 2s vs lone pair) by Fock-diagonalizing them. The bond case is
-the two-centre analogue — `_resolve_flat_degeneracies`:
+the two-centre analogue — `_resolve_flat_degeneracies` (formal derivation:
+[mathematics/mathematics.md](mathematics/mathematics.md) §6):
 
 1. After PM convergence, for each occupied pair (i, j), compute the PM
    functional value of the pair now and at a 45-degree rotation.
@@ -167,10 +168,10 @@ relevant to parity claims and future work:
    No two-center bond-flat handling exists in either implementation — our
    `_resolve_flat_degeneracies` fills that gap rather than duplicating one.
 
-## Verified against code (2026-08-24)
+## Verified against code (updated 2026-08-26)
 
-- 13 pytest CLI integration tests (`pixi run test`); counts parametrized over
-  water/methane/ethene/ammonia/benzene/zncl2.
+- 15 pytest CLI integration tests (`pixi run test`); counts parametrized over
+  water/methane/ethene/ammonia/benzene/zncl2/cyclooctatetraene.
 - Element tables extend through iodine (Z=53) in both `calcs.py`
   (`_ELEM_SYMBOLS`) and `__main__.py` (`_ELEMENT_NUMBERS`).
 - Charge decomposition and total Wiberg bond orders are implemented
