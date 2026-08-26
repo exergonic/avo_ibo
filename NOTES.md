@@ -29,10 +29,32 @@ vs. Knizia's single-geometry palette: yes (see open-items discussion of
 extension.
 
 - **σ/π Wiberg decomposition**: IMPLEMENTED 2026-08-26
-  (`_format_wiberg_by_type`, section "Wiberg Bond Orders by Type" in
-  ibos.txt).  Per-orbital W_AB = occ²·P_A·P_B summed by σ/π class; the
-  header states it differs from the density-matrix total (cross-orbital
-  D² terms), so both are shown.
+  (`_format_wiberg`, section "Wiberg Bond Orders (σ/π, density)" in
+  ibos.txt).  One consolidated table replaces both old Wiberg sections
+  (density-matrix total + per-IBO by-type).  Total is the original
+  density Wiberg W_AB = Σ D²_ij, decomposed EXACTLY via the orbital-pair
+  expansion W_AB = 4 Σ_kl G^A_kl G^B_kl (mathematics.md §9.4): diagonal
+  terms are the per-IBO shares, off-diagonal terms are interference,
+  folded into σ or π by class (mixed σ/π pairs split 50/50), so
+  σ + π = total identically.  A parenthesised (interf.) column echoes
+  the folded interference.  Orbitals classed by p-fraction alone
+  (no two-centre gate): benzene's aromatic π now reads π = 0.444/bond,
+  diborane's 2e3c bridges classify σ as they should (H is s-only).
+  Verified: totals bit-identical to the old density table; σ+π=total
+  to ~1e-12 on all suite molecules.
+- **Key finding (2026-08-26): σπ interference is identically zero on
+  shipped output.**  The bond-flat and on-atom Fock resolvers run
+  BEFORE the Wiberg analysis and canonicalize every flat pair into its
+  σ/π eigenframe, so by the time `_format_wiberg` sees the orbitals,
+  different-symmetry orbitals are already decoupled: the σπ cross term
+  contributes nothing.  Deliberately disabling the resolver to
+  reproduce the old banana-bond state shows WHY this matters: the two
+  banana orbitals are ~50/50 σ/π mixtures (p-frac ≈ 0.81 on each
+  centre — below the 0.85 π threshold), so they classify as σ and the
+  π column would read 0.000 while σ inflates to ~2.0 — a silently
+  wrong table.  The resolver is therefore load-bearing for the
+  σ/π table, not just for the orbital pictures.  Do not "simplify" it
+  away.
 - **Charge decomposition by orbital class**: split of Q_A into core/LP/
   bonding contributions per atom.  Low cost (all machinery exists).
 - **d-electron count / oxidation-state readout for metals**: sum of

@@ -906,70 +906,31 @@ def _analyze_ibos(
     return "\n".join(lines), orbid_labels, net_charges
 
 
-def _format_total_wiberg(C_IAO_occ, atom_of, elem):
-    """
-    Compute total Wiberg bond order matrix in the orthonormal IAO basis and
-    format a compact table of atom pairs with significant bond order.
+def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
+    """Single Wiberg table: exact density-matrix totals decomposed σ/π.
 
-    The density matrix in the IAO basis (RHF) is:
+    The density Wiberg (as originally reported) is
 
-        D = 2 · C_IAO_occ @ C_IAO_occ.T
+        W_AB = Σ_{i∈A,j∈B} D²_ij,   D = 2·C_occ·C_occᵀ  (RHF)
 
-    where C_IAO_occ has shape (n_min, n_occ).  The Wiberg index between
-    atoms A and B is:
+    Expanding the square over orbitals gives an exact sum over orbital
+    pairs,
 
-        W_AB = Σ_{i∈A} Σ_{j∈B} D_ij²
+        W_AB = 4 Σ_{k,l} G^A_kl G^B_kl,   G^A_kl = Σ_{i∈A} c_ki c_li
 
-    Only pairs with W_AB > 0.01 are shown.
-    """
-    # RHF: D = 2 · C_occ @ C_occ.T  (occupied density in orthonormal IAO basis)
-    D = 2.0 * C_IAO_occ @ C_IAO_occ.T  # (n_min, n_min)
-    D_sq = D**2
-
-    n_atoms = len(elem)
-    W = np.zeros((n_atoms, n_atoms), dtype=np.float64)
-    for i in range(D_sq.shape[0]):
-        ai = atom_of[i]
-        for j in range(D_sq.shape[1]):
-            aj = atom_of[j]
-            W[ai, aj] += D_sq[i, j]
-
-    pairs = []
-    for A in range(n_atoms):
-        for B in range(A + 1, n_atoms):
-            w = W[A, B]
-            if w > 0.01:
-                symA = _elem_symbol(elem[A])
-                symB = _elem_symbol(elem[B])
-                pairs.append((symA, A, symB, B, w))
-
-    if not pairs:
-        return ""
-
-    lines = ["", "", "--- Total Wiberg Bond Orders ---"]
-    for symA, a, symB, b, w in sorted(pairs, key=lambda x: -x[4]):
-        lines.append(f"  {symA}{a+1}-{symB}{b+1}    {w:>7.3f}")
-    return "\n".join(lines)
-
-
-def _format_wiberg_by_type(C_IAO_occ, atom_of, am_of, elem):
-    """Format per-orbital Wiberg bond orders split into σ and π parts.
-
-    Each occupied IBO k contributes occ_k² · P_A · P_B to the bond order
-    between its top two atoms A, B (the same per-orbital formula the
-    analysis table uses; see ``_wiberg_per_ibo``).  The contribution is
-    classed as σ or π by the p-fraction of the orbital on both atoms
-    (p > 0.85 on both → π, else σ — the classifier's own rule).
-
-    The per-orbital sum differs from the density-matrix Wiberg total
-    above (which includes cross-orbital D² terms); both definitions are
-    shown and the header says so.
+    with diagonal terms (k=l) the per-IBO shares occ²·P_A·P_B and
+    off-diagonal terms the inter-orbital interference.  Orbitals are
+    classed σ or π purely by p-fraction (p > 0.85 on both dominant
+    atoms → π, no population gate), and the interference is folded
+    into its class: (σ,σ) → σ, (π,π) → π, (σ,π) → split 50/50.
+    Total = σ + π exactly; the folded interference is echoed in a
+    parenthesised column for transparency.
     """
     n_occ = C_IAO_occ.shape[1]
     n_atoms = len(elem)
-    sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
-    pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
 
+    # Classify each occupied orbital σ/π (p-fraction rule only).
+    is_pi = np.zeros(n_occ, dtype=bool)
     for k in range(n_occ):
         c = C_IAO_occ[:, k]
         sq = c**2
@@ -977,38 +938,72 @@ def _format_wiberg_by_type(C_IAO_occ, atom_of, am_of, elem):
         np.add.at(pop, atom_of, sq)
         order = np.argsort(-pop)
         A, B = int(order[0]), int(order[1])
-        # Same two-centre gate as the classifier: 3c-2e bridges and
-        # delocalised rings (benzene π: top-2 ≈ 0.33) fall below 0.75
-        # and would attribute arbitrary pair contributions via tie-breaks.
-        if pop[A] + pop[B] < 0.75 or pop[B] < 0.02:
-            continue
-        w = _wiberg_per_ibo(pop, 2.0, A, B)  # RHF: occ = 2.0
         pa = _p_frac(c, am_of, A, atom_of)
         pb = _p_frac(c, am_of, B, atom_of)
-        a, b = sorted((A, B))
-        if pa > 0.85 and pb > 0.85:
-            pi[a, b] += w
+        is_pi[k] = pa > 0.85 and pb > 0.85
+
+    # Per-atom orbital-pair overlap blocks G^A_kl.
+    G = np.zeros((n_atoms, n_occ, n_occ))
+    for a in range(n_atoms):
+        Ca = C_IAO_occ[atom_of == a, :]
+        G[a] = Ca.T @ Ca
+
+    sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    interfer = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+
+    for k in range(n_occ):
+        # Diagonal (per-orbital share): 4·P_A·P_B
+        contrib = 4.0 * np.einsum("a,b->ab", G[:, k, k], G[:, k, k])
+        if is_pi[k]:
+            pi += contrib
         else:
-            sigma[a, b] += w
+            sigma += contrib
+        for l in range(k + 1, n_occ):
+            # Off-diagonal (interference): 8·G^A_kl·G^B_kl
+            contrib = 8.0 * np.einsum("a,b->ab", G[:, k, l], G[:, k, l])
+            interfer += contrib
+            if is_pi[k] and is_pi[l]:
+                pi += contrib
+            elif is_pi[k] or is_pi[l]:
+                # σ-π cross term: split evenly (contribution is symmetric)
+                half = 0.5 * contrib
+                sigma += half
+                pi += half
+            else:
+                sigma += contrib
 
     rows = []
+    total = sigma + pi
     for A in range(n_atoms):
         for B in range(A + 1, n_atoms):
-            total = sigma[A, B] + pi[A, B]
-            if total > 0.01:
+            if total[A, B] > 0.01:
                 symA = _elem_symbol(elem[A])
                 symB = _elem_symbol(elem[B])
-                rows.append((symA, A, symB, B, sigma[A, B], pi[A, B], total))
+                rows.append(
+                    (symA, A, symB, B, total[A, B], sigma[A, B], pi[A, B],
+                     interfer[A, B])
+                )
 
     if not rows:
         return ""
 
-    lines = ["", "--- Wiberg Bond Orders by Type (σ/π per-IBO) ---",
-             "  W_AB = Σ occ²·P_A·P_B over occupied IBOs (top-two-atom",
-             "  attribution). σ+π may differ slightly from the",
-             "  density-matrix total above — different definitions."]
-    for symA, a, symB, b, s, p, t in sorted(rows, key=lambda x: -x[6]):
-        lines.append(f"  {symA}{a+1}-{symB}{b+1}    σ {s:>7.3f}   π {p:>7.3f}   σ+π {t:>7.3f}")
+    lines = [
+        "",
+        "--- Wiberg Bond Orders (σ/π, density) ---",
+        "  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π = total exactly.",
+        "  Interference (σ-σ, π-π, σ-π cross terms) is folded into its class.",
+        f"  {'Bond':<10}{'Total':>8}{'σ':>8}{'π':>8}{'  (interf.)':>12}",
+    ]
+    for symA, a, symB, b, t, s, p, it in sorted(rows, key=lambda x: -x[4]):
+        # Kill floating-point -0.000 noise in the σ/π columns (the
+        # interference column keeps its genuine sign).
+        s_disp = 0.0 if abs(s) < 5e-4 else s
+        p_disp = 0.0 if abs(p) < 5e-4 else p
+        lines.append(
+            f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
+            f"  ({it:+.3f})"
+        )
     return "\n".join(lines)
 
 
@@ -1513,8 +1508,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
         ref,
         mol_name,
     )
-    msg += _format_total_wiberg(C_IAO_all[:, :nocc], atom_of, elem)
-    msg += _format_wiberg_by_type(C_IAO_all[:, :nocc], atom_of, am_of, elem)
+    msg += _format_wiberg(C_IAO_all[:, :nocc], atom_of, am_of, elem)
 
     return IBOResult(
         C_IAO=C_IAO,

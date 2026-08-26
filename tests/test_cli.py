@@ -283,8 +283,10 @@ def test_zncl2_bond_order():
     calc_dir = _find_calc_dir("zncl2")
     text = (calc_dir / "ibos.txt").read_text(encoding="utf-8")
     assert "Ion%" in text, "Table should contain Ion% column header"
-    assert "Total Wiberg Bond Orders" in text, "Should contain total Wiberg section"
-    assert "Zn-Cl" in text, "Total Wiberg should show Zn-Cl pairs"
+    assert "Wiberg Bond Orders (σ/π, density)" in text, (
+        "Should contain consolidated σ/π Wiberg section"
+    )
+    assert "Zn-Cl" in text, "Wiberg section should show Zn-Cl pairs"
 
     ibos = parse_ibos(calc_dir / "ibos.txt")
     zn_cl_sigmas = [
@@ -307,12 +309,12 @@ def test_zncl2_bond_order():
 
 
 def test_ethene_sig_pi_wiberg_split():
-    """Ethene C=C resolves into σ + π per-orbital Wiberg contributions.
+    """Ethene C=C resolves into σ + π density-Wiberg contributions.
 
-    The by-type section reports the per-IBO definition (occ²·P_A·P_B),
-    which must show the double bond as σ ≈ 1.0 plus π ≈ 1.0, and each
-    C-H as σ only.  Benzene-style delocalized π must NOT appear (its
-    top-two population sum fails the two-centre gate).
+    The consolidated section reports the exact density-matrix Wiberg
+    (W_AB = Σ D²_ij) decomposed by orbital class, with interference
+    folded in so σ + π = total exactly.  The double bond must read
+    σ ≈ 1.0 + π ≈ 1.0; each C-H as σ only.
     """
     xyz_path = FILES_DIR / "ethene.xyz"
     result = subprocess.run(
@@ -322,24 +324,31 @@ def test_ethene_sig_pi_wiberg_split():
     assert result.returncode == 0
 
     text = (_find_calc_dir("ethene") / "ibos.txt").read_text(encoding="utf-8")
-    assert "Wiberg Bond Orders by Type (σ/π per-IBO)" in text
+    assert "Wiberg Bond Orders (σ/π, density)" in text
 
-    # Parse the by-type section: rows are "  C1-C2    σ 1.000   π 1.000   σ+π 2.000"
-    sec = text.split("Wiberg Bond Orders by Type")[1]
+    # Rows: "  C1-C2         2.028   1.028   1.000  (+0.013)"
+    sec = text.split("--- Wiberg Bond Orders")[1]
     rows = {}
     for line in sec.splitlines():
-        m = re.match(r"^\s*([A-Za-z]+\d+)-([A-Za-z]+\d+)\s+σ\s+([\d.]+)\s+π\s+([\d.]+)", line)
+        m = re.match(
+            r"^\s*([A-Za-z]+\d+)-([A-Za-z]+\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+\(([-+\d.]+)\)",
+            line,
+        )
         if m:
-            rows[(m.group(1), m.group(2))] = (float(m.group(3)), float(m.group(4)))
+            rows[(m.group(1), m.group(2))] = (
+                float(m.group(3)), float(m.group(4)), float(m.group(5)),
+                float(m.group(6)),
+            )
 
     cc = [v for k, v in rows.items() if k[0].startswith("C") and k[1].startswith("C")]
-    assert cc, f"expected a C-C row in by-type section, got rows {list(rows)}"
-    sig, pi = cc[0]
+    assert cc, f"expected a C-C row in Wiberg section, got rows {list(rows)}"
+    tot, sig, pi, interf = cc[0]
+    assert abs(sig + pi - tot) < 1e-4, f"σ + π = {sig + pi} ≠ total {tot}"
     assert 0.9 < sig < 1.1, f"C-C σ Wiberg expected ≈1.0, got {sig}"
     assert 0.9 < pi < 1.1, f"C-C π Wiberg expected ≈1.0, got {pi}"
 
-    # Every C-H row must be σ-only
-    for k, (sig, pi) in rows.items():
+    # Every C-H row must be σ-only (no π, no compression of π into total)
+    for k, (tot, sig, pi, interf) in rows.items():
         if (k[0].startswith("C") and k[1].startswith("H")) or (k[0].startswith("H") and k[1].startswith("C")):
             assert pi < 0.01, f"C-H row {k} has spurious π contribution {pi}"
 

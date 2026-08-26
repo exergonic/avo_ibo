@@ -583,6 +583,55 @@ The hybridisation label is "${s}\%$ s + ${p}\%$ p + ${d}\%$ d".
 
 `_classify_orbital()`
 
+### 9.4 Wiberg bond orders, decomposed into σ and π
+
+The Wiberg index between atoms A and B is computed from the occupied
+density matrix in the orthonormal IAO basis:
+
+$$
+D_{ij} = 2 \sum_{k=1}^{n_{\mathrm{occ}}} c_{k i} c_{k j},
+\qquad
+W_{AB} = \sum_{i \in A} \sum_{j \in B} D_{ij}^{2}.
+$$
+
+Expanding the square turns this into an exact sum over orbital
+pairs (no residual, no approximation):
+
+$$
+W_{AB} = 4 \sum_{k=1}^{n_{\mathrm{occ}}} \sum_{l=1}^{n_{\mathrm{occ}}}
+   G^{A}_{kl} G^{B}_{kl},
+\qquad
+G^{A}_{kl} = \sum_{i \in A} c_{k i} c_{l i}.
+$$
+
+The diagonal terms ($k = l$) are the familiar per-orbital shares
+$4 n_A^{(k)} n_B^{(k)}$ (occupation squared times the Mulliken
+populations).  The off-diagonal terms ($k \neq l$) are inter-orbital
+interference: contributions to $W_{AB}$ that no single orbital owns,
+arising from the square of the density sum.
+
+Each orbital is classed σ or π by the p-fraction of the dominant
+atom pair ($p > 0.85$ on both atoms → π, else σ — the classifier's
+own rule, without its two-centre population gate).  Interference is
+folded back into its class:
+
+- $(k,l)$ both σ → σ part; both π → π part;
+- mixed σ/π pair → split equally between the two parts.
+
+With $\sigma_{AB}, \pi_{AB}$ the folded sums, the identity
+
+$$
+W_{AB} = \sigma_{AB} + \pi_{AB}
+$$
+
+holds exactly for every atom pair, and the separate interference sum
+is reported parenthesised.  In practice the σ/π cross term vanishes:
+the on-atom and bond-flat Fock resolutions (Section 5, 6) restore
+orbitals to Fock-eigenframe form, so different-symmetry orbitals are
+already decoupled before the analysis runs.
+
+`_format_wiberg()`
+
 ---
 
 ## 10 Why occ-vir delocalization analysis is impossible in the IAO basis

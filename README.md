@@ -14,7 +14,7 @@ plugin.
 * Bond-flat degeneracy resolution — flat {σ, π} planes of symmetric bonds are Fock-diagonalised so distorted geometries yield σ+π (not banana bonds) deterministically
 * Valence-virtual IBOs via singular value decomposition projection of canonical virtual MOs onto IAO space
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
-* Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders (density-matrix total **and** per-orbital σ/π decomposition)
+* Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders (density Wiberg decomposed into σ and π, σ+π = total exactly)
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
 * Full mathematical derivation in [`mathematics/mathematics.md`](mathematics/mathematics.md) with paper equation references
 
