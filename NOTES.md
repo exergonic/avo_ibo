@@ -36,12 +36,15 @@ extension.
   expansion W_AB = 4 Σ_kl G^A_kl G^B_kl (mathematics.md §9.4): diagonal
   terms are the per-IBO shares, off-diagonal terms are interference,
   folded into σ or π by class (mixed σ/π pairs split 50/50), so
-  σ + π = total identically.  A parenthesised (interf.) column echoes
-  the folded interference.  Orbitals classed by p-fraction alone
-  (no two-centre gate): benzene's aromatic π now reads π = 0.444/bond,
-  diborane's 2e3c bridges classify σ as they should (H is s-only).
-  Verified: totals bit-identical to the old density table; σ+π=total
-  to ~1e-12 on all suite molecules.
+  σ + π = total identically.  A parenthesised (interference) column
+  echoes the folded interference, partitioned as (σ-part, π-part):
+  the σσ terms folded into σ, the ππ terms folded into π, σπ cross
+  terms split 50/50.  Rows whose interference is < 5e-4 show no
+  parenthetical at all (pure diagonal shares).  Orbitals classed by
+  p-fraction alone (no two-centre gate): benzene's aromatic π now
+  reads π = 0.444/bond, diborane's 2e3c bridges classify σ as they
+  should (H is s-only).  Verified: totals bit-identical to the old
+  density table; σ+π=total to ~1e-12 on all suite molecules.
 - **Key finding (2026-08-26): σπ interference is identically zero on
   shipped output.**  The bond-flat and on-atom Fock resolvers run
   BEFORE the Wiberg analysis and canonicalize every flat pair into its

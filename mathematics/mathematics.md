@@ -624,11 +624,15 @@ $$
 W_{AB} = \sigma_{AB} + \pi_{AB}
 $$
 
-holds exactly for every atom pair, and the separate interference sum
-is reported parenthesised.  In practice the σ/π cross term vanishes:
-the on-atom and bond-flat Fock resolutions (Section 5, 6) restore
-orbitals to Fock-eigenframe form, so different-symmetry orbitals are
-already decoupled before the analysis runs.
+holds exactly for every atom pair, and the folded interference is
+reported parenthesised as $(\sigma\text{-part}, \pi\text{-part})$ —
+the $\sigma\sigma$ terms that entered $\sigma$, the $\pi\pi$ terms
+that entered $\pi$, and half of any $\sigma\pi$ cross term in each.
+In practice the σ/π cross term vanishes: the on-atom and bond-flat
+Fock resolutions (Section 5, 6) restore orbitals to Fock-eigenframe
+form, so different-symmetry orbitals are already decoupled before the
+analysis runs.  When both parts fall below $5\times10^{-4}$ the
+parenthetical is omitted (pure diagonal shares).
 
 `_format_wiberg()`
 

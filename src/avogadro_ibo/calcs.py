@@ -861,6 +861,16 @@ def _analyze_ibos(
             f"{ion_str:>5}  {hl:>9}"
         )
 
+    # Footnote for degenerate manifolds
+    if deg_ranges:
+        deg_groups = []
+        for start, end in deg_ranges:
+            deg_groups.append(f"{start + 1}-{end}")
+        lines.append(
+            f"  † Orbitals {', '.join(deg_groups)} form degenerate manifolds (ΔE < {DEG_THRESH:.0e} Ha).\n"
+            f"  Small energy differences within each manifold are PM convergence noise and do not indicate true energy splittings."
+        )
+
     lines.append("")
     # RHF-only: total = 2 × nocc.  The UHF branch (else nocc) is
     # unreachable — closed-shell guard prevents open-shell in compute_ibo.
@@ -887,16 +897,6 @@ def _analyze_ibos(
         )
         lines.append(
             f"  HOMO-LUMO gap: {gap_ha:>10.6f} Ha = {gap_ev:>7.3f} eV = {gap_kcal:>8.1f} kcal/mol"
-        )
-
-    # Footnote for degenerate manifolds
-    if deg_ranges:
-        deg_groups = []
-        for start, end in deg_ranges:
-            deg_groups.append(f"{start + 1}-{end}")
-        lines.append(
-            f"  † Orbitals {', '.join(deg_groups)} form degenerate manifolds (ΔE < {DEG_THRESH:.0e} Ha).\n"
-            f"  Small energy differences within each manifold are PM convergence noise and do not indicate true energy splittings."
         )
 
     charge_section = _format_charge_decomposition(atom_pop, elem)
@@ -950,7 +950,11 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
 
     sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
     pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
-    interfer = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    # Folded interference, tracked per class: int_sigma = σσ + ½σπ,
+    # int_pi = ππ + ½σπ.  These are what the σ/π columns actually
+    # contain beyond their diagonal shares (4·P_A·P_B).
+    int_sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    int_pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
 
     for k in range(n_occ):
         # Diagonal (per-orbital share): 4·P_A·P_B
@@ -962,16 +966,19 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
         for l in range(k + 1, n_occ):
             # Off-diagonal (interference): 8·G^A_kl·G^B_kl
             contrib = 8.0 * np.einsum("a,b->ab", G[:, k, l], G[:, k, l])
-            interfer += contrib
             if is_pi[k] and is_pi[l]:
                 pi += contrib
+                int_pi += contrib
             elif is_pi[k] or is_pi[l]:
                 # σ-π cross term: split evenly (contribution is symmetric)
                 half = 0.5 * contrib
                 sigma += half
                 pi += half
+                int_sigma += half
+                int_pi += half
             else:
                 sigma += contrib
+                int_sigma += contrib
 
     rows = []
     total = sigma + pi
@@ -982,7 +989,7 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
                 symB = _elem_symbol(elem[B])
                 rows.append(
                     (symA, A, symB, B, total[A, B], sigma[A, B], pi[A, B],
-                     interfer[A, B])
+                     int_sigma[A, B], int_pi[A, B])
                 )
 
     if not rows:
@@ -992,18 +999,28 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
         "",
         "--- Wiberg Bond Orders (σ/π, density) ---",
         "  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π = total exactly.",
-        "  Interference (σ-σ, π-π, σ-π cross terms) is folded into its class.",
-        f"  {'Bond':<10}{'Total':>8}{'σ':>8}{'π':>8}{'  (interf.)':>12}",
+        "  σ, π columns include their class's folded interference; the",
+        "  parenthetical reports the same interference as (σ-part, π-part).",
+        f"  {'Bond':<10}{'Total':>8}{'σ':>8}{'π':>8}{'  (interference)':>28}",
     ]
-    for symA, a, symB, b, t, s, p, it in sorted(rows, key=lambda x: -x[4]):
+    for symA, a, symB, b, t, s, p, is_, ip in sorted(rows, key=lambda x: -x[4]):
         # Kill floating-point -0.000 noise in the σ/π columns (the
-        # interference column keeps its genuine sign).
+        # interference parts keep their genuine sign).
         s_disp = 0.0 if abs(s) < 5e-4 else s
         p_disp = 0.0 if abs(p) < 5e-4 else p
-        lines.append(
-            f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
-            f"  ({it:+.3f})"
-        )
+        if abs(is_) + abs(ip) >= 5e-4:
+            # Both parts below the noise floor -> omit the parenthetical
+            # entirely; the row is pure diagonal shares.
+            is_disp = 0.0 if abs(is_) < 5e-4 else is_
+            ip_disp = 0.0 if abs(ip) < 5e-4 else ip
+            lines.append(
+                f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
+                f"  ({is_disp+ip_disp:+.3f}: σ{is_disp:+.3f}, π{ip_disp:+.3f})"
+            )
+        else:
+            lines.append(
+                f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
+            )
     return "\n".join(lines)
 
 
