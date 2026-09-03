@@ -8,6 +8,56 @@ Status docs live in [AGENTS.md](AGENTS.md); derivations in
 [mathematics/mathematics.md](mathematics/mathematics.md); a hands-on
 plugin-development guide in [tutorial.md](tutorial.md).
 
+## IboView cross-validation snapshot (2026-09-03; record, not gate)
+
+Four ORCA-optimized Wheland-study geometries (phenol, para-protonated
+phenol, anisole, para-protonated anisole from
+`orca_calcs/phenol_v_anisole`, last `.trj.xyz` frames) run through the
+plugin at wB97X-D/def2-TZVP and compared against the existing IboView
+IBBA logs (wB97X-D3/def2-TZVP). Geometries bit-identical on both sides
+— an early run on unoptimized inputs produced a 0.15 e⁻ phantom offset
+and 7 kcal/mol energy gap before the geometry mismatch was caught, so:
+same geometry is a precondition for any cross-implementation claim.
+Inputs preserved at `validation/phenol_v_anisole/*_opt.xyz` (untracked).
+
+| | Ph GS (plug/IBV) | Ph WH | An GS | An WH |
+| O | −0.342/−0.498 | −0.203/−0.361 | −0.265/−0.346 | −0.144/−0.227 |
+| C1 (ipso) | +0.171/+0.231 | +0.321/+0.391 | +0.165/+0.220 | +0.312/+0.380 |
+| C4 (para) | −0.090/−0.179 | −0.092/−0.296 | −0.089/−0.179 | −0.091/−0.295 |
+| C8 (methyl) | — | — | +0.020/−0.201 | +0.010/−0.223 |
+| ΔO (WH−GS) | +0.139/+0.137 | | +0.122/+0.119 | |
+| ΔC1 | +0.150/+0.160 | | +0.147/+0.160 | |
+| ΔC8 | | | −0.010/−0.022 | |
+
+Wheland Wibergs agree to ±0.02 throughout: C1–O 1.312/1.291,
+C2–C3 1.702/1.698, C3–C4 1.068/1.070 (phenol); C1–O 1.347/1.325,
+O–C8 0.912/0.895 (anisole).
+
+Findings:
+
+- **Trends agree; absolutes carry a systematic X–H offset.** Every
+  significant absolute gap sits on a hydrogen (~+0.08–0.11 e⁻ more
+  positive in IboView per X–H bond): phenolic O–H σ 68.5/31.1 vs
+  62.9/36.6 (the 0.11 e⁻ accounts for the H gap exactly); methyl C8's
+  0.22 gap is three hydrogens × ~0.08; the C4 Δ "discrepancy"
+  (−0.002 vs −0.117) is two new C–H bonds × ~0.09, same phenomenon,
+  not new physics. Prime suspect: minimal-basis H 1s
+  parameterization (Psi4 STO-3G vs IboView internal). Heavy-atom
+  framework agrees to ~±0.05, lone-pair compositions are identical
+  (O 2pz LP 1.872/0.078 vs 1.876/0.084).
+- **The EAS mechanistic conclusion is robust across implementations:**
+  phenol O donation exceeds anisole's by 14% (plugin: 0.139 vs 0.122)
+  vs 15% (IboView: 0.137 vs 0.119). Same verdict, same magnitude.
+- Functional caveat (option B, 2026-09-03): plugin side wB97X-D, IboView
+  side wB97X-D3 — Psi4 shells D3 out to an `s-dftd3` binary that isn't
+  installed, and installing it would dirty the locked distribution env
+  for fourth-decimal charges. Revisit only on reviewer demand.
+- Standing rules for validation work: snapshots are dated records,
+  never suite gates (IboView's wall-clock-seeded Cayley rotations make
+  cross-implementation golden tests flaky by construction); comparisons
+  lead with Δ trends where functional systematics cancel; the EAS
+  mechanism study itself stays out of this repo.
+
 ## Open items
 
 - **pixi-pack distribution**: deliberately deferred (2026-08-26).  The
