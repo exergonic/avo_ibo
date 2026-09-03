@@ -45,6 +45,21 @@ extension.
   reads π = 0.444/bond, diborane's 2e3c bridges classify σ as they
   should (H is s-only).  Verified: totals bit-identical to the old
   density table; σ+π=total to ~1e-12 on all suite molecules.
+- **Detail section (2026-08-26)**: "Significant orbital-pair
+  interference (|term| ≥ 0.01)" lists individual (k,l) interference
+  terms grouped by bond in table order, e.g. diborane's bridge×bridge
+  pair at -0.0145 on every B-H leg and +0.0145 across B-B.  Threshold
+  PAIR_DETAIL_THRESH = 0.01 in calcs.py: fires only on delocalization
+  chemistry, silent on ordinary molecules (ethene's largest pair terms
+  are ±0.0053 — correctly excluded).  Truth-in-labelling rules agreed
+  2026-08-26: positive pair terms *add to* the bond order, negative
+  pair terms *subtract from* it (compositional claims only — deleting
+  an orbital re-solves the SCF, so no counterfactual "would weaken by
+  X" language); negative ≠ antibonding (both partners may be bonding
+  orbitals — the sign is the phase relationship of overlap patterns on
+  that bond); pair terms are defined in the IBO frame (remixing within
+  a degenerate manifold redistributes them while the bond total is
+  fixed).
 - **Key finding (2026-08-26): σπ interference is identically zero on
   shipped output.**  The bond-flat and on-atom Fock resolvers run
   BEFORE the Wiberg analysis and canonicalize every flat pair into its

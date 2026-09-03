@@ -906,7 +906,15 @@ def _analyze_ibos(
     return "\n".join(lines), orbid_labels, net_charges
 
 
-def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
+# Orbital-pair interference terms with |term| at or above this value get
+# their own lines in the "Significant orbital-pair interference" detail
+# section.  At 0.01 the section fires only on genuine delocalization
+# chemistry (3c-2e bridges, conjugated π) and stays silent on ordinary
+# single/double bonds.
+PAIR_DETAIL_THRESH = 0.01
+
+
+def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     """Single Wiberg table: exact density-matrix totals decomposed σ/π.
 
     The density Wiberg (as originally reported) is
@@ -925,6 +933,15 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
     into its class: (σ,σ) → σ, (π,π) → π, (σ,π) → split 50/50.
     Total = σ + π exactly; the folded interference is echoed in a
     parenthesised column for transparency.
+
+    A follow-on detail section lists individual orbital-pair
+    interference terms with |term| >= PAIR_DETAIL_THRESH, grouped by
+    bond in table order, so the reader can see which orbitals drive a
+    bond's interference.  ``labels`` supplies the per-orbital table
+    labels (column k ↔ analysis-table row k+1); when omitted, bare orb
+    numbers are shown.  Bonds whose every pair term falls below the
+    threshold get no detail lines, and the section is omitted entirely
+    when empty.
     """
     n_occ = C_IAO_occ.shape[1]
     n_atoms = len(elem)
@@ -955,6 +972,9 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
     # contain beyond their diagonal shares (4·P_A·P_B).
     int_sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
     int_pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    # Significant off-diagonal terms, kept for the detail section:
+    # (A, B) with A < B -> [(k, l, value)] with |value| >= threshold.
+    pair_detail = {}
 
     for k in range(n_occ):
         # Diagonal (per-orbital share): 4·P_A·P_B
@@ -979,6 +999,15 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
             else:
                 sigma += contrib
                 int_sigma += contrib
+            # Record significant pair terms for the detail section.
+            big = np.abs(contrib) >= PAIR_DETAIL_THRESH
+            if big.any():
+                for A in range(n_atoms):
+                    for B in range(A + 1, n_atoms):
+                        if big[A, B]:
+                            pair_detail.setdefault((A, B), []).append(
+                                (k, l, float(contrib[A, B]))
+                            )
 
     rows = []
     total = sigma + pi
@@ -996,6 +1025,7 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
         return ""
 
     lines = [
+        "",
         "",
         "--- Wiberg Bond Orders (σ/π, density) ---",
         "  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π = total exactly.",
@@ -1021,6 +1051,35 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem):
             lines.append(
                 f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
             )
+
+    # Detail section: significant orbital-pair interference terms, grouped
+    # by bond in table order.  Omitted entirely when nothing clears the bar
+    # (ordinary single/double bonds), so quiet molecules gain no lines.
+    def _orb_tag(k):
+        if labels is not None and k < len(labels) and labels[k]:
+            return f"orb{k+1}({labels[k]})"
+        return f"orb{k+1}"
+
+    detail = []
+    for symA, a, symB, b, t, s, p, is_, ip in sorted(rows, key=lambda x: -x[4]):
+        terms = pair_detail.get((a, b))
+        if not terms:
+            continue
+        for k, l, v in sorted(terms, key=lambda t_: -abs(t_[2])):
+            detail.append(
+                f"  {symA}{a+1}-{symB}{b+1}: {_orb_tag(k)} × {_orb_tag(l)}: {v:+.4f}"
+            )
+    if detail:
+        lines.append("")
+        lines.append(
+            "--- Significant orbital-pair interference "
+            f"(|term| ≥ {PAIR_DETAIL_THRESH:g}) ---"
+        )
+        lines.append("  Positive pair terms add to the bond order; negative pair")
+        lines.append("  terms subtract from it. Signs are relative to the listed")
+        lines.append("  bond — the same pair may contribute oppositely elsewhere.")
+        lines.append("  Orbitals are numbered as in the analysis table above.")
+        lines.extend(detail)
     return "\n".join(lines)
 
 
@@ -1525,7 +1584,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
         ref,
         mol_name,
     )
-    msg += _format_wiberg(C_IAO_all[:, :nocc], atom_of, am_of, elem)
+    msg += _format_wiberg(C_IAO_all[:, :nocc], atom_of, am_of, elem, labels)
 
     return IBOResult(
         C_IAO=C_IAO,

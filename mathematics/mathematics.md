@@ -626,13 +626,22 @@ $$
 
 holds exactly for every atom pair, and the folded interference is
 reported parenthesised as $(\sigma\text{-part}, \pi\text{-part})$ —
-the $\sigma\sigma$ terms that entered $\sigma$, the $\pi\pi$ terms
-that entered $\pi$, and half of any $\sigma\pi$ cross term in each.
+the same-class terms that entered $\sigma$, the same-class terms
+that entered $\pi$, and half of any mixed-class cross term in each.
 In practice the σ/π cross term vanishes: the on-atom and bond-flat
 Fock resolutions (Section 5, 6) restore orbitals to Fock-eigenframe
 form, so different-symmetry orbitals are already decoupled before the
 analysis runs.  When both parts fall below $5\times10^{-4}$ the
 parenthetical is omitted (pure diagonal shares).
+
+Individual off-diagonal terms $8 G^{A}_{kl} G^{B}_{kl}$ with magnitude
+at or above $0.01$ are additionally listed in a follow-on detail
+section, grouped by bond.  A positive pair term adds to the bond
+order; a negative pair term subtracts from it.  Signs are relative to
+the listed bond — the same pair may contribute oppositely elsewhere —
+and pair terms are defined in the IBO frame, so remixing orbitals
+within a degenerate manifold redistributes them while the bond total
+is unchanged.
 
 `_format_wiberg()`
 

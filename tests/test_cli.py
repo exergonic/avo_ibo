@@ -362,6 +362,47 @@ def test_ethene_sig_pi_wiberg_split():
         if (k[0].startswith("C") and k[1].startswith("H")) or (k[0].startswith("H") and k[1].startswith("C")):
             assert pi < 0.01, f"C-H row {k} has spurious π contribution {pi}"
 
+    # Ethene's largest pair terms (±0.0053) fall below the 0.01 detail
+    # bar, so no detail section should appear: quiet molecules gain
+    # no lines.
+    assert "Significant orbital-pair" not in text, (
+        "ethene should have no pair-interference detail section"
+    )
+
+
+def test_diborane_pair_interference_detail():
+    """Diborane: bridge×bridge interference gets its own detail lines.
+
+    The two B-B-H 2e3c orbitals (orbs 3, 4) interfere destructively on
+    every bridge leg (-0.0145) and constructively across the B-B contact
+    (+0.0145).  Both directions must appear, attributed to the same pair.
+    """
+    xyz_path = FILES_DIR / "diborane.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", "--charge", "0", "--spin", "1", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0
+
+    text = (_find_calc_dir("diborane") / "ibos.txt").read_text(encoding="utf-8")
+    assert "--- Significant orbital-pair interference (|term| ≥ 0.01) ---" in text
+
+    sec = text.split("Significant orbital-pair interference")[1]
+    m_leg = re.search(
+        r"B1-H5: orb3\(B-B-H 2e3c\) × orb4\(B-B-H 2e3c\):\s+([-+\d.]+)", sec
+    )
+    assert m_leg, "bridge-leg detail row missing"
+    assert abs(float(m_leg.group(1)) - (-0.0145)) < 2e-4, (
+        f"bridge-leg interference expected ≈ -0.0145, got {m_leg.group(1)}"
+    )
+    m_bb = re.search(
+        r"B1-B6: orb3\(B-B-H 2e3c\) × orb4\(B-B-H 2e3c\):\s+([-+\d.]+)", sec
+    )
+    assert m_bb, "B-B contact detail row missing"
+    assert abs(float(m_bb.group(1)) - 0.0145) < 2e-4, (
+        f"B-B interference expected ≈ +0.0145, got {m_bb.group(1)}"
+    )
+
 
 def test_frontier_orbital_summary():
     """Ethene: frontier block exists and gap = LUMO − HOMO internally consistent."""
