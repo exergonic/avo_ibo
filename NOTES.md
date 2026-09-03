@@ -48,8 +48,13 @@ numbers, and orbital images in `examples/img/`:
   prior-calculation molden files (bohr → Å).
 - Suspects flagged in entries, not silently used: ozone O–O 1.11 Å
   vs 1.27 exp (multireference-sensitive — re-optimise before
-  production use); ferrocene_MMFF94 (no d-support) deferred entirely,
-  no writeup until properly optimised.
+  production use). Ferrocene is NOT suspect-geometry (wB97X-D
+  optimised, per user correction 2026-09-03) — it is slightly
+  desymmetrised from D5h, and the writeup angle is precisely that:
+  near-symmetric input giving symmetry-broken IBO tables to readers
+  who assume perfect symmetry. Existing IBO table on disk at
+  MN15-L/def2-SVP; needs a wB97X-D/def2-TZVP rerun before any
+  writeup.
 - Deferred spotlights (data on disk): anisole, phenol, cyclobutadiene,
   formaldehyde.
 
