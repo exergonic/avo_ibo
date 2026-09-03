@@ -21,6 +21,38 @@ plugin-development guide in [tutorial.md](tutorial.md).
   block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
   until the junk-column hygiene above.
 
+## Examples gallery (2026-09-03, local-only: `examples/` is gitignored)
+
+`examples/README.md` is now an index over a how-to-read guide
+(`how-to-read-ibos.md`, section-by-section through the current format
+on water) plus per-molecule spotlights, each with run command, verified
+numbers, and orbital images in `examples/img/`:
+
+- First-look set refreshed to wB97X-D/def2-TZVP: SO₃, water, methane,
+  ethene, ammonia, benzene, ZnCl₂; methylamine writeup added.
+- New: carbocations (bridged ethylium vs classical t-butyl),
+  cyclopropenyl cation + planar/nonplanar anion pair (antiaromatic →
+  nonaromatic, HOMO +0.029 → −0.090 Ha), cyclopropane bent bonds,
+  COT tub hyperconjugation, ozone, malonaldehyde H-bond, allene
+  orthogonal-π, diborane bridges.
+- All 19 molecules regenerated with the current pipeline at the
+  project standard; every prose number re-verified (two level-carry
+  mistakes caught in drafting: always re-grep, never carry).
+- Geometry provenance: small-molecule MMFF94 inputs accepted as
+  adequate; fixed three mislabelled comment lines found along the way
+  (ethylium "ethane", methyl cation "methane", t-butyl
+  "2-methylpropan-1-ium"; anion file labelled "cyclopropenium").
+  The old `methyl_amine_001/analysis.txt` describes *allene*
+  (central C +0.026 — matches to the digit) and was reassigned
+  accordingly. Cyclopropane/ozone/allene geometries recovered from
+  prior-calculation molden files (bohr → Å).
+- Suspects flagged in entries, not silently used: ozone O–O 1.11 Å
+  vs 1.27 exp (multireference-sensitive — re-optimise before
+  production use); ferrocene_MMFF94 (no d-support) deferred entirely,
+  no writeup until properly optimised.
+- Deferred spotlights (data on disk): anisole, phenol, cyclobutadiene,
+  formaldehyde.
+
 ## Ideas parked for the future (2026-08-26, not active work items)
 
 Ranked roughly by value/cost; none is planned.  Feature-complete verdict

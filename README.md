@@ -119,6 +119,15 @@ Calculations are run in `calcs/` in the current working directory:
   repolarization contributions.
 
 
+## Learning the output
+
+The `examples/` directory (local companion, not shipped) holds a
+section-by-section [guide to reading `ibos.txt`](examples/how-to-read-ibos.md)
+plus worked molecule spotlights — carbocations, aromaticity, bent
+bonds, hyperconjugation, hydrogen bonding — each with run commands,
+verified numbers, and orbital images. Start there before the
+mathematics.
+
 ## License
 
 BSD 3-Clause. See [LICENSE](LICENSE).
