@@ -20,6 +20,7 @@ plugin.
 
 Project notebooks: [NOTES.md](NOTES.md) (open items, design decisions),
 [AGENTS.md](AGENTS.md) (development context and gotchas).
+Release history: [CHANGELOG.md](CHANGELOG.md).
 
 
 ## Quick Start
