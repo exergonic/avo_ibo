@@ -57,7 +57,28 @@ Findings:
   cross-implementation golden tests flaky by construction); comparisons
   lead with Δ trends where functional systematics cancel; the EAS
   mechanism study itself stays out of this repo.
-- Feeding our Molden files to IboView (2026-09-04): TWO findings.
+- Feeding our Molden files to IboView (2026-09-04): THREE findings,
+  details for (a)(b) in the following paragraphs.
+  (c) MINIMAL BASIS confirmed as the charge-gap mechanism (2026-09-04):
+  IboView ships `bases/minao.libmol` and builds MINAO IAOs; we build
+  over Psi4 STO-3G. MINAO H 1s is 5-primitive (33.87→0.10) vs
+  STO-3G's 3-primitive — a much better atomic function, hence
+  systematically different X–H polarization. Same-density water test
+  (our wB97X-D MOs through both pipelines): O −0.494 (ours) vs
+  −0.658 (IboView); O–H σ 62.9/36.6 vs 67.6/32.4; Wiberg 0.939 vs
+  0.904; lone pairs agree. Every gap sits on H, exactly the
+  signature. Residual file slop (5e-3) contributes ~0.01, not 0.16.
+  Caveat: IboView's orbital-by-orbital mapping differs (its
+  unconditional 18° Cayley kick on imperfect input found another PM
+  basin — the banana-bond phenomenon cross-program); total charges
+  are rotation-invariant and unaffected. Its virtuals are still
+  garbage (d/f tails) — compare occupied only.
+  OPEN DECISION for the user: adopt MINAO (we have the exponents;
+  convertible to Psi4 .gbs format) for canonical exactness, at the
+  cost of suite-wide number changes (golden values, examples, docs);
+  or keep STO-3G as a documented ~0.08/X–H deviation. The STO-3G
+  choice predates validation ("MINAO unavailable in Psi4",
+  AGENTS.md) and is now the largest KNOWN deviation in the project.
   (a) CRLF line endings: `canonical.molden` is 2560/2560 CRLF, and
   IboView's `is_whitespace_cxp1()` accepts only space/tab, so the
   `\r` survives `str_trim` and line 1 mismatches
