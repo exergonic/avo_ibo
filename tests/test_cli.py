@@ -125,6 +125,25 @@ def test_cli_counts(xyz, label, n_ao, n_iao, n_occ, n_vir):
     )
 
 
+def test_cli_output_dir(tmp_path):
+    """Per-call --output-dir redirects the whole calc dir; repo calcs/ untouched."""
+    xyz_path = FILES_DIR / "water.xyz"
+    before = set((PROJECT_DIR / "calcs").glob("water_*"))
+    out = tmp_path / "out"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ",
+         "--output-dir", str(out), str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0, f"CLI failed:\nstdout:{result.stdout}\nstderr:{result.stderr}"
+    produced = sorted(out.glob("water_*/ibos.txt"))
+    assert len(produced) == 1, f"Expected one ibos.txt under {out}, got {produced}"
+    assert (produced[0].parent / "ibo.molden").exists(), "ibo.molden not found"
+    assert (produced[0].parent / "canonical.molden").exists(), "canonical.molden not found"
+    after = set((PROJECT_DIR / "calcs").glob("water_*"))
+    assert after == before, f"Repo calcs/ gained dirs: {after - before}"
+
+
 def test_water_on_atom_resolution():
     """On-atom Fock diagonalisation separates O 2s LP from O 2p LP by energy."""
     xyz_path = FILES_DIR / "water.xyz"

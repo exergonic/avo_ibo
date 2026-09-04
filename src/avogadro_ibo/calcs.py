@@ -1650,11 +1650,11 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
 
 def compute_ibo(cjson, options, charge, spin, debug=False):
     """Avogadro adapter: typed core + renderers, preserving the exact
-    plugin JSON contract (files under calcs/{name}_NNN/, molden strings,
+    plugin JSON contract (files under {output-dir}/{name}_NNN/, molden strings,
     message).  See :func:`compute_ibo_data` for the typed surface."""
     import logging
-    from . import CALCS_DIR
     from .config import load_config as _load_config
+    from .config import resolve_output_dir as _resolve_output_dir
 
     # Determine molecule name and create output directory
     atoms_data = cjson.get("atoms", {})
@@ -1662,10 +1662,11 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
     mol_name = cjson.get("name", "") or _mol_formula(elem_raw) or "molecule"
     mol_name = mol_name[:50]
     safe_name = _sanitize_name(mol_name)
+    out_root = _resolve_output_dir(options.get("calcs_dir"))
     counter = 1
-    while (CALCS_DIR / f"{safe_name}_{counter:03d}").exists():
+    while (out_root / f"{safe_name}_{counter:03d}").exists():
         counter += 1
-    calc_dir = CALCS_DIR / f"{safe_name}_{counter:03d}"
+    calc_dir = out_root / f"{safe_name}_{counter:03d}"
     calc_dir.mkdir(parents=True, exist_ok=True)
 
     _psi_logger = logging.getLogger("psi4")

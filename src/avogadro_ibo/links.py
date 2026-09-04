@@ -2,13 +2,13 @@ import platform
 import subprocess
 import logging
 
-from . import CALCS_DIR
+from .config import resolve_output_dir
 
 logger = logging.getLogger(__name__)
 
 
 def open_calcs_dir(cjson: dict) -> dict:
-    calc_dir = CALCS_DIR.resolve()
+    calc_dir = resolve_output_dir().resolve()
     logger.debug(f"Opening calculations directory: {calc_dir}")
     if platform.system() == "Windows":
         subprocess.run(["explorer.exe", str(calc_dir)])

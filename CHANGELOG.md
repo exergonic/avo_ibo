@@ -57,6 +57,13 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   with no π* (distorted ethene: 0.454/0.457 mixtures → π* 0.163 +
   σ* 0.748); equilibrium output byte-identical, suite 18/18 unchanged.
   `mathematics.md` §6 scope lines updated to both blocks.
+- Configurable calculations home: new `calcs_dir` setting (**Run
+  calculations in**, same pattern as the easy_xtb plugin) redirecting
+  per-molecule calc dirs, with a `--output-dir` CLI equivalent and a
+  per-call `options["calcs_dir"]` override; the settings file stays
+  fixed so the move never orphans itself, and invalid paths surface
+  Avogadro-visible errors. Covered by a new `test_cli_output_dir` test
+  (repo `calcs/` verified untouched).
 
 ### Changed
 - `mathematics.md`: new §6 (bond-flat derivation); §§6–9 renumbered to

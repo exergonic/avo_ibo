@@ -83,7 +83,12 @@ Psi4 must be installed separately via conda.
 
 ## Data location
 
-Calculations are run in `calcs/` in the current working directory:
+Each run writes a `{molecule}_NNN/` folder under the configured output
+home (default: the plugin's `calcs/` directory). In Avogadro, change it
+via the Options dialog (**Run calculations in**); on the CLI pass
+`--output-dir <folder>`. The settings file itself always stays in the
+plugin directory, so moving the output home never orphans the setting.
+Inside each run folder:
 
 * `input.xyz` - the input molecule used for calculations
 * `ibos.txt` — analysis table with per-orbital data

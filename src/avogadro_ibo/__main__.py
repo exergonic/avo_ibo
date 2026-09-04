@@ -35,6 +35,8 @@ def main():
                         help="Spin multiplicity (default: config or 1)")
     parser.add_argument("--iboview-style", action="store_true",
                         help="Truncate repolarization tails (IboView-like isosurface)")
+    parser.add_argument("--output-dir", default=None,
+                        help="Root folder for calc dirs (default: config or plugin calcs/)")
     args = parser.parse_args()
 
     try:
@@ -63,6 +65,8 @@ def main():
         options["basis"] = args.basis
     if args.iboview_style:
         options["iboview_style"] = True
+    if args.output_dir:
+        options["calcs_dir"] = args.output_dir
     result = compute_ibo(cjson, options, charge=charge, spin=spin)
     print(result.get("message", "done"))
 
