@@ -111,7 +111,18 @@ Findings:
   multiples) — pattern agrees, digits needn't; ORCA offers no σ/π
   partition. Intra-ORCA lesson, same density: full-basis Mulliken C
   −0.2546 vs IAO C −0.1286 — partitioning matters ~50× more than
-  program. This is the validation philosophy in one number. Also noted: ORCA `%loc`
+  program. This is the validation philosophy in one number.
+  FOUR-MOLECULE TALLY (2026-09-04; ours/STO-3G vs ORCA/STO-3G IAO charges):
+  water O −0.494/−0.4896 (Δ .004), H +.247/+.2448;
+  ethene C −0.131/−0.1286 (Δ .002), H +.066/+.0643;
+  ammonia N −0.530/−0.5236 (Δ .006), H +.177/+.1746;
+  benzene C −0.065/−0.0636 (Δ .001), H +.065/+.0636.
+  Worst Δ = 0.006 on N. Bond orders (density-Wiberg vs Mayer, pattern
+  only): N–H 0.969/0.9481; benzene C–C 1.444/1.4115–24 (ORCA breaks D6h
+  in the 4th decimal — grid noise), C–H 0.974/0.977. Para C···C 0.116
+  has no Mayer counterpart (below the 0.1 print threshold), as expected.
+  IboView/MINAO legs for ammonia+benzene still pending (user runs
+  `*_iboview.molden` herself). Also noted: ORCA `%loc`
   offers `Random 0` (fixed seed for testing) — we already have that
   property (deterministic Jacobi sweeps, no random kick), unlike
   IboView's wall-clock seed.
