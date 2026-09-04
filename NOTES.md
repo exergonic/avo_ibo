@@ -121,8 +121,23 @@ Findings:
   only): N–H 0.969/0.9481; benzene C–C 1.444/1.4115–24 (ORCA breaks D6h
   in the 4th decimal — grid noise), C–H 0.974/0.977. Para C···C 0.116
   has no Mayer counterpart (below the 0.1 print threshold), as expected.
-  IboView/MINAO legs for ammonia+benzene still pending (user runs
-  `*_iboview.molden` herself). Also noted: ORCA `%loc`
+  IboView/MINAO legs (RUN 2026-09-04, user-loaded `*_iboview.molden`):
+  AMMONIA PASSES with caveat — N −0.723/H +0.255 vs ours N −0.530/H
+  +0.177 (Δ = 0.19, direction as predicted: N–H σ 62.9/37.1 vs ours
+  58.8/41.2); Wiberg 0.9387 vs 0.969 (Δ = 0.03, same as water's 0.035).
+  Electron leak 0.043 (rmsd 1.64e-2, worst of the hydrides) bounds the
+  true IboView-N to [−0.77, −0.72] — magnitude above the −0.65 guess,
+  N–H sensitivity genuinely larger than O–H, not just leak.
+  BENZENE LEG VOID — total 40.224/42 e⁻ (leak 1.78, 4.2%), charges
+  C +0.071/H +0.225 unusable (leak bias ≈ +0.15/atom flips C's sign).
+  Leak scales superlinearly with f-content (H2O 0.025, NH3 0.043, C6H6
+  1.78 with 6× the f-channels but 40× the leak) → the bridge's
+  d/f-tail residual, not our pipeline. Qualitatively everything is
+  right (clean σ orbs, delocalized 4-center π orbs, C–H 58/42 in the
+  MINAO direction, para C···C 0.109 vs ours 0.116!). Lesson: bridge
+  valid for first-row hydrides (leak <0.5%), not for benzene-scale
+  f-content; benzene validation rests on the ORCA leg (Δ = 0.001),
+  which is unaffected. Also noted: ORCA `%loc`
   offers `Random 0` (fixed seed for testing) — we already have that
   property (deterministic Jacobi sweeps, no random kick), unlike
   IboView's wall-clock seed.
