@@ -29,9 +29,8 @@ test_molden.log
 calcs/*
 !calcs/.gitkeep
 
-# Not shipped to Avogadro users (internal docs, examples, derivations)
+# Not shipped to Avogadro users (internal docs, derivations)
 CONTINUITY.md
-examples/
 mathematics/_md2typ.py
 mathematics/mathematics.pdf
 mathematics/mathematics.typ
@@ -39,6 +38,9 @@ paper/
 ROADMAP.md
 TROUBLESHOOTING.md
 tutorial.md
+
+# Runtime log of the examples regeneration script (reproducible via regen_run.sh)
+examples/regen.log
 
 # Editor/IDE files
 .vscode/

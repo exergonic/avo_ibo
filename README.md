@@ -121,7 +121,7 @@ Calculations are run in `calcs/` in the current working directory:
 
 ## Learning the output
 
-The `examples/` directory (local companion, not shipped) holds a
+The `examples/` directory holds a
 section-by-section [guide to reading `ibos.txt`](examples/how-to-read-ibos.md)
 plus worked molecule spotlights — carbocations, aromaticity, bent
 bonds, hyperconjugation, hydrogen bonding — each with run commands,

@@ -71,7 +71,7 @@ Findings:
   block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
   until the junk-column hygiene above.
 
-## Examples gallery (2026-09-03, local-only: `examples/` is gitignored)
+## Examples gallery (2026-09-03; tracked in-repo since 2026-09-04)
 
 `examples/README.md` is now an index over a how-to-read guide
 (`how-to-read-ibos.md`, section-by-section through the current format
