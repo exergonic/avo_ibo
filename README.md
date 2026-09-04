@@ -22,6 +22,13 @@ Project notebooks: [NOTES.md](NOTES.md) (open items, design decisions),
 [AGENTS.md](AGENTS.md) (development context and gotchas).
 Release history: [CHANGELOG.md](CHANGELOG.md).
 
+## Validation
+
+We checked our charges against two independent IBO programs (IboView
+and ORCA) on five molecules. Same minimal basis gives the same numbers
+to **0.006 electrons**; different minimal bases give known, fixed
+offsets. Details: [Validation.md](Validation.md).
+
 
 ## Quick Start
 
