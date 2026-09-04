@@ -1,0 +1,56 @@
+*** WAVE FUNCTION COMPUTATION STARTING
+
+*** CURRENT FRAME: carbon-monoxide_iaoibo.loc.molden.input (1 of 1)
+
+*** INTRINSIC BASIS BONDING ANALYSIS (IBBA) ***
+
+ Polarized AO type:                IAO/2014
+ Orthogonalization method:         Symmetric (Loewdin)
+ Output orbitals:                  Occupied + valence virtuals
+ Localization functional:          L = \sum_{A,i} (i|P_A|i)^4 --> max
+
+
+ Apply random perturbation to input vectors: 18.00 deg.
+ Iterative localization: IB/PM, 3 iter -> L = 1.476453; Final gradient 1.18e-20; Class: AB
+ Apply random perturbation to input vectors: 18.00 deg.
+ Iterative localization: IB/PM, 2 iter -> L = 0.931232; Final gradient 2.95e-29; Class: __
+
+ Summary of localized orbital composition:   [THRPRINT= 0.020]
+
+   ORB  GRP   ORB.ENERGY   CENTERS/CHARGES
+     1   AB   -16.801231    C  1  2.000
+     2   AB   -12.887733    C  1  2.000
+     3   AB    -1.261679    O  2  2.000
+     4   AB    -0.710317    O  2  2.000
+     5   AB    -0.625746    O  2  1.298   C  1  0.702
+     6   AB    -0.576874    O  2  1.447   C  1  0.553
+     7   AB    -0.487325    O  2  1.447   C  1  0.553
+     8   __     0.081664    C  1  1.447   O  2  0.553
+     9   __     0.081664    C  1  1.447   O  2  0.553
+    10   __     0.709170    C  1  1.298   O  2  0.702
+
+ Bond order analysis:       [THRPRINT= 2.00e-02]
+
+   CEN ATOM    CEN ATOM   WIBERG.BO
+     1   C -     2   O      2.51191
+     1   C     valency      2.51191
+
+     2   O -     1   C      2.51191
+     2   O     valency      2.51191
+
+
+ Total charge composition:
+
+   CEN ATOM         s          p       ELECTRONS ->P.CHARGE
+     1   C       3.62800    2.18044      5.80844    0.19156
+     2   O       3.61854    4.57302      8.19156   -0.19156
+
+  -> Total                              14.00000    0.00000
+
+
+ Time for IBBA:                                0.00 sec
+
+
+
+*** WAVE FUNCTION COMPUTATION FINISHED.
+

@@ -186,8 +186,9 @@ Findings:
   Psi4-internal order makes it WORSE (2.6e-2), so Psi4 already
   writes Molden-standard order. Residual 5e-3 lives in d/f tails;
   IboView warns-but-continues, so validation comparisons should
-  allow ±0.02. `calcs/water_162/canonical_iboview.molden` is the
-  converted water file. Do NOT "fix" by scaling MO coefficients too:
+  allow ±0.02. `validation/molden_bridge/water_iboview.molden` is the
+  converted water file (all bridge files and IboView/ORCA result logs
+  now live under `validation/`: `iboview/`, `molden_bridge/`, `orca/`). Do NOT "fix" by scaling MO coefficients too:
   C^T S C is invariant under simultaneous rescaling (verified POST
   == PRE to all digits) — Psi4's s/p coefficients are already in
   its normalized basis, only the written contractions are raw.

@@ -27,7 +27,7 @@ Release history: [CHANGELOG.md](CHANGELOG.md).
 We checked our charges against two independent IBO programs (IboView
 and ORCA) on five molecules. Same minimal basis gives the same numbers
 to **0.006 electrons**; different minimal bases give known, fixed
-offsets. Details: [Validation.md](Validation.md).
+offsets. Details: [validation/Validation.md](validation/Validation.md).
 
 
 ## Quick Start

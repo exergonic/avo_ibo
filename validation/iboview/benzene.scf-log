@@ -1,0 +1,127 @@
+*** WAVE FUNCTION COMPUTATION STARTING
+
+*** CURRENT FRAME: canonical_iboview.molden (1 of 1)
+
+*** INTRINSIC BASIS BONDING ANALYSIS (IBBA) ***
+
+ Polarized AO type:                IAO/2014
+ Orthogonalization method:         Symmetric (Loewdin)
+ Output orbitals:                  Occupied only
+ WARNING: Sanity check for input orbitals failed! Rmsd from orthogonality: 1.56e-02
+ If the input orbitals came from a .molden file: Beware of differnt normalizations for
+ different programs. Options: (1) Check for a newer version of IboView, (2) If it
+ still happens with the current version, contact Gerald Knizia.
+ Localization functional:          L = \sum_{A,i} (i|P_A|i)^4 --> max
+
+
+ Apply random perturbation to input vectors: 18.00 deg.
+ Iterative localization: IB/PM, 12 iter -> L = 1.719808; Final gradient 2.94e-13; Class: AB
+
+ Summary of localized orbital composition:   [THRPRINT= 0.020]
+
+   ORB  GRP   ORB.ENERGY   CENTERS/CHARGES
+     1   AB   -10.305008    C  3  2.015
+     2   AB   -10.304803    C  4  2.015
+     3   AB   -10.304743    C  6  2.015
+     4   AB   -10.304668    C  5  2.015
+     5   AB   -10.304171    C  2  2.015
+     6   AB   -10.303871    C  1  2.015
+     7   AB    -0.638639    C  1  0.926   C  2  0.926
+     8   AB    -0.636952    C  1  0.927   C  6  0.926
+     9   AB    -0.635714    C  4  0.927   C  5  0.927
+    10   AB    -0.635692    C  4  0.928   C  3  0.927
+    11   AB    -0.635651    C  5  0.927   C  6  0.927
+    12   AB    -0.634776    C  2  0.928   C  3  0.927
+    13   AB    -0.500055    C  4  1.054   H 10  0.762
+    14   AB    -0.499834    C  5  1.055   H 11  0.762
+    15   AB    -0.499634    C  2  1.055   H  8  0.762
+    16   AB    -0.499114    C  3  1.056   H  9  0.761
+    17   AB    -0.498776    C  1  1.056   H  7  0.762
+    18   AB    -0.498739    C  6  1.056   H 12  0.761
+    19   AB    -0.365566    C  1  0.988   C  2  0.440   C  6  0.439   C  4  0.109
+    20   AB    -0.365558    C  5  0.988   C  4  0.440   C  6  0.439   C  2  0.109
+    21   AB    -0.365503    C  3  0.988   C  4  0.439   C  2  0.439   C  6  0.109
+
+ Bond order analysis:       [THRPRINT= 2.00e-02]
+
+   CEN ATOM    CEN ATOM   WIBERG.BO
+     1   C -     6   C      1.30834
+     1   C -     2   C      1.30834
+     1   C -     7   H      0.79082
+     1   C -     4   C      0.10944
+     1   C     valency      3.93765
+
+     2   C -     3   C      1.30838
+     2   C -     1   C      1.30834
+     2   C -     8   H      0.79079
+     2   C -     5   C      0.10943
+     2   C     valency      3.93762
+
+     3   C -     2   C      1.30838
+     3   C -     4   C      1.30834
+     3   C -     9   H      0.79079
+     3   C -     6   C      0.10943
+     3   C     valency      3.93762
+
+     4   C -     3   C      1.30834
+     4   C -     5   C      1.30834
+     4   C -    10   H      0.79082
+     4   C -     1   C      0.10944
+     4   C     valency      3.93765
+
+     5   C -     6   C      1.30838
+     5   C -     4   C      1.30834
+     5   C -    11   H      0.79079
+     5   C -     2   C      0.10943
+     5   C     valency      3.93762
+
+     6   C -     5   C      1.30838
+     6   C -     1   C      1.30834
+     6   C -    12   H      0.79079
+     6   C -     3   C      0.10943
+     6   C     valency      3.93762
+
+     7   H -     1   C      0.79082
+     7   H     valency      0.94928
+
+     8   H -     2   C      0.79079
+     8   H     valency      0.94926
+
+     9   H -     3   C      0.79079
+     9   H     valency      0.94926
+
+    10   H -     4   C      0.79082
+    10   H     valency      0.94928
+
+    11   H -     5   C      0.79079
+    11   H     valency      0.94926
+
+    12   H -     6   C      0.79079
+    12   H     valency      0.94926
+
+
+ Total charge composition:
+
+   CEN ATOM         s          p       ELECTRONS ->P.CHARGE
+     1   C       2.87195    3.05731      5.92926    0.07074
+     2   C       2.87189    3.05743      5.92932    0.07068
+     3   C       2.87189    3.05743      5.92932    0.07068
+     4   C       2.87195    3.05731      5.92926    0.07074
+     5   C       2.87189    3.05744      5.92932    0.07068
+     6   C       2.87189    3.05743      5.92932    0.07068
+     7   H       0.77478                 0.77478    0.22522
+     8   H       0.77475                 0.77475    0.22525
+     9   H       0.77475                 0.77475    0.22525
+    10   H       0.77478                 0.77478    0.22522
+    11   H       0.77475                 0.77475    0.22525
+    12   H       0.77475                 0.77475    0.22525
+
+  -> Total                              40.22438    1.77562
+
+
+ Time for IBBA:                                0.01 sec
+
+
+
+*** WAVE FUNCTION COMPUTATION FINISHED.
+

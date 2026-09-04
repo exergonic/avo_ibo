@@ -1,0 +1,67 @@
+*** WAVE FUNCTION COMPUTATION STARTING
+
+*** CURRENT FRAME: canonical_iboview.molden (1 of 1)
+
+*** INTRINSIC BASIS BONDING ANALYSIS (IBBA) ***
+
+ Polarized AO type:                IAO/2014
+ Orthogonalization method:         Symmetric (Loewdin)
+ Output orbitals:                  Occupied + valence virtuals
+ WARNING: Sanity check for input orbitals failed! Rmsd from orthogonality: 1.93e-01
+ If the input orbitals came from a .molden file: Beware of differnt normalizations for
+ different programs. Options: (1) Check for a newer version of IboView, (2) If it
+ still happens with the current version, contact Gerald Knizia.
+ Localization functional:          L = \sum_{A,i} (i|P_A|i)^4 --> max
+
+
+ Apply random perturbation to input vectors: 18.00 deg.
+ Iterative localization: IB/PM, 26 iter -> L = 1.685033; Final gradient 6.46e-13; Class: AB
+ Apply random perturbation to input vectors: 18.00 deg.
+ Iterative localization: IB/PM, 4 iter -> L = 1.626577; Final gradient 5.68e-26; Class: __
+
+ Summary of localized orbital composition:   [THRPRINT= 0.020]
+
+   ORB  GRP   ORB.ENERGY   CENTERS/CHARGES
+     1   AB    -1.530699    O  1  0.568
+     2   AB    -0.979433    O  1  1.768   H  2  0.055   H  3  0.055
+     3   AB    -0.387530    O  1  0.917   H  2  0.197   H  3  0.197
+     4   AB    -0.206396    O  1  0.744   H  3  0.205   H  2  0.205
+     5   AB    -0.184058    O  1  1.355
+     6   __    36.265535    O  1  2.000
+     7   __   722.336352    O  1  2.000
+     8   __   790.997795    H  3  2.000
+     9   __   790.997801    H  2  2.000
+    10   __  1362.385856    O  1  2.000
+    11   __  1945.642880    O  1  2.000
+    12   __  2730.050802    O  1  2.000
+
+ Bond order analysis:       [THRPRINT= 2.00e-02]
+
+   CEN ATOM    CEN ATOM   WIBERG.BO
+     1   O -     2   H      0.43251
+     1   O -     3   H      0.43251
+     1   O     valency      4.02477
+
+     2   H -     1   O      0.43251
+     2   H     valency      0.70953
+
+     3   H -     1   O      0.43251
+     3   H     valency      0.70953
+
+
+ Total charge composition:
+
+   CEN ATOM         s          p       ELECTRONS ->P.CHARGE
+     1   O       2.21928    3.13239      5.35167    2.64833
+     2   H       0.46105                 0.46105    0.53895
+     3   H       0.46105                 0.46105    0.53895
+
+  -> Total                               6.27376    3.72624
+
+
+ Time for IBBA:                                0.00 sec
+
+
+
+*** WAVE FUNCTION COMPUTATION FINISHED.
+

@@ -11,6 +11,7 @@ this page states what a user needs to know.
 IAO partial charges, ours vs ORCA with the same minimal basis (STO-3G):
 
 | Molecule | Atom | Ours | ORCA | Difference |
+|---|---|---|---|---|
 | Water | O / H | −0.494 / +0.247 | −0.4896 / +0.2448 | 0.004 |
 | Ethene | C / H | −0.131 / +0.066 | −0.1286 / +0.0643 | 0.002 |
 | Ammonia | N / H | −0.530 / +0.177 | −0.5236 / +0.1746 | 0.006 |
