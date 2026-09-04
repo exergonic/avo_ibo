@@ -137,7 +137,22 @@ Findings:
   MINAO direction, para C···C 0.109 vs ours 0.116!). Lesson: bridge
   valid for first-row hydrides (leak <0.5%), not for benzene-scale
   f-content; benzene validation rests on the ORCA leg (Δ = 0.001),
-  which is unaffected. Also noted: ORCA `%loc`
+  which is unaffected.
+  CO (2026-09-04, `calcs/CO_001` + `orca_calcs/IAOIBO/carbon-monoxide`):
+  ours (Psi4 density, STO-3G) C +0.069/O −0.069, σ 0.942/π 1.657/total
+  2.599; ORCA (own density, STO-3G) C +0.0679 (Δ = 0.001!), Mayer
+  2.4549 (Δ = 0.144 — Mayer/Wiberg divergence grows with bond order;
+  pattern ≈ triple holds). IboView leg ran on ORCA's OWN `.loc.molden`
+  (clean read, no warning, total exactly 14.0 — confirming the earlier
+  residuals were our writer's contractions): MINAO C +0.1916/O −0.1916,
+  Wiberg 2.51191. Same-density convention gap: 0.192 vs 0.068 = 0.124,
+  same direction as X–H. IboView's own orbitals confirm our σ/π
+  assignment compositionally (σ-like 64.9/35.1 vs ours 62/38; π-like
+  72.4/27.6 vs ours 70.7/29.3). Caveat: IboView-on-molden CORE energies
+  unreliable (−16.8/−12.9 vs true −19.3/−10.4; same −16.56 anomaly as
+  water leg) — valence/charges/Wibergs unaffected. (IAO charges needn't
+  reproduce CO's reversed dipole sign; the s-rich C(LP) HOMO is the
+  C-end basicity.) Also noted: ORCA `%loc`
   offers `Random 0` (fixed seed for testing) — we already have that
   property (deterministic Jacobi sweeps, no random kick), unlike
   IboView's wall-clock seed.
