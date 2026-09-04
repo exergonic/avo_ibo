@@ -476,19 +476,28 @@ $$
 
 `compute_ibo_data()`
 
-### 7.2 Truncation
+### 7.2 Fixed-count selection (Derricotte–Evangelista 2017)
 
-Keep only singular values $\sigma_k > 10^{-8}$:
+Following Derricotte and Evangelista, who construct valence virtual
+orbitals (VVOs) exactly this way (their eqs 3–5: overlap of canonical
+virtuals with IAOs, SVD, rotation by $\mathbf{U}$), take exactly
 
 $$
-n_{\mathrm{val\,vir}} = \bigl|\{k : \sigma_k > 10^{-8}\}\bigr|.
+n_{\mathrm{val\,vir}} = n_{\mathrm{min}} - n_{\mathrm{occ}},
 $$
 
-The valence-virtual IAO coefficients are:
+i.e. the first $n_{\mathrm{val\,vir}}$ columns of $\mathbf{U}$:
 
 $$
 \mathbf{U}^{\mathrm{val}} = \mathbf{U}_{:,:n_{\mathrm{val\,vir}}}.
 $$
+
+A $\sigma$-threshold (previously $\sigma_k > 10^{-8}$ here, as in
+IboView's `MakeValenceVirtuals`) additionally admits near-null
+($\sigma \approx 0.01$) squatters in diffuse bases; the count is
+structural and needs no threshold. Guards: if the SCF basis is smaller
+than the minimal basis, keep all available virtuals with a warning;
+warn if the smallest kept $\sigma$ falls below `VVO_MIN_SIGMA`.
 
 `compute_ibo_data()`
 
@@ -496,7 +505,9 @@ $$
 
 The SVD-projected virtuals are delocalised because each right-singular
 vector mixes many canonical virtuals.  The same PM $p=2\to p=4$
-procedure (Section 4) is applied to $\mathbf{U}^{\mathrm{val}}$.
+procedure (Section 4) is applied to $\mathbf{U}^{\mathrm{val}}$ — this
+matches the LIVVO construction (localized VVOs) of
+Derricotte–Evangelista.
 
 `compute_ibo_data()`
 

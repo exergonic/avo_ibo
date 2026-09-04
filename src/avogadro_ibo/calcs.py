@@ -9,19 +9,31 @@ References:
   G. Knizia, JCTC 2013, 9, 4834-4843.  DOI: 10.1021/ct400687b
   ("Intrinsic Atomic Orbitals: An Unbiased Bridge between Quantum
    Theory and Chemical Concepts.")
+  W. D. Derricotte and F. A. Evangelista, JCTC 2017, 13, 3465-3476.
+  DOI: 10.1021/acs.jctc.7b00493 ("Localized Intrinsic Valence Virtual
+  Orbitals ...").  Valence-virtual construction (their eqs 3-5).
 
-Paper equation numbers and appendix references refer to the above.
+Paper equation numbers and appendix references refer to Knizia 2013
+unless marked D&E2017.
 """
 
 from dataclasses import dataclass
 
 import numpy as np
+import warnings
 
 # 1 Hartree in electron-volts (CODATA 2018) and in kcal/mol
 # (2625.4996394799 kJ/mol ÷ 4.184).  Only used for the human-facing
 # HOMO-LUMO gap line; all internal energies stay in Ha.
 HA_TO_EV = 27.211386245988
 HA_TO_KCAL = 627.5094740631
+
+# Floor for the smallest kept VVO singular value.  Anything below the
+# floor means the "valence" label is suspect (pathological SCF basis,
+# near-linear dependence).  Set 20x below the observed suite minima
+# (all 1.000 to three decimals, cc-pVDZ through aug-cc-pVDZ) and 5x
+# above junk scale (~0.01): it never fires on sane input.
+VVO_MIN_SIGMA = 0.05
 
 
 # ---------------------------------------------------------------------------
@@ -1537,21 +1549,41 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
         [C_IAO_occ[:, i].dot(F_IAO @ C_IAO_occ[:, i]) for i in range(nocc)]
     )
 
-    # -- Valence-virtual IAOs via SVD  (IboView MakeValenceVirtuals) -------
+    # -- Valence virtuals via SVD (D&E2017, eqs 3-5) ----------------------
+    # S^IbVir_aρ = <φ_a|ψ_ρ>: canonical virtuals against the IAOs; the SVD
+    # brings the two spaces into maximum coincidence, and the VVOs are the
+    # first N_VVO = n_min − n_occ columns of U.  The count is structural:
+    # a σ-threshold (as in IboView's MakeValenceVirtuals) can in principle
+    # admit near-null squatters where diffuse manifolds overlap the IAO
+    # space; the count rules that out by construction.  (No threshold
+    # over-keep has been observed in any tested regime — cc-pVDZ through
+    # aug-cc-pVDZ — so this is paper-parity plus guarantee, not a repair.)
     C_vir = Ca.np[:, nocc:]  # (n_AO, n_vir)
     SIbVir = C_IAO.T @ S_full @ C_vir  # (n_min, n_vir)
     U_svd, Sigma, _ = np.linalg.svd(SIbVir, full_matrices=False)
-    n_val_vir = int(np.sum(Sigma > 1e-8))
+    n_val_vir = C_IAO.shape[1] - nocc
+    if n_val_vir > U_svd.shape[1]:
+        # SCF basis smaller than the minimal basis: not enough virtuals
+        # to span the valence complement; keep what exists.
+        warnings.warn(
+            f"VVO count {n_val_vir} exceeds available "
+            f"{U_svd.shape[1]} virtuals; keeping all"
+        )
+        n_val_vir = U_svd.shape[1]
+    elif Sigma[n_val_vir - 1] < VVO_MIN_SIGMA:
+        warnings.warn(
+            f"smallest kept VVO singular value "
+            f"{Sigma[n_val_vir - 1]:.3f} < {VVO_MIN_SIGMA}"
+        )
     U_val = U_svd[:, :n_val_vir]  # (n_min, n_val_vir)
 
     # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
     if n_val_vir > 1:
         _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
-        # NOTE: no bond-flat tie-break here.  The SVD valence-virtual block
-        # retains near-null-singular-value residual columns (sigma ~ 0.01)
-        # that are functionally degenerate with real antibonds; rotating
-        # across them mixes pi* with delocalized junk.  Revisit only after
-        # the virtual block gets explicit junk-column hygiene.
+        # NOTE: no bond-flat tie-break here yet.  Junk-column hygiene is now
+        # structural (fixed-count VVO above — no threshold squatters), so the
+        # tie-break itself waits only for its own verification pass
+        # (distorted-geometry pi*-repair check + suite inertness).
 
     vir_energies = np.array(
         [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]

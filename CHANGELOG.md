@@ -46,6 +46,11 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
 - Molden bridge utility (`validation/molden_renorm.py`): renormalizes
   Psi4's raw contraction coefficients and converts CRLF→LF so our
   `canonical.molden` loads in IboView (occupied C^T S C 0.71 → 5e-3).
+- Valence-virtual construction follows Derricotte–Evangelista 2017
+  (eqs 3–5): fixed-count VVO (`N_VVO = n_min − n_occ`) replacing the
+  σ-threshold, with a `VVO_MIN_SIGMA` sanity floor and small-basis
+  guard; verified numerically inert (suite 18/18 unchanged, production
+  rerun byte-identical). Derivation credited in `mathematics.md` §7.2.
 
 ### Changed
 - `mathematics.md`: new §6 (bond-flat derivation); §§6–9 renumbered to

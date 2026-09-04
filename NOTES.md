@@ -247,16 +247,16 @@ IboView's wall-clock seed.)
   construction (overlap S between canonical virtuals and IAOs, SVD,
   rotate virtuals by U — their eqs 3–5). The difference is selection:
   they take EXACTLY N_VVO = N_IAO − N_occ columns by construction and
-  never threshold, so junk columns cannot occur; we keep all σ > 1e-8,
-  which admits σ≈0.01 squatters. Recommended direction: fixed-count
-  VVO (1-line change + min-kept-σ warning), IboView-energy-weighting as
-  fallback. Scope: σ*/π* tie-break in the virtual block only (pictures
-  + Type labels at distorted geometries); occupied output must stay
-  byte-identical, but virtual `ibos.txt` lines, LUMO identity, and
-  example gap numbers must all be re-verified (junk may currently own
-  some LUMOs). Verification mirrors the occupied tie-break: suite
-  18/18, runtime-generated (never fixture) distorted-geometry
-  banana→σ*/π* repair check, examples gap re-grep.
+  never threshold; we had kept all σ > 1e-8, which could admit σ≈0.01
+  squatters. IMPLEMENTED 2026-09-04: fixed-count
+  VVO plus `VVO_MIN_SIGMA` = 0.05 floor (20× below measured minima, 5×
+  above junk scale) and a small-SCF-basis `min()` guard. Verified: suite
+  18/18 unchanged; production water/def2-TZVP rerun body- and
+  molden-identical; all suite minima 1.000 (cc-pVDZ), benzene/aug-cc-pVDZ
+  min 1.000; the threshold never over-kept in any tested regime
+  (cc-pVDZ through aug-cc-pVDZ) — paper-parity plus guarantee, not a
+  repair. σ*/π* tie-break remains a separate next step (its own
+  distorted-geometry verification).
 - **Bond-flat degeneracy resolution**: implemented for the occupied
   block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
   until the junk-column hygiene above.
