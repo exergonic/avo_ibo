@@ -101,7 +101,17 @@ Findings:
   ORCA/STO-3G −0.4896. Convention isolated, implementation exonerated.
   Gotcha: `%loc` DEFAULT EXCLUDES the core (first run's populations
   summed to 8.0 e⁻, charges to +2.0); `T_CORE -99.9` is required,
-  checksum = post-localization charges sum to 0.000. Also noted: ORCA `%loc`
+  checksum = post-localization charges sum to 0.000.
+  ETHENE (2026-09-04, `orca_calcs/IAOIBO/ethene`, geometry from our
+  `calcs/ethene_068`): charges ORCA/STO-3G C −0.1286/H +0.0643 vs ours
+  C −0.131/H +0.066 — Δ = 0.002. Mayer (default SCF population output,
+  threshold 0.1; no keyword needed): C–C 1.9628, C–H 0.9663 vs our
+  density-Wiberg C–C 2.033 (σ 1.033/π 1.000), C–H 0.978. Mayer ≠ Wiberg
+  (full-AO non-orthogonal vs IAO-space density; expect ~0.05 offsets on
+  multiples) — pattern agrees, digits needn't; ORCA offers no σ/π
+  partition. Intra-ORCA lesson, same density: full-basis Mulliken C
+  −0.2546 vs IAO C −0.1286 — partitioning matters ~50× more than
+  program. This is the validation philosophy in one number. Also noted: ORCA `%loc`
   offers `Random 0` (fixed seed for testing) — we already have that
   property (deterministic Jacobi sweeps, no random kick), unlike
   IboView's wall-clock seed.
