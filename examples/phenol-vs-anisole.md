@@ -17,6 +17,7 @@ session notes; raw ORCA outputs in `orca_calcs/phenol_v_anisole/`.
 ## 1. The paradox (ground states)
 
 | | Phenol | Anisole |
+|---|---|---|
 | O charge | −0.498 | −0.346 |
 | C1 (ipso) | +0.231 | +0.220 |
 | C4 (para) | −0.179 | −0.179 |
@@ -44,6 +45,7 @@ Topology confirmed: C4 sp³ (C3–C4/C4–C5 ≈ 1.07), remaining π on
 C2–C3/C5–C6 (≈ 1.70), C1–O strengthened (1.291 phenol, 1.325 anisole).
 
 | Atom | Phenol GS → WH | Δ | Anisole GS → WH | Δ |
+|---|---|---|---|---|
 | O | −0.498 → −0.361 | **+0.137** | −0.346 → −0.227 | **+0.119** |
 | C1 (ipso) | +0.231 → +0.391 | +0.160 | +0.220 → +0.380 | +0.160 |
 | C3/C5 (ortho to attack) | −0.134 → −0.002/−0.011 | +0.13 | −0.137 → −0.025/−0.003 | +0.12 |
