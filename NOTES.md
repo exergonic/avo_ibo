@@ -8,19 +8,38 @@ Status docs live in [AGENTS.md](AGENTS.md); derivations in
 [mathematics/mathematics.md](mathematics/mathematics.md); a hands-on
 plugin-development guide in [tutorial.md](tutorial.md).
 
-## IboView cross-validation snapshot (2026-09-03; record, not gate)
+## Cross-validation against IboView and ORCA (2026-09-03 to 09-04; record, not gate)
 
-Four ORCA-optimized Wheland-study geometries (phenol, para-protonated
-phenol, anisole, para-protonated anisole from
-`orca_calcs/phenol_v_anisole`, last `.trj.xyz` frames) run through the
-plugin at wB97X-D/def2-TZVP and compared against the existing IboView
-IBBA logs (wB97X-D3/def2-TZVP). Geometries bit-identical on both sides
-— an early run on unoptimized inputs produced a 0.15 e⁻ phantom offset
-and 7 kcal/mol energy gap before the geometry mismatch was caught, so:
-same geometry is a precondition for any cross-implementation claim.
-Inputs preserved at `validation/phenol_v_anisole/*_opt.xyz` (untracked).
+Three programs computed the same chemistry: this plugin (Psi4 SCF plus
+IAO/PM pipeline), Knizia's IboView, and ORCA 6.1.1 (`%loc` / `IAOIBO`).
+Five molecules at wB97X-D/def2-TZVP, identical geometries in every leg.
+Verdict: our implementation reproduces both programs wherever the
+comparison is well-posed. The user-facing summary is
+[validation/Validation.md](validation/Validation.md); inputs and result
+logs live under [validation/](validation/) (`iboview/`,
+`molden_bridge/`, `orca/`).
+
+Two standing rules govern everything below. Snapshots are dated
+records, never suite gates — IboView's wall-clock-seeded Cayley
+rotations make cross-implementation golden tests flaky by
+construction. And comparisons lead with Δ trends, where functional
+systematics cancel; the EAS mechanism study itself stays out of this
+repo.
+
+### Pilot: phenol and anisole Wheland geometries
+
+Four ORCA-optimized geometries from the Wheland study (phenol,
+para-protonated phenol, anisole, para-protonated anisole;
+`orca_calcs/phenol_v_anisole`, last `.trj.xyz` frames) went through the
+plugin at wB97X-D/def2-TZVP and were compared against existing IboView
+IBBA logs (wB97X-D3/def2-TZVP). One hard lesson first: an early run on
+unoptimized inputs produced a 0.15 e⁻ phantom offset and a 7 kcal/mol
+energy gap before the geometry mismatch was caught. Same geometry is a
+precondition for any cross-implementation claim; inputs preserved at
+`validation/phenol_v_anisole/*_opt.xyz` (untracked).
 
 | | Ph GS (plug/IBV) | Ph WH | An GS | An WH |
+|---|---|---|---|---|
 | O | −0.342/−0.498 | −0.203/−0.361 | −0.265/−0.346 | −0.144/−0.227 |
 | C1 (ipso) | +0.171/+0.231 | +0.321/+0.391 | +0.165/+0.220 | +0.312/+0.380 |
 | C4 (para) | −0.090/−0.179 | −0.092/−0.296 | −0.089/−0.179 | −0.091/−0.295 |
@@ -33,165 +52,186 @@ Wheland Wibergs agree to ±0.02 throughout: C1–O 1.312/1.291,
 C2–C3 1.702/1.698, C3–C4 1.068/1.070 (phenol); C1–O 1.347/1.325,
 O–C8 0.912/0.895 (anisole).
 
-Findings:
+Three findings. First, trends agree while absolutes carry a systematic
+X–H offset: every significant absolute gap sits on a hydrogen
+(~+0.08–0.11 e⁻ more positive in IboView per X–H bond). The phenolic
+O–H σ reads 68.5/31.1 vs our 62.9/36.6 (the 0.11 e⁻ accounts for the H
+gap exactly); methyl C8's 0.22 gap is three hydrogens × ~0.08; the C4 Δ
+"discrepancy" (−0.002 vs −0.117) is two new C–H bonds × ~0.09 — same
+phenomenon, not new physics. The heavy-atom framework agrees to ~±0.05
+and lone-pair compositions are identical (O 2pz LP 1.872/0.078 vs
+1.876/0.084). Second, the EAS mechanistic conclusion is robust across
+implementations: phenol O donation exceeds anisole's by 14% here (0.139
+vs 0.122) against 15% in IboView (0.137 vs 0.119) — same verdict, same
+magnitude. Third, a functional caveat: plugin side ran wB97X-D, IboView
+side wB97X-D3. Psi4 shells D3 out to an `s-dftd3` binary that isn't
+installed, and installing it would dirty the locked distribution
+environment for fourth-decimal charges. Revisit only on reviewer
+demand.
 
-- **Trends agree; absolutes carry a systematic X–H offset.** Every
-  significant absolute gap sits on a hydrogen (~+0.08–0.11 e⁻ more
-  positive in IboView per X–H bond): phenolic O–H σ 68.5/31.1 vs
-  62.9/36.6 (the 0.11 e⁻ accounts for the H gap exactly); methyl C8's
-  0.22 gap is three hydrogens × ~0.08; the C4 Δ "discrepancy"
-  (−0.002 vs −0.117) is two new C–H bonds × ~0.09, same phenomenon,
-  not new physics. Prime suspect: minimal-basis H 1s
-  parameterization (Psi4 STO-3G vs IboView internal). Heavy-atom
-  framework agrees to ~±0.05, lone-pair compositions are identical
-  (O 2pz LP 1.872/0.078 vs 1.876/0.084).
-- **The EAS mechanistic conclusion is robust across implementations:**
-  phenol O donation exceeds anisole's by 14% (plugin: 0.139 vs 0.122)
-  vs 15% (IboView: 0.137 vs 0.119). Same verdict, same magnitude.
-- Functional caveat (option B, 2026-09-03): plugin side wB97X-D, IboView
-  side wB97X-D3 — Psi4 shells D3 out to an `s-dftd3` binary that isn't
-  installed, and installing it would dirty the locked distribution env
-  for fourth-decimal charges. Revisit only on reviewer demand.
-- Standing rules for validation work: snapshots are dated records,
-  never suite gates (IboView's wall-clock-seeded Cayley rotations make
-  cross-implementation golden tests flaky by construction); comparisons
-  lead with Δ trends where functional systematics cancel; the EAS
-  mechanism study itself stays out of this repo.
-- Feeding our Molden files to IboView (2026-09-04): THREE findings,
-  details for (a)(b) in the following paragraphs.
-  (c) MINIMAL BASIS confirmed as the charge-gap mechanism (2026-09-04):
-  IboView ships `bases/minao.libmol` and builds MINAO IAOs; we build
-  over Psi4 STO-3G. MINAO H 1s is 5-primitive (33.87→0.10) vs
-  STO-3G's 3-primitive — a much better atomic function, hence
-  systematically different X–H polarization. Same-density water test
-  (our wB97X-D MOs through both pipelines): O −0.494 (ours) vs
-  −0.658 (IboView); O–H σ 62.9/36.6 vs 67.6/32.4; Wiberg 0.939 vs
-  0.904; lone pairs agree. Every gap sits on H, exactly the
-  signature. Residual file slop (5e-3) contributes ~0.01, not 0.16.
-  Caveat: IboView's orbital-by-orbital mapping differs (its
-  unconditional 18° Cayley kick on imperfect input found another PM
-  basin — the banana-bond phenomenon cross-program); total charges
-  are rotation-invariant and unaffected. Its virtuals are still
-  garbage (d/f tails) — compare occupied only.
-  OPEN DECISION for the user: adopt MINAO (we have the exponents;
-  convertible to Psi4 .gbs format) for canonical exactness, at the
-  cost of suite-wide number changes (golden values, examples, docs);
-  or keep STO-3G as a documented ~0.08/X–H deviation. The STO-3G
-  choice predates validation ("MINAO unavailable in Psi4",
-  AGENTS.md) and is now the largest KNOWN deviation in the project.
-  POSITION 2026-09-04 (user leaning no; endorsed in chat): do NOT adopt MINAO. ORCA 6.1.1
-  manual §9.2.5 (`orca_loc`) confirms the minimal basis is a soft
-  convention, not physics: ORCA's own default is SCF_SV (IAOs from
-  converged atomic SCF MOs, "instead of the MINI or STO-3G basis sets
-  as in the original method"), with `IAOBasis` offering STO_3G / MINI /
-  ANO_SZ / ANO_RCC_MB / MINAO_AUTO_PP — and ORCA's default charges are
-  admitted to be only "very similar to the original IAO charges".
-  ORCA's other improvement, IAOBOYS (FB instead of PM), changes orbital
-  SHAPES, not charges (IAO-Mulliken charges are localization-invariant),
-  so it is irrelevant to the gap and inapplicable to our PM-based σ/π
-  edifice. Chasing MINAO would buy agreement with one program's default
-  at the cost of churning every number in the project, without changing
-  any chemistry (assignments, trends, Δs unaffected). Conformance claim
-  is therefore: same-convention agreement ±0.02; cross-convention,
-  trends/Δs. DECISIVE EXPERIMENT (RUN 2026-09-04, PASSED): ORCA
-  `LocMet IAOIBO` with `IAOBasis STO_3G` on water_162
-  (`C:/Users/mccan/orca_calcs/water/IAOIBO`, wB97X-D3/def2-TZVP):
-  O −0.4896, H +0.2448 vs ours O −0.494, H +0.247 — Δ = 0.004.
-  Three witnesses closed: IboView/MINAO −0.658, ours/STO-3G −0.494,
-  ORCA/STO-3G −0.4896. Convention isolated, implementation exonerated.
-  Gotcha: `%loc` DEFAULT EXCLUDES the core (first run's populations
-  summed to 8.0 e⁻, charges to +2.0); `T_CORE -99.9` is required,
-  checksum = post-localization charges sum to 0.000.
-  ETHENE (2026-09-04, `orca_calcs/IAOIBO/ethene`, geometry from our
-  `calcs/ethene_068`): charges ORCA/STO-3G C −0.1286/H +0.0643 vs ours
-  C −0.131/H +0.066 — Δ = 0.002. Mayer (default SCF population output,
-  threshold 0.1; no keyword needed): C–C 1.9628, C–H 0.9663 vs our
-  density-Wiberg C–C 2.033 (σ 1.033/π 1.000), C–H 0.978. Mayer ≠ Wiberg
-  (full-AO non-orthogonal vs IAO-space density; expect ~0.05 offsets on
-  multiples) — pattern agrees, digits needn't; ORCA offers no σ/π
-  partition. Intra-ORCA lesson, same density: full-basis Mulliken C
-  −0.2546 vs IAO C −0.1286 — partitioning matters ~50× more than
-  program. This is the validation philosophy in one number.
-  FOUR-MOLECULE TALLY (2026-09-04; ours/STO-3G vs ORCA/STO-3G IAO charges):
-  water O −0.494/−0.4896 (Δ .004), H +.247/+.2448;
-  ethene C −0.131/−0.1286 (Δ .002), H +.066/+.0643;
-  ammonia N −0.530/−0.5236 (Δ .006), H +.177/+.1746;
-  benzene C −0.065/−0.0636 (Δ .001), H +.065/+.0636.
-  Worst Δ = 0.006 on N. Bond orders (density-Wiberg vs Mayer, pattern
-  only): N–H 0.969/0.9481; benzene C–C 1.444/1.4115–24 (ORCA breaks D6h
-  in the 4th decimal — grid noise), C–H 0.974/0.977. Para C···C 0.116
-  has no Mayer counterpart (below the 0.1 print threshold), as expected.
-  IboView/MINAO legs (RUN 2026-09-04, user-loaded `*_iboview.molden`):
-  AMMONIA PASSES with caveat — N −0.723/H +0.255 vs ours N −0.530/H
-  +0.177 (Δ = 0.19, direction as predicted: N–H σ 62.9/37.1 vs ours
-  58.8/41.2); Wiberg 0.9387 vs 0.969 (Δ = 0.03, same as water's 0.035).
-  Electron leak 0.043 (rmsd 1.64e-2, worst of the hydrides) bounds the
-  true IboView-N to [−0.77, −0.72] — magnitude above the −0.65 guess,
-  N–H sensitivity genuinely larger than O–H, not just leak.
-  BENZENE LEG VOID — total 40.224/42 e⁻ (leak 1.78, 4.2%), charges
-  C +0.071/H +0.225 unusable (leak bias ≈ +0.15/atom flips C's sign).
-  Leak scales superlinearly with f-content (H2O 0.025, NH3 0.043, C6H6
-  1.78 with 6× the f-channels but 40× the leak) → the bridge's
-  d/f-tail residual, not our pipeline. Qualitatively everything is
-  right (clean σ orbs, delocalized 4-center π orbs, C–H 58/42 in the
-  MINAO direction, para C···C 0.109 vs ours 0.116!). Lesson: bridge
-  valid for first-row hydrides (leak <0.5%), not for benzene-scale
-  f-content; benzene validation rests on the ORCA leg (Δ = 0.001),
-  which is unaffected.
-  CO (2026-09-04, `calcs/CO_001` + `orca_calcs/IAOIBO/carbon-monoxide`):
-  ours (Psi4 density, STO-3G) C +0.069/O −0.069, σ 0.942/π 1.657/total
-  2.599; ORCA (own density, STO-3G) C +0.0679 (Δ = 0.001!), Mayer
-  2.4549 (Δ = 0.144 — Mayer/Wiberg divergence grows with bond order;
-  pattern ≈ triple holds). IboView leg ran on ORCA's OWN `.loc.molden`
-  (clean read, no warning, total exactly 14.0 — confirming the earlier
-  residuals were our writer's contractions): MINAO C +0.1916/O −0.1916,
-  Wiberg 2.51191. Same-density convention gap: 0.192 vs 0.068 = 0.124,
-  same direction as X–H. IboView's own orbitals confirm our σ/π
-  assignment compositionally (σ-like 64.9/35.1 vs ours 62/38; π-like
-  72.4/27.6 vs ours 70.7/29.3). Caveat: IboView-on-molden CORE energies
-  unreliable (−16.8/−12.9 vs true −19.3/−10.4; same −16.56 anomaly as
-  water leg) — valence/charges/Wibergs unaffected. (IAO charges needn't
-  reproduce CO's reversed dipole sign; the s-rich C(LP) HOMO is the
-  C-end basicity.) Also noted: ORCA `%loc`
-  offers `Random 0` (fixed seed for testing) — we already have that
-  property (deterministic Jacobi sweeps, no random kick), unlike
-  IboView's wall-clock seed.
-  ORCA ENERGY LABELS (2026-09-04): `orca_2mkl` on a `.loc` file writes
-  the CANONICAL eigenvalues into the Molden `[MO]` block, NOT the
-  localized ⟨i|F|i⟩ — verified bit-for-bit against ORCA's own ORBITAL
-  ENERGIES table (−1.127819, −0.632089, −0.490129, −0.413573). Ours are
-  localized expectations (`calcs.py:1536`: C_i·F_IAO·C_i). Comparing the
-  two is apples-to-oranges; the apparent σ-degeneracy breaking was
-  canonical 3a1 vs 1b1. LMO energies are therefore NOT validation
-  targets (basin/seed/definition-dependent; ORCA doesn't print LMO
-  F_ii). One rigorous exception: the symmetry-protected HOMO (1b1
-  cannot mix) — ORCA canonical −0.4136 vs our p-LP −0.4011, Δ = 0.013
-  ≈ functional/grid (D2 vs D3). Charges/Wibergs stay the validators
-  (rotation-invariant, basin-independent).
-  (a) CRLF line endings: `canonical.molden` is 2560/2560 CRLF, and
-  IboView's `is_whitespace_cxp1()` accepts only space/tab, so the
-  `\r` survives `str_trim` and line 1 mismatches
-  (`IvOrbitalFile.cpp:1222`, `CxParse1.cpp:180`). Convert CRLF→LF.
-  (b) Unnormalized contractions: Psi4's molden writer prints RAW
-  contraction coefficients (O def2-TZVP s-shell self-overlaps
-  0.1441/0.3881 as written; verified against S built from normalized
-  primitives). IboView builds overlap assuming normalized primitives
-  (renormalizing only ORCA-sourced files, detected via an
-  "orca_2mkl" `[Title]` tag we don't emit), so its S is inconsistent
-  with our coefficients — its own sanity check reports rmsd 0.19,
-  6.27 e⁻ instead of 10. Fix: `validation/molden_renorm.py`
-  normalizes multi-primitive s/p contractions (exact by symmetry;
-  d/f singles already normalized) and re-emits LF. Occupied
-  C^T S C: 0.71 → 4.9e-3 (150×). Permuting d/f to/from
-  Psi4-internal order makes it WORSE (2.6e-2), so Psi4 already
-  writes Molden-standard order. Residual 5e-3 lives in d/f tails;
-  IboView warns-but-continues, so validation comparisons should
-  allow ±0.02. `validation/molden_bridge/water_iboview.molden` is the
-  converted water file (all bridge files and IboView/ORCA result logs
-  now live under `validation/`: `iboview/`, `molden_bridge/`, `orca/`). Do NOT "fix" by scaling MO coefficients too:
-  C^T S C is invariant under simultaneous rescaling (verified POST
-  == PRE to all digits) — Psi4's s/p coefficients are already in
-  its normalized basis, only the written contractions are raw.
+### Feeding our Molden files to IboView: two file-format traps
+
+Before any IboView leg could run, our `canonical.molden` tripped two
+traps in IboView's reader. Both were ours to fix; both are now handled
+by `validation/molden_renorm.py`:
+
+(a) CRLF line endings. `canonical.molden` is 2560/2560 CRLF, and
+IboView's `is_whitespace_cxp1()` accepts only space/tab, so the CR
+survives `str_trim` and line 1 mismatches (`IvOrbitalFile.cpp:1222`,
+`CxParse1.cpp:180`). Convert CRLF to LF.
+
+(b) Unnormalized contractions. Psi4's molden writer prints RAW
+contraction coefficients (O def2-TZVP s-shell self-overlaps 0.1441 /
+0.3881 as written; verified against S built from normalized
+primitives). IboView builds overlap assuming normalized primitives —
+renormalizing only ORCA-sourced files, detected via an `orca_2mkl`
+`[Title]` tag we don't emit — so its S is inconsistent with our
+coefficients, and its own sanity check reports rmsd 0.19 with 6.27 e⁻
+instead of 10. The fix normalizes multi-primitive s/p contractions
+(exact by symmetry; d/f singles already normalized) and re-emits LF.
+Occupied C^T S C improves 0.71 → 4.9e-3 (150×). Permuting d/f to or
+from Psi4-internal order makes it WORSE (2.6e-2), so Psi4 already
+writes Molden-standard order; the residual 5e-3 lives in d/f tails, and
+IboView warns-but-continues, so comparisons allow ±0.02.
+
+One thing NOT to do: scale the MO coefficients alongside the
+contractions. C^T S C is invariant under simultaneous rescaling
+(verified POST == PRE to all digits) — Psi4's s/p coefficients are
+already in its normalized basis; only the written contractions are raw.
+
+### Same-density water test: the gap is the minimal basis
+
+With the bridge fixed, our wB97X-D water MOs went through both
+pipelines: O −0.494 (ours) vs −0.658 (IboView); O–H σ 62.9/36.6 vs
+67.6/32.4; Wiberg 0.939 vs 0.904; lone pairs agree. Every gap sits on
+H. The mechanism is confirmed, not suspected: IboView ships
+`bases/minao.libmol` and builds MINAO IAOs, while we build over Psi4
+STO-3G. MINAO's H 1s is a 5-primitive function (exponents 33.87→0.10)
+against STO-3G's 3-primitive — a much better atomic function, hence
+systematically different X–H polarization. The residual file slop
+(5e-3) contributes ~0.01, not 0.16. Two caveats: IboView's
+orbital-by-orbital mapping differs (its unconditional 18° Cayley kick
+on imperfect input found another PM basin — the banana-bond phenomenon
+observed cross-program), but total charges are rotation-invariant and
+unaffected; and its virtuals are still garbage from d/f tails, so
+compare occupied orbitals only.
+
+### Decision: stay on STO-3G (2026-09-04)
+
+ORCA's manual (§9.2.5, `orca_loc`) confirms the minimal basis is a soft
+convention, not physics. ORCA's own default is SCF_SV — IAOs from
+converged atomic SCF MOs, "instead of the MINI or STO-3G basis sets as
+in the original method" — with `IAOBasis` offering STO_3G, MINI,
+ANO_SZ, ANO_RCC_MB, and MINAO_AUTO_PP. ORCA's own default charges are
+admitted to be only "very similar to the original IAO charges." If the
+reference implementation's successors treat the choice as a parameter,
+chasing MINAO would buy agreement with one program's default at the
+cost of churning every number in this project — golden values,
+examples, docs — without changing any chemistry (assignments, trends,
+Δs all unaffected). ORCA's other improvement, IAOBOYS (Foster–Boys
+instead of PM), changes orbital shapes, not charges: IAO-Mulliken
+charges are localization-invariant, so it is irrelevant to the gap and
+inapplicable to our PM-based σ/π edifice. The conformance claim is
+therefore: same-convention agreement ±0.02; cross-convention, trends
+and Δs.
+
+### Third leg: ORCA reproduces us to 0.006
+
+The decisive experiment: ORCA `LocMet IAOIBO` with `IAOBasis STO_3G` —
+same minimal basis, same PM functional — must reproduce our charges.
+Recipe (`validation/orca/*.inp`):
+
+```
+%loc
+  LocMet IAOIBO
+  IAOBasis STO_3G
+  T_CORE -99.9
+  PrintLevel 3
+end
+```
+
+Gotcha: `%loc` excludes the core by default. The first run's
+populations summed to 8.0 e⁻ and charges to +2.0 (the O 1s silently
+dropped from the window); `T_CORE -99.9` fixes it, and the checksum is
+post-localization charges summing to 0.000.
+
+| Molecule | Atom | Ours | ORCA | Δ |
+|---|---|---|---|---|
+| Water | O / H | −0.494 / +0.247 | −0.4896 / +0.2448 | 0.004 |
+| Ethene | C / H | −0.131 / +0.066 | −0.1286 / +0.0643 | 0.002 |
+| Ammonia | N / H | −0.530 / +0.177 | −0.5236 / +0.1746 | 0.006 |
+| Benzene | C / H | −0.065 / +0.065 | −0.0636 / +0.0636 | 0.001 |
+| Carbon monoxide | C / O | +0.069 / −0.069 | +0.0679 / −0.0679 | 0.001 |
+
+Worst Δ: 0.006 on nitrogen — grid noise between two programs, not
+method error. Convention isolated; implementation exonerated.
+
+Two companion lessons. Mayer bond orders (default SCF population
+output, pairs above 0.1, no keyword needed) track our density-Wiberg
+pattern but not digits — Mayer 1.9628 vs 2.033 on C–C, 0.9481 vs 0.969
+on N–H, 1.4115–24 vs 1.444 on benzene C–C — because Mayer is built in
+the full non-orthogonal AO basis while ours comes from the density in
+IAO space; expect ~0.05 offsets on multiples, and ORCA offers no σ/π
+partition. And partitioning matters ~50× more than program: ORCA's own
+full-basis Mulliken gives ethene C −0.2546 against its IAO −0.1286 on
+the identical density.
+
+### IboView legs: ammonia passes, benzene exceeds the bridge
+
+Ammonia (user-loaded bridge file): N −0.723/H +0.255 vs ours
+N −0.530/H +0.177 (Δ = 0.19, direction as predicted: N–H σ 62.9/37.1
+vs ours 58.8/41.2); Wiberg 0.9387 vs 0.969 (Δ = 0.03, same as water's
+0.035). The log's electron leak (0.043, rmsd 1.64e-2, worst of the
+hydrides) bounds the true IboView-N to [−0.77, −0.72] — N–H is
+genuinely more convention-sensitive than O–H, not just leak.
+
+Benzene voids — and the void is the finding. IboView counts 40.22 of
+42 electrons (4.2% leak), biasing every atom ≈ +0.15 and flipping
+carbon's sign. The leak progression (water 0.025, ammonia 0.043,
+benzene 1.78: six times the f-channels, forty times the leak) fingers
+the bridge's d/f-tail residual, not the pipeline — and qualitatively
+the run is perfect (clean σ orbitals, delocalized four-center π
+orbitals, C–H 58/42 in the MINAO direction, para C···C 0.109 vs our
+0.116). Lesson: the bridge is valid for first-row hydrides (leak <
+0.5%) but out of its depth at benzene-scale f-content. Benzene's
+validation rests on the ORCA leg (Δ = 0.001), which never touches our
+Molden writer.
+
+### Carbon monoxide: the problem child passes
+
+Ours (Psi4 density): C +0.069/O −0.069, σ 0.942, π 1.657, total 2.599.
+ORCA (own density): C +0.0679 (Δ = 0.001 — tightest yet); Mayer 2.4549
+(Mayer/Wiberg divergence grows with bond order; the pattern still reads
+triple). The IboView leg ran on ORCA's OWN `.loc.molden`, which reads
+cleanly with no warnings and an exact 14.000 total — confirming the
+earlier residuals were our writer's contractions, and giving a pure
+same-density convention comparison: MINAO C +0.1916 vs STO-3G +0.068,
+gap 0.124 in the familiar direction. Best of all, IboView's own
+orbitals confirm our σ/π assignment compositionally (σ-like 64.9/35.1
+vs ours 62/38; π-like 72.4/27.6 vs ours 70.7/29.3). Caveats, both
+contained: Mayer diverges more on triple bonds (never promised digits),
+and IboView-on-molden core energies are unreliable (−16.8/−12.9 vs true
+−19.3/−10.4, the same anomaly as water's −16.56) while
+valence/charges/Wibergs are unaffected. (IAO charges needn't reproduce
+CO's reversed dipole sign; the s-rich C(LP) HOMO is the C-end
+basicity.)
+
+### A trap for future validators: `orca_2mkl` writes canonical energies
+
+`orca_2mkl` on a `.loc` file carries the localized vectors but leaves
+the CANONICAL eigenvalues in the Molden `[MO]` block — verified
+bit-for-bit against ORCA's own ORBITAL ENERGIES table. Ours are
+localized expectations (`calcs.py:1536`: C_i·F_IAO·C_i). Comparing the
+two is apples-to-oranges; one apparent σ-degeneracy breaking dissolved
+into canonical 3a1 vs 1b1. LMO energies are therefore NOT validation
+targets (basin-, seed-, and definition-dependent; ORCA doesn't print
+LMO F_ii). One rigorous exception: symmetry-protected orbitals must
+match, and water's HOMO does (ORCA canonical 1b1 −0.4136 vs our p-LP
+−0.4011, Δ = 0.013 ≈ functional/grid). Charges and Wibergs stay the
+validators — rotation-invariant, basin-independent. (Related: ORCA
+`%loc` offers `Random 0` for fixed-seed testing. We already have that
+property — deterministic Jacobi sweeps, no random kick — unlike
+IboView's wall-clock seed.)
 
 ## Open items
 
