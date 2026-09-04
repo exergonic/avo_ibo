@@ -9,7 +9,7 @@ References:
   G. Knizia, JCTC 2013, 9, 4834-4843.  DOI: 10.1021/ct400687b
   ("Intrinsic Atomic Orbitals: An Unbiased Bridge between Quantum
    Theory and Chemical Concepts.")
-  W. D. Derricotte and F. A. Evangelista, JCTC 2017, 13, 3465-3476.
+  W. D. Derricotte and F. A. Evangelista, JCTC 2017, 13, 5984-5999.
   DOI: 10.1021/acs.jctc.7b00493 ("Localized Intrinsic Valence Virtual
   Orbitals ...").  Valence-virtual construction (their eqs 3-5).
 

@@ -5,14 +5,18 @@ visualizes Intrinsic Bond Orbitals (IBOs) using
 [Psi4](https://psicode.org) for SCF and wavefunction generation, then
 performs post-SCF IAO/2014 orbital construction (Knizia, *J. Chem. Theory
 Comput.* **2013**, *9*, 4834) and Pipek-Mezey localization directly in the
-plugin.
+plugin. Valence-virtual construction follows Derricotte–Evangelista
+(*J. Chem. Theory Comput.* **2017**, *13*, 5984).
 
 ## Capabilities
 
 * Occupied and valence-virtual IBOs — Pipek-Mezey localization (p=2 warmup + p=4 refinement, conv 1e-12)
 * On-atom degeneracy resolution via post-PM Fock diagonalization
 * Bond-flat degeneracy resolution — flat {σ, π} planes of symmetric bonds are Fock-diagonalised so distorted geometries yield σ+π (not banana bonds) deterministically
-* Valence-virtual IBOs via singular value decomposition projection of canonical virtual MOs onto IAO space
+* Valence-virtual IBOs via fixed-count VVO construction (Derricotte–Evangelista,
+*J. Chem. Theory Comput.* **2017**, *13*, 5984): singular-value projection of
+canonical virtual MOs onto IAO space, PM-localized; bond-flat resolution applies
+to the virtual block too, so distorted geometries yield σ*+π* deterministically
 * IAO-basis Molden export with Fock-diagonal energies for Avogadro rendering
 * Analysis table (`ibos.txt`) — occupancy, energy, bond type, atomic composition, s/p/d hybridization, partial charges, bond orders (density Wiberg decomposed into σ and π, σ+π = total exactly)
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
