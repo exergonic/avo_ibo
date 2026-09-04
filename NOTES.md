@@ -79,6 +79,28 @@ Findings:
   or keep STO-3G as a documented ~0.08/X–H deviation. The STO-3G
   choice predates validation ("MINAO unavailable in Psi4",
   AGENTS.md) and is now the largest KNOWN deviation in the project.
+  POSITION 2026-09-04 (user leaning no; endorsed in chat): do NOT adopt MINAO. ORCA 6.1.1
+  manual §9.2.5 (`orca_loc`) confirms the minimal basis is a soft
+  convention, not physics: ORCA's own default is SCF_SV (IAOs from
+  converged atomic SCF MOs, "instead of the MINI or STO-3G basis sets
+  as in the original method"), with `IAOBasis` offering STO_3G / MINI /
+  ANO_SZ / ANO_RCC_MB / MINAO_AUTO_PP — and ORCA's default charges are
+  admitted to be only "very similar to the original IAO charges".
+  ORCA's other improvement, IAOBOYS (FB instead of PM), changes orbital
+  SHAPES, not charges (IAO-Mulliken charges are localization-invariant),
+  so it is irrelevant to the gap and inapplicable to our PM-based σ/π
+  edifice. Chasing MINAO would buy agreement with one program's default
+  at the cost of churning every number in the project, without changing
+  any chemistry (assignments, trends, Δs unaffected). Conformance claim
+  is therefore: same-convention agreement ±0.02; cross-convention,
+  trends/Δs. DECISIVE EXPERIMENT (not yet run): ORCA `LocMet IAOIBO`
+  with `IAOBasis STO_3G` on the water_162 density must reproduce OUR
+  charges to ~0.01 — same minimal basis, same PM functional — closing
+  the case with three witnesses (IboView/MINAO −0.658, ours/STO-3G
+  −0.494, ORCA/STO-3G predicted −0.49). Also noted: ORCA `%loc`
+  offers `Random 0` (fixed seed for testing) — we already have that
+  property (deterministic Jacobi sweeps, no random kick), unlike
+  IboView's wall-clock seed.
   (a) CRLF line endings: `canonical.molden` is 2560/2560 CRLF, and
   IboView's `is_whitespace_cxp1()` accepts only space/tab, so the
   `\r` survives `str_trim` and line 1 mismatches
