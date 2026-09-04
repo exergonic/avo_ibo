@@ -242,6 +242,21 @@ IboView's wall-clock seed.)
 - **Virtual-block junk-column hygiene** (see IboView audit below): either
   adopt their overlap-weighted energy scheme or exclude weak SVD columns
   from ordering-sensitive paths; unlocks a σ*/π* tie-break later.
+  THIRD OPTION (2026-09-04, from Derricotte & Evangelista JCTC 2017,
+  DOI 10.1021/acs.jctc.7b00493): our SVD block already IS their VVO
+  construction (overlap S between canonical virtuals and IAOs, SVD,
+  rotate virtuals by U — their eqs 3–5). The difference is selection:
+  they take EXACTLY N_VVO = N_IAO − N_occ columns by construction and
+  never threshold, so junk columns cannot occur; we keep all σ > 1e-8,
+  which admits σ≈0.01 squatters. Recommended direction: fixed-count
+  VVO (1-line change + min-kept-σ warning), IboView-energy-weighting as
+  fallback. Scope: σ*/π* tie-break in the virtual block only (pictures
+  + Type labels at distorted geometries); occupied output must stay
+  byte-identical, but virtual `ibos.txt` lines, LUMO identity, and
+  example gap numbers must all be re-verified (junk may currently own
+  some LUMOs). Verification mirrors the occupied tie-break: suite
+  18/18, runtime-generated (never fixture) distorted-geometry
+  banana→σ*/π* repair check, examples gap re-grep.
 - **Bond-flat degeneracy resolution**: implemented for the occupied
   block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
   until the junk-column hygiene above.
