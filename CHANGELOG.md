@@ -31,6 +31,21 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
 - "Frontier Orbital Energies" section in `ibos.txt`: HOMO/LUMO selected
   by occupancy (not rank), gap reported in Ha, eV, and kcal/mol (CODATA
   2018 constants `HA_TO_EV`, `HA_TO_KCAL`).
+- Examples gallery (`examples/`, now tracked in-repo): section-by-section
+  guide to reading `ibos.txt` plus worked molecule spotlights
+  (carbocations, aromaticity set, bent bonds, hyperconjugation, hydrogen
+  bonding, 3c–2e bridges), every number re-verified at wB97X-D/def2-TZVP
+  with orbital images.
+- Three-way cross-validation (`validation/Validation.md` plus inputs and
+  result logs under `validation/`): IAO charges reproduce IboView and
+  ORCA 6.1.1 (`LocMet IAOIBO`) to 0.006 e⁻ worst-case across water,
+  ethene, ammonia, benzene, and carbon monoxide at wB97X-D/def2-TZVP
+  under the shared STO-3G minimal-basis convention; cross-convention
+  (MINAO) offsets characterized (~0.1–0.2 e⁻ on polar bonds, fixed
+  direction, trends unaffected).
+- Molden bridge utility (`validation/molden_renorm.py`): renormalizes
+  Psi4's raw contraction coefficients and converts CRLF→LF so our
+  `canonical.molden` loads in IboView (occupied C^T S C 0.71 → 5e-3).
 
 ### Changed
 - `mathematics.md`: new §6 (bond-flat derivation); §§6–9 renumbered to
