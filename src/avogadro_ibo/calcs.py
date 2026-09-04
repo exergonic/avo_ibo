@@ -1580,10 +1580,14 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
     # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
     if n_val_vir > 1:
         _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
-        # NOTE: no bond-flat tie-break here yet.  Junk-column hygiene is now
-        # structural (fixed-count VVO above — no threshold squatters), so the
-        # tie-break itself waits only for its own verification pass
-        # (distorted-geometry pi*-repair check + suite inertness).
+
+    # -- Resolve bond-flat degeneracies in the virtual block -----------------
+    # Same resolver as the occupied block (it is block-agnostic); safe here
+    # because the fixed-count VVO construction above admits no junk
+    # columns.  Distorted geometries yield σ*+π* instead of two
+    # σ*-mixtures; equilibrium geometries are already Fock-diagonal and
+    # stay byte-identical.
+    _resolve_flat_degeneracies(U_val, atom_of, F_IAO)
 
     vir_energies = np.array(
         [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]

@@ -255,11 +255,14 @@ IboView's wall-clock seed.)
   molden-identical; all suite minima 1.000 (cc-pVDZ), benzene/aug-cc-pVDZ
   min 1.000; the threshold never over-kept in any tested regime
   (cc-pVDZ through aug-cc-pVDZ) — paper-parity plus guarantee, not a
-  repair. σ*/π* tie-break remains a separate next step (its own
-  distorted-geometry verification).
+  repair. σ*/π* tie-break IMPLEMENTED 2026-09-04 (see bond-flat entry
+  below; distorted-ethene π* repair verified, suite inert).
 - **Bond-flat degeneracy resolution**: implemented for the occupied
-  block (`_resolve_flat_degeneracies`); virtual block intentionally deferred
-  until the junk-column hygiene above.
+  block (`_resolve_flat_degeneracies`); extended 2026-09-04 to the
+  virtual block with the same block-agnostic call, enabled by fixed-count
+  VVO hygiene. Distorted ethene: two σ*-mixtures (0.454/0.457, no π* at
+  all) resolve to π* 0.163 + σ* 0.748; equilibrium geometries already
+  Fock-diagonal, suite 18/18 unchanged.
 
 ## Examples gallery (2026-09-03; tracked in-repo since 2026-09-04)
 

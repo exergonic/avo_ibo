@@ -51,6 +51,12 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   σ-threshold, with a `VVO_MIN_SIGMA` sanity floor and small-basis
   guard; verified numerically inert (suite 18/18 unchanged, production
   rerun byte-identical). Derivation credited in `mathematics.md` §7.2.
+- Bond-flat degeneracy resolution extended to the virtual block (same
+  `_resolve_flat_degeneracies` call, enabled by fixed-count VVO
+  hygiene): distorted geometries yield σ*+π* instead of σ*-mixtures
+  with no π* (distorted ethene: 0.454/0.457 mixtures → π* 0.163 +
+  σ* 0.748); equilibrium output byte-identical, suite 18/18 unchanged.
+  `mathematics.md` §6 scope lines updated to both blocks.
 
 ### Changed
 - `mathematics.md`: new §6 (bond-flat derivation); §§6–9 renumbered to

@@ -398,7 +398,7 @@ is flat in the same way.
 
 ### 6.1 Detection
 
-After PM convergence, evaluate each occupied pair $(i, j)$ as converged
+After PM convergence, evaluate each pair $(i, j)$ as converged
 and under a 45-degree rotation,
 
 $$
@@ -446,7 +446,8 @@ $$
 \cos\varphi \, \mathbf{c}_j.
 $$
 
-The pass runs on the **occupied block only**.  
+The pass runs on the **occupied and virtual blocks** — virtuals only
+after the fixed-count hygiene of §7.2 guarantees a junk-free block.
 
 `_resolve_flat_degeneracies()`
 
