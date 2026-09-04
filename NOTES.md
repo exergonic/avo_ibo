@@ -105,6 +105,18 @@ Findings:
   offers `Random 0` (fixed seed for testing) — we already have that
   property (deterministic Jacobi sweeps, no random kick), unlike
   IboView's wall-clock seed.
+  ORCA ENERGY LABELS (2026-09-04): `orca_2mkl` on a `.loc` file writes
+  the CANONICAL eigenvalues into the Molden `[MO]` block, NOT the
+  localized ⟨i|F|i⟩ — verified bit-for-bit against ORCA's own ORBITAL
+  ENERGIES table (−1.127819, −0.632089, −0.490129, −0.413573). Ours are
+  localized expectations (`calcs.py:1536`: C_i·F_IAO·C_i). Comparing the
+  two is apples-to-oranges; the apparent σ-degeneracy breaking was
+  canonical 3a1 vs 1b1. LMO energies are therefore NOT validation
+  targets (basin/seed/definition-dependent; ORCA doesn't print LMO
+  F_ii). One rigorous exception: the symmetry-protected HOMO (1b1
+  cannot mix) — ORCA canonical −0.4136 vs our p-LP −0.4011, Δ = 0.013
+  ≈ functional/grid (D2 vs D3). Charges/Wibergs stay the validators
+  (rotation-invariant, basin-independent).
   (a) CRLF line endings: `canonical.molden` is 2560/2560 CRLF, and
   IboView's `is_whitespace_cxp1()` accepts only space/tab, so the
   `\r` survives `str_trim` and line 1 mismatches
