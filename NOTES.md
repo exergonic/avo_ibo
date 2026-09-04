@@ -93,11 +93,15 @@ Findings:
   at the cost of churning every number in the project, without changing
   any chemistry (assignments, trends, Δs unaffected). Conformance claim
   is therefore: same-convention agreement ±0.02; cross-convention,
-  trends/Δs. DECISIVE EXPERIMENT (not yet run): ORCA `LocMet IAOIBO`
-  with `IAOBasis STO_3G` on the water_162 density must reproduce OUR
-  charges to ~0.01 — same minimal basis, same PM functional — closing
-  the case with three witnesses (IboView/MINAO −0.658, ours/STO-3G
-  −0.494, ORCA/STO-3G predicted −0.49). Also noted: ORCA `%loc`
+  trends/Δs. DECISIVE EXPERIMENT (RUN 2026-09-04, PASSED): ORCA
+  `LocMet IAOIBO` with `IAOBasis STO_3G` on water_162
+  (`C:/Users/mccan/orca_calcs/water/IAOIBO`, wB97X-D3/def2-TZVP):
+  O −0.4896, H +0.2448 vs ours O −0.494, H +0.247 — Δ = 0.004.
+  Three witnesses closed: IboView/MINAO −0.658, ours/STO-3G −0.494,
+  ORCA/STO-3G −0.4896. Convention isolated, implementation exonerated.
+  Gotcha: `%loc` DEFAULT EXCLUDES the core (first run's populations
+  summed to 8.0 e⁻, charges to +2.0); `T_CORE -99.9` is required,
+  checksum = post-localization charges sum to 0.000. Also noted: ORCA `%loc`
   offers `Random 0` (fixed seed for testing) — we already have that
   property (deterministic Jacobi sweeps, no random kick), unlike
   IboView's wall-clock seed.
