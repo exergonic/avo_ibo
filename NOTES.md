@@ -57,15 +57,30 @@ Findings:
   cross-implementation golden tests flaky by construction); comparisons
   lead with Δ trends where functional systematics cancel; the EAS
   mechanism study itself stays out of this repo.
-- Feeding our Molden files to IboView (2026-09-04): `canonical.molden`
-  carries CRLF line endings (2560/2560 lines), and IboView's
-  `is_whitespace_cxp1()` accepts only space/tab — so the `\r` survives
-  `str_trim` and the very first line mismatches
-  (`IvOrbitalFile.cpp:1222`, `CxParse1.cpp:180`). Convert CRLF→LF
-  first (`calcs/water_162/canonical_iboview.molden` is a converted
-  copy). Everything downstream parses leniently: `[Atoms] (AU)`,
-  `[GTO]`, `[MO]` Sym/Ene/Spin/Occup keys, Cartesian default (no
-  `[5D]` section). Not an IboView bug, just 2010-era line handling.
+- Feeding our Molden files to IboView (2026-09-04): TWO findings.
+  (a) CRLF line endings: `canonical.molden` is 2560/2560 CRLF, and
+  IboView's `is_whitespace_cxp1()` accepts only space/tab, so the
+  `\r` survives `str_trim` and line 1 mismatches
+  (`IvOrbitalFile.cpp:1222`, `CxParse1.cpp:180`). Convert CRLF→LF.
+  (b) Unnormalized contractions: Psi4's molden writer prints RAW
+  contraction coefficients (O def2-TZVP s-shell self-overlaps
+  0.1441/0.3881 as written; verified against S built from normalized
+  primitives). IboView builds overlap assuming normalized primitives
+  (renormalizing only ORCA-sourced files, detected via an
+  "orca_2mkl" `[Title]` tag we don't emit), so its S is inconsistent
+  with our coefficients — its own sanity check reports rmsd 0.19,
+  6.27 e⁻ instead of 10. Fix: `validation/molden_renorm.py`
+  normalizes multi-primitive s/p contractions (exact by symmetry;
+  d/f singles already normalized) and re-emits LF. Occupied
+  C^T S C: 0.71 → 4.9e-3 (150×). Permuting d/f to/from
+  Psi4-internal order makes it WORSE (2.6e-2), so Psi4 already
+  writes Molden-standard order. Residual 5e-3 lives in d/f tails;
+  IboView warns-but-continues, so validation comparisons should
+  allow ±0.02. `calcs/water_162/canonical_iboview.molden` is the
+  converted water file. Do NOT "fix" by scaling MO coefficients too:
+  C^T S C is invariant under simultaneous rescaling (verified POST
+  == PRE to all digits) — Psi4's s/p coefficients are already in
+  its normalized basis, only the written contractions are raw.
 
 ## Open items
 
