@@ -60,3 +60,11 @@ vs our 71/29).
 Bottom line: same convention gives the same numbers to 0.006.
 The implementation is sound; the remaining differences are named
 conventions with measured sizes.
+
+## "But who is right?"
+
+We all are. An IAO charge has no single true value waiting to be
+found — it is a well-defined number *within a stated convention*
+(minimal basis, partitioning scheme). Fix the convention and every
+program here gives the same answer. So the question dissolves: pick a
+convention, state it, and compare within it.
