@@ -57,6 +57,15 @@ Findings:
   cross-implementation golden tests flaky by construction); comparisons
   lead with Δ trends where functional systematics cancel; the EAS
   mechanism study itself stays out of this repo.
+- Feeding our Molden files to IboView (2026-09-04): `canonical.molden`
+  carries CRLF line endings (2560/2560 lines), and IboView's
+  `is_whitespace_cxp1()` accepts only space/tab — so the `\r` survives
+  `str_trim` and the very first line mismatches
+  (`IvOrbitalFile.cpp:1222`, `CxParse1.cpp:180`). Convert CRLF→LF
+  first (`calcs/water_162/canonical_iboview.molden` is a converted
+  copy). Everything downstream parses leniently: `[Atoms] (AU)`,
+  `[GTO]`, `[MO]` Sym/Ene/Spin/Occup keys, Cartesian default (no
+  `[5D]` section). Not an IboView bug, just 2010-era line handling.
 
 ## Open items
 
