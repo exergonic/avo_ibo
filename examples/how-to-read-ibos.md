@@ -135,8 +135,11 @@ from it. Signs are relative to the listed bond — the same pair may
 contribute oppositely elsewhere (diborane's bridge×bridge pair is
 −0.0145 on every B–H leg but +0.0145 across the B–B contact). Orbital
 numbers match the table rows above. Ordinary molecules (water, ethene,
-benzene) print no such section — silence means every bond is pure
-diagonal shares.
+benzene) print no such section — silence means no bond reaches
+|term| ≥ 0.01. When the section does print, a closing footnote counts
+near-miss terms in [0.005, 0.01) (count plus largest term), so a
+rounded parenthetical like (+0.010) always names its pair — see the
+water-dimer entry, where O1–O4's +0.0095 earns exactly that footnote.
 
 The full derivation behind all six sections is in
 `../mathematics/mathematics.md` (§9 for the analysis table and Wiberg

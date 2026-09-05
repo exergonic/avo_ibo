@@ -924,9 +924,12 @@ def _analyze_ibos(
 # chemistry (3c-2e bridges, conjugated π) and stays silent on ordinary
 # single/double bonds.
 PAIR_DETAIL_THRESH = 0.01
-# Boundary note: a term at e.g. +0.0095 rounds to +0.010 in the
-# parenthetical yet stays below this print threshold, so the table can
-# show an interference with no named pair (observed: dimer O1-O4).
+# Near-miss band [PAIR_NEAR_THRESH, PAIR_DETAIL_THRESH): counted in a
+# closing footnote (count plus largest term) whenever the section
+# prints — so a parenthetical like (+0.010) always names its pair
+# (cf. dimer O1-O4 at +0.0095). The footnote never creates a section
+# on its own: quiet molecules stay fully silent (see ethene test).
+PAIR_NEAR_THRESH = 0.005
 
 
 def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
@@ -990,6 +993,7 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     # Significant off-diagonal terms, kept for the detail section:
     # (A, B) with A < B -> [(k, l, value)] with |value| >= threshold.
     pair_detail = {}
+    pair_near = {}
 
     for k in range(n_occ):
         # Diagonal (per-orbital share): 4·P_A·P_B
@@ -1014,13 +1018,22 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
             else:
                 sigma += contrib
                 int_sigma += contrib
-            # Record significant pair terms for the detail section.
+            # Record significant pair terms for the detail section, plus
+            # near-miss terms for the closing footnote.
             big = np.abs(contrib) >= PAIR_DETAIL_THRESH
             if big.any():
                 for A in range(n_atoms):
                     for B in range(A + 1, n_atoms):
                         if big[A, B]:
                             pair_detail.setdefault((A, B), []).append(
+                                (k, l, float(contrib[A, B]))
+                            )
+            near = (np.abs(contrib) >= PAIR_NEAR_THRESH) & ~big
+            if near.any():
+                for A in range(n_atoms):
+                    for B in range(A + 1, n_atoms):
+                        if near[A, B]:
+                            pair_near.setdefault((A, B), []).append(
                                 (k, l, float(contrib[A, B]))
                             )
 
@@ -1095,6 +1108,21 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
         lines.append("  bond — the same pair may contribute oppositely elsewhere.")
         lines.append("  Orbitals are numbered as in the analysis table above.")
         lines.extend(detail)
+        near_all = [
+            (symA, a, symB, b, k, l, v)
+            for symA, a, symB, b, t, s, p, is_, ip
+            in sorted(rows, key=lambda x: -x[4])
+            for k, l, v in pair_near.get((a, b), [])
+        ]
+        if near_all:
+            n_near = len(near_all)
+            sA, a, sB, b, k, l, v = max(near_all, key=lambda e: abs(e[6]))
+            noun = "term" if n_near == 1 else "terms"
+            lines.append(
+                f"  ({n_near} {noun} in [{PAIR_NEAR_THRESH:g}, "
+                f"{PAIR_DETAIL_THRESH:g}) omitted; largest: "
+                f"{sA}{a+1}-{sB}{b+1}: {_orb_tag(k)} × {_orb_tag(l)} = {v:+.4f})"
+            )
     return "\n".join(lines)
 
 

@@ -57,6 +57,11 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   with no π* (distorted ethene: 0.454/0.457 mixtures → π* 0.163 +
   σ* 0.748); equilibrium output byte-identical, suite 18/18 unchanged.
   `mathematics.md` §6 scope lines updated to both blocks.
+- Near-miss interference footnote: when the pair-interference detail
+  section prints, a closing line counts terms in [0.005, 0.01) (count
+  plus largest term), so rounded parentheticals like (+0.010) always
+  name their pair (water-dimer O1–O4 at +0.0095); the footnote never
+  creates a section on quiet molecules (ethene's silence test holds).
 - Configurable calculations home: new `calcs_dir` setting (**Run
   calculations in**, same pattern as the easy_xtb plugin) redirecting
   per-molecule calc dirs, with a `--output-dir` CLI equivalent and a

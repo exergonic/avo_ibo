@@ -48,15 +48,16 @@ both directions:
 ```
   O1-H2: orb6(O-H σ) × orb9(O(LP)): -0.0510
   H2-O4: orb6(O-H σ) × orb9(O(LP)): -0.0116
+  (1 term in [0.005, 0.01) omitted; largest: O1-O4: orb6(O-H σ) × orb9(O(LP)) = +0.0095)
 ```
 
 LP→σ* donation weakening the donor while building the bridge. The same
 pair signs a third bond, too: O1–O4's parenthetical (+0.010) folds from
 orb6×orb9 at +0.0095 — just under the detail section's |term| ≥ 0.01
-print threshold, so the shipped table shows the number without naming
-the pair. One orbital pair, three bonds, three signs (−0.051, −0.012,
-+0.010): competition on both legs, cooperation across the O···O
-contact. Charges
+print threshold, so it earns the closing footnote quoted above instead
+of its own line. One orbital pair, three bonds, three signs (−0.051,
+−0.012, +0.010): competition on both legs, cooperation across the
+O···O contact. Charges
 agree: donor O1 goes more negative (−0.540 vs monomer −0.494),
 acceptor O4 less (−0.459) — and the bonded hydrogen H2 (+0.239) is
 *less* positive than the free hydrogens (+0.259/+0.260), because

@@ -423,6 +423,33 @@ def test_diborane_pair_interference_detail():
     )
 
 
+def test_cot_near_threshold_footnote():
+    """COT: near-miss pair terms earn a closing footnote; the section gate is unchanged.
+
+    Terms in [0.005, 0.01) are counted (count plus largest term) whenever
+    the detail section prints. The footnote never creates a section on
+    quiet molecules (see the ethene silence test).
+    """
+    xyz_path = FILES_DIR / "cyclooctatetraene.xyz"
+    result = subprocess.run(
+        [sys.executable, "-m", "avogadro_ibo", "--method", "hf", "--basis", "cc-pVDZ", "--charge", "0", "--spin", "1", str(xyz_path)],
+        capture_output=True, text=True, cwd=PROJECT_DIR, timeout=180,
+    )
+    assert result.returncode == 0
+
+    text = (_find_calc_dir("cyclooctatetraene") / "ibos.txt").read_text(encoding="utf-8")
+    assert "--- Significant orbital-pair interference (|term| ≥ 0.01) ---" in text
+    m = re.search(
+        r"\((\d+) terms? in \[0\.005, 0\.01\) omitted; largest: (.+) = ([-+\d.]+)\)",
+        text,
+    )
+    assert m, "near-miss footnote missing"
+    assert int(m.group(1)) >= 1
+    assert 0.005 <= abs(float(m.group(3))) < 0.01, (
+        f"footnote value outside the near-miss band: {m.group(3)}"
+    )
+
+
 def test_frontier_orbital_summary():
     """Ethene: frontier block exists and gap = LUMO − HOMO internally consistent."""
     xyz_path = FILES_DIR / "ethene.xyz"

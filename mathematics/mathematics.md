@@ -653,7 +653,9 @@ order; a negative pair term subtracts from it.  Signs are relative to
 the listed bond — the same pair may contribute oppositely elsewhere —
 and pair terms are defined in the IBO frame, so remixing orbitals
 within a degenerate manifold redistributes them while the bond total
-is unchanged.
+is unchanged. Terms in $[0.005, 0.01)$ are counted in a closing
+footnote (count plus largest term) whenever the section prints; the
+footnote never creates a section on its own.
 
 `_format_wiberg()`
 
