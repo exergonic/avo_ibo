@@ -79,6 +79,12 @@ mixing lines (e.g. `C3-C4: orb7(C-C π) × orb10(C-C σ): -0.0225`) — the
 bent-bond early warning working as designed, since nonplanarity defeats
 the σ/π symmetry separation. The planar anion shows no such lines.
 
+![Relaxed anion HOMO — rehybridized lone pair](img/cyclopropyl_anion_nonplanar_homo.png)
+*HOMO of the relaxed anion viewed obliquely: an asymmetric lone pair —
+large lobe on the carbanion carbon, small opposite-phase lobe below —
+the rehybridized 53% 2s + 47% 2p LP (−0.090 Ha), bound again and
+localized.*
+
 ## The comparison
 
 | Property | Cation (aromatic) | Anion planar (antiaromatic) | Anion relaxed (nonaromatic) |
