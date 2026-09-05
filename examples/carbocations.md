@@ -34,7 +34,7 @@ stabilization.
 ![Methyl LUMO — the bare empty p](img/methyl_lumo_empty_p.png)
 *Orbital 5 (LUMO): pure 2px on C1, 100% — the bare empty p with no
 tails. Compare the tert-butyl LUMO further down (80.0%): the missing
-19.5% there is hyperconjugation made visible.*
+20.0% there is hyperconjugation made visible.*
 
 ## Ethylium, C₂H₅⁺ — bridged and nonclassical
 
