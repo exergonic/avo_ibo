@@ -105,7 +105,11 @@ near-perpendicular bonds (orbitals 14–16, no C1 tail) at full strength
 that give carry less order, and their hydrogens carry more positive
 charge. An earlier saddle-point geometry showed the same physics as a
 3+6 axial/equatorial split (0.059 vs 0.012); the staggered minimum
-spreads it across six donors instead. The C–C 1.126 orders carry the
+spreads it across six donors instead. A sub-threshold probe (detail
+floor temporarily 0.001) finds the pair terms behind the ~0.04
+through-bonds: all subtractive, largest −0.0048 per donor C1–H —
+real hyperconjugation chemistry sitting just under the 0.005
+near-miss floor, quoted here rather than printed. The C–C 1.126 orders carry the
 same signature: slight π character from methyl donation, far below
 true bridging.
 
