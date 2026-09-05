@@ -924,6 +924,9 @@ def _analyze_ibos(
 # chemistry (3c-2e bridges, conjugated π) and stays silent on ordinary
 # single/double bonds.
 PAIR_DETAIL_THRESH = 0.01
+# Boundary note: a term at e.g. +0.0095 rounds to +0.010 in the
+# parenthetical yet stays below this print threshold, so the table can
+# show an interference with no named pair (observed: dimer O1-O4).
 
 
 def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
