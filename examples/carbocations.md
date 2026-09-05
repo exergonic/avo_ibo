@@ -1,9 +1,11 @@
-# Carbocations: bare, bridged, and classical
+# Carbocations: bare, bridged, classical — and the historical system itself
 
 The nonclassical-vs-classical carbocation debate is one of the most famous
-controversies in organic chemistry. These three molecules resolve it visually
+controversies in organic chemistry. Three molecules below resolve it visually
 and quantitatively in a single ladder: the bare ion, the bridged ion, and
-the hyperconjugatively stabilized ion. All run at wB97X-D/def2-TZVP;
+the hyperconjugatively stabilized ion. A fourth section then runs the
+historical system itself — the 2-norbornyl cation — through the same
+pipeline. All run at wB97X-D/def2-TZVP;
 reproduce with the commands shown.
 
 ## Methyl, CH₃⁺ — the bare baseline
@@ -101,22 +103,62 @@ ones fivefold, exactly as textbook orbital overlap predicts. The C–C
 1.121 orders carry the same signature: slight π character from methyl
 donation, far below true bridging.
 
+## 2-Norbornyl, C₇H₁₁⁺ — the historical system itself
+
+```
+Input: norbornyl.xyz  (charge +1; start: Scholz et al. Science 2013 SI minimum,
+        ORCA 6.1.1 wB97X-D3/def2-TZVP opt + freq, no imaginary modes)
+Run:   pixi run python -m avogadro_ibo examples/norbornyl.xyz --method wB97X-D --basis def2-TZVP --charge 1 --spin 1
+```
+
+Orbital 19 is the Scholz structure in our vocabulary:
+
+```
+   19    2.000   -0.772446        C-C-C 2e3c  C7(39.3%) + C3(29.9%) + C4(29.9%)               16% 2s + 84% 2py         13.6
+```
+
+The classifier labels it `C-C-C 2e3c` with no special casing — symmetric
+to 0.1% between the bridgeheads, with the bridging carbon carrying the
+largest share, exactly the ethylium pattern (H6 38.5% + C 30.7/30.7).
+The Wiberg orders confirm it quantitatively: C3–C7 = C4–C7 = **0.514 /
+0.514**, against ethylium's 0.473 / 0.473, and the bridgehead pair C3–C4
+carries 1.275 with a live −0.092 interference parenthetical. Charges:
+C3/C4 +0.097 each (identical — symmetry intact), next to ethylium's
++0.078 ×2. The two bridges are quantitative siblings; Brown's classical
+alternatives appear nowhere in the table.
+
+The geometry cross-validates the method: the opt retains the SI bridge
+at 1.8183/1.8183 against Scholz's 1.8250 (Δ0.007) with the σᵥ plane
+intact, so the starting structure doubles as an independent check our
+level passes.
+
+And the ladder gets its ending: the LUMO is **+0.001 Ha**, a degenerate
+π* pair spread over the cage — there is no low empty-p orbital left.
+Bridging hasn't just stabilized the electrophile here; it has filled it,
+promoting the cationic character fully into the occupied 3c–2e orbital
+at −0.772 Ha. The fourth rung isn't "more stabilized." It is "nothing
+left to stabilize."
+
+![Norbornyl 3c–2e bridge, orbital 19](img/norbornyl_2e3c_bridge.png)
+*Orbital 19, viewed centred on the C3–C4–C7 triad (cage behind): the
+3c–2e bridge — C7 39.3% + C3/C4 29.9% each — symmetric to 0.1%.*
+
 ## The comparison
 
-| Property | Methyl (bare) | Ethylium (bridged) | tert-Butyl (classical) |
-|----------|---------------|--------------------|------------------------|
-| Charge on C⁺ | +0.406 | +0.078 (×2) | +0.400 |
-| Empty orbital | pure p (LUMO) | filled 3c–2e (HOMO) | empty p (LUMO) |
-| LUMO share on C⁺ | 100% | — (bridged away) | 80.5% (+ tails) |
-| C–C bond order | — | 1.414 | 1.121 |
-| LUMO energy | −0.365 Ha | −0.064 Ha | −0.169 Ha |
+| Property | Methyl (bare) | Ethylium (bridged) | tert-Butyl (classical) | Norbornyl (bridged) |
+|----------|---------------|--------------------|------------------------|---------------------|
+| Charge on C⁺ | +0.406 | +0.078 (×2) | +0.400 | +0.097 (×2) |
+| Empty orbital | pure p (LUMO) | filled 3c–2e (HOMO) | empty p (LUMO) | filled 3c–2e (occ) |
+| LUMO share on C⁺ | 100% | — (bridged away) | 80.5% (+ tails) | — (no empty p; LUMO +0.001 π*) |
+| C–C bond order | — | 1.414 | 1.121 | 0.514 ×2 + 1.275 (bridgehead) |
+| LUMO energy | −0.365 Ha | −0.064 Ha | −0.169 Ha | +0.001 Ha |
 
 ## References
 
-The historical debate centred on the 2-norbornyl cation; methyl,
-ethylium, and tert-butyl here are its minimal analogues, showing the
-same bonding vocabulary (3c–2e bridge, empty p, hyperconjugation) in
-systems small enough to compute in seconds.
+The historical debate centred on the 2-norbornyl cation, computed above
+as the capstone; methyl, ethylium, and tert-butyl are its minimal
+analogues, showing the same bonding vocabulary (3c–2e bridge, empty p,
+hyperconjugation) in systems small enough to compute in seconds.
 
 - H. C. Brown (with commentary by P. v. R. Schleyer), *The
   Nonclassical Ion Problem*, Plenum Press, New York, **1977** — the
