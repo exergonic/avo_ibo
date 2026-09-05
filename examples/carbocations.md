@@ -1,9 +1,36 @@
-# Carbocations: nonclassical ethylium vs classical tert-butyl
+# Carbocations: bare, bridged, and classical
 
 The nonclassical-vs-classical carbocation debate is one of the most famous
-controversies in organic chemistry. These two molecules resolve it visually
-and quantitatively in a single comparison. Both run at wB97X-D/def2-TZVP;
+controversies in organic chemistry. These three molecules resolve it visually
+and quantitatively in a single ladder: the bare ion, the bridged ion, and
+the hyperconjugatively stabilized ion. All run at wB97X-D/def2-TZVP;
 reproduce with the commands shown.
+
+## Methyl, CH₃⁺ — the bare baseline
+
+```
+Input: methyl.xyz  (charge +1; ORCA 6.1.1 wB97X-D3/def2-TZVP opt + freq, no imaginary modes)
+Run:   pixi run python -m avogadro_ibo examples/methyl.xyz --method wB97X-D --basis def2-TZVP --charge 1 --spin 1
+```
+
+Orbital 5 is the whole story:
+
+```
+    5    0.000   -0.365417           C(virt)  C1(100.0%)               100% 2px                  ---    <- LUMO
+```
+
+The LUMO is a pure 2p on carbon — 100.0%, no tails anywhere. Nothing
+donates into it because there is nothing to donate: three C–H σ bonds
+(0.961 each, no interference to report) and an empty orbital orthogonal
+to all of them. The charge has nowhere to go: C1 +0.406, each H +0.198.
+At −0.365 Ha it is by far the deepest LUMO on this page — the
+bare electrophile against which the other two ions measure their
+stabilization.
+
+![Methyl LUMO — the bare empty p](img/methyl_lumo_empty_p.png)
+*Orbital 5 (LUMO): pure 2px on C1, 100% — the bare empty p with no
+tails. Set against t-butyl's 80.5%, the missing 19.5% is
+hyperconjugation made visible.*
 
 ## Ethylium, C₂H₅⁺ — bridged and nonclassical
 
@@ -76,9 +103,10 @@ donation, far below true bridging.
 
 ## The comparison
 
-| Property | Ethylium (bridged) | tert-Butyl (classical) |
-|----------|--------------------|------------------------|
-| Charge on C⁺ | +0.078 (×2) | +0.400 |
-| Bonding orbital | `C-C-H 2e3c` | empty p (LUMO) |
-| C–C bond order | 1.414 | 1.121 |
-| LUMO energy | −0.064 Ha | −0.169 Ha |
+| Property | Methyl (bare) | Ethylium (bridged) | tert-Butyl (classical) |
+|----------|---------------|--------------------|------------------------|
+| Charge on C⁺ | +0.406 | +0.078 (×2) | +0.400 |
+| Empty orbital | pure p (LUMO) | filled 3c–2e (HOMO) | empty p (LUMO) |
+| LUMO share on C⁺ | 100% | — (bridged away) | 80.5% (+ tails) |
+| C–C bond order | — | 1.414 | 1.121 |
+| LUMO energy | −0.365 Ha | −0.064 Ha | −0.169 Ha |
