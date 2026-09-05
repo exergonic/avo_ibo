@@ -6,17 +6,10 @@ into the C=C π* acceptor. These three molecules render that ranking as
 IBO numbers at uniform wB97X-D/def2-TZVP — the same donation physics
 as the tert-butyl cation's 6+3 split ([carbocations.md](carbocations.md)),
 now with a π acceptor instead of an empty p. Reproduce with the
-commands shown.
-
-A note on the threshold question this series has been tracking: the
-donor terms here print at −0.0150 (propene) and −0.0128 (isobutene),
-comfortably *above* the 0.01 floor — unlike water-dimer's ~0.0095 and
-tert-butyl's −0.0048, which sat in or under the gray zone. Strong
-donation into a genuine π* acceptor prints cleanly; what lands near
-the cutoff is weak donation into a distant lone pair or a
-symmetrized empty p. The threshold problem correlates with
-donor–acceptor strength, not with hyperconjugation as such — a useful
-negative result, stated up front.
+commands shown. (Ethene's section stays silent throughout — no bond
+reaches the interference floor — while propene and isobutene fire
+detail lines plus footnotes; [how-to-read-ibos.md](how-to-read-ibos.md#6-significant-orbital-pair-interference-when-present)
+explains the display convention.)
 
 ## Ethene, C₂H₄ — the zero-donor control
 
@@ -140,10 +133,7 @@ sharing one π* acceptor. Total π depletion scales evenly (0.029 →
 
 The stability ordering falls out of the π column directly: each methyl
 costs the double bond ~0.03 of π order and parks ~0.012 of π character
-on its single bond. Three visibility regimes in one page, too — ethene
-silent, propene and isobutene firing detail plus footnote — which makes
-this entry the natural companion to the threshold discussion in
-the tert-butyl section of [carbocations.md](carbocations.md).
+on its single bond.
 
 ## References
 

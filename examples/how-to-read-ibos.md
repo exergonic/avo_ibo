@@ -141,6 +141,21 @@ near-miss terms in [0.005, 0.01) (count plus largest term), so a
 rounded parenthetical like (+0.010) always names its pair — see the
 water-dimer entry, where O1–O4's +0.0095 earns exactly that footnote.
 
+### How the thresholds were chosen
+
+The 0.01 print floor keeps the section to genuine delocalization
+chemistry; the 0.005 near-miss band (half the floor) catches terms
+that rounding would otherwise orphan. Three gallery cases calibrate
+them: alkene C–H σ × C=C π donation prints cleanly at −0.0150/−0.0128
+([alkenes.md](alkenes.md)); the water-dimer H-bond contact sits at
++0.0095, inside the footnote band; tert-butyl's finer hyperconjugative
+pairs reach only −0.0048, below the band, and are quoted in that
+entry's prose instead. The pattern so far: strong donation into a
+genuine π* acceptor clears the floor with room to spare, while weak
+donation into distant or symmetrized acceptors lands in or under the
+gray zone. If future examples contradict that pattern, the floor moves
+— the band edge is evidence-based, not sacred.
+
 The full derivation behind all six sections is in
 `../mathematics/mathematics.md` (§9 for the analysis table and Wiberg
 decomposition).
