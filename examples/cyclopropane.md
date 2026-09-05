@@ -1,7 +1,7 @@
 # Cyclopropane — bent bonds and p-rich strain
 
 ```
-Input: cyclopropane.xyz  (D3h; geometry recovered from a prior calculation)
+Input: cyclopropane.xyz  (D3h)
 Run:   pixi run python -m avogadro_ibo examples/cyclopropane.xyz --method wB97X-D --basis def2-TZVP
 ```
 

@@ -45,8 +45,9 @@ cyclobutadiene, formaldehyde, ferrocene (wB97X-D geometry, slightly
 desymmetrised from D5h — the angle is symmetry-broken IBOs from
 near-symmetric input; existing table at MN15-L/def2-SVP needs a
 wB97X-D/def2-TZVP rerun first).
-Separate mechanistic study (own writeup, not a gallery entry):
-[phenol-vs-anisole.md](phenol-vs-anisole.md) — why phenol out-activates
+Separate mechanistic study (own writeup, now alongside the validation
+record): [phenol-vs-anisole.md](../validation/phenol-vs-anisole.md)
+— why phenol out-activates
 anisole in EAS, via Wheland-intermediate IBO charges, with a
 plugin-vs-IboView cross-validation appendix.
 

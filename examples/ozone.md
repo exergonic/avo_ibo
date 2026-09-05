@@ -5,12 +5,11 @@ Input: ozone.xyz
 Run:   pixi run python -m avogadro_ibo examples/ozone.xyz --method wB97X-D --basis def2-TZVP
 ```
 
-> **Provenance caution.** This geometry was recovered from a prior
-> calculation and its O–O distance (1.11 Å) is short of the
-> experimental 1.27 Å; ozone's multireference character makes it
-> sensitive to geometry. The charge and coupling pattern below
-> reproduces across levels, but re-optimize (ORCA, wB97X-D3/def2-TZVP
-> or better) before quoting these numbers in production.
+> **Geometry caution.** O–O is 1.11 Å here vs 1.27 Å experimental;
+> ozone's multireference character makes it sensitive to geometry.
+> The charge and coupling pattern below reproduces across levels, but
+> re-optimize (ORCA, wB97X-D3/def2-TZVP or better) before quoting
+> these numbers in production.
 
 With that said, the table tells ozone's whole reactivity story at a
 glance. Charges: central O +0.472, terminals −0.236 each — the famous

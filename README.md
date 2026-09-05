@@ -22,6 +22,8 @@ to the virtual block too, so distorted geometries yield σ*+π* deterministicall
 * Standalone CLI (`python -m avogadro_ibo molecule.xyz`) and Avogadro in-app mode
 * Full mathematical derivation in [`mathematics/mathematics.md`](mathematics/mathematics.md) with paper equation references
 
+New to IBO output? Start with the [guide to reading `ibos.txt`](examples/how-to-read-ibos.md) before anything else.
+
 Project notebooks: [NOTES.md](NOTES.md) (open items, design decisions),
 [AGENTS.md](AGENTS.md) (development context and gotchas).
 Release history: [CHANGELOG.md](CHANGELOG.md).

@@ -28,7 +28,9 @@ The virtuals break the pattern instructively: orb 11 is two-centre
 `C3(51%) + C4(49%)` while orb 12 is asymmetric three-centre
 `C1(66.6%) + C4(17.7%) + C3(15.7%)` — PM localises virtuals differently
 from occupieds even under perfect D3h symmetry. (The virtual block gets
-no bond-flat tie-break; see NOTES.md.)
+the same bond-flat tie-break as the occupied block; the asymmetry above
+is PM localization itself differing between blocks — see
+[../NOTES.md](../NOTES.md).)
 
 ![Cyclopropenyl bent σ bond](img/bent_sigma_bond.png)
 
@@ -73,3 +75,12 @@ Notably, the nonplanar geometry's detail section fires genuine σπ
 mixing lines (e.g. `C3-C4: orb7(C-C π) × orb10(C-C σ): -0.0225`) — the
 bent-bond early warning working as designed, since nonplanarity defeats
 the σ/π symmetry separation. The planar anion shows no such lines.
+
+## The comparison
+
+| Property | Cation (aromatic) | Anion planar (antiaromatic) | Anion relaxed (nonaromatic) |
+|---|---|---|---|
+| HOMO energy | −0.762 Ha | +0.029 Ha | −0.090 Ha |
+| π character | delocalized thirds (33/33/33) | C1–C3 double, π 1.000 on C1/C3 | localized alkene + lone pair |
+| Carbanion charge | — | −0.865 | −0.626 |
+| C–C orders | 1.429 ×3 | 1.981 + 0.978 ×2 | ~2.0 + singles |

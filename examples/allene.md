@@ -1,14 +1,9 @@
 # Allene — orthogonal π systems and axial chirality
 
 ```
-Input: allene.xyz  (D2d; geometry recovered from a prior calculation)
+Input: allene.xyz  (D2d)
 Run:   pixi run python -m avogadro_ibo examples/allene.xyz --method wB97X-D --basis def2-TZVP
 ```
-
-(Note: an older analysis of this molecule was misfiled under
-`methyl_amine_001/analysis.txt` — the D2d orthogonal-π discussion
-belongs here, verified empirically: central carbon +0.026, terminals
-−0.189, matching to the digit.)
 
 The two π bonds resolve by symmetry into perpendicular planes:
 

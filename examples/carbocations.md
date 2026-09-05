@@ -12,9 +12,6 @@ Input: ethylium.xyz  (H6 bridges the C–C axis; charge +1)
 Run:   pixi run python -m avogadro_ibo examples/ethylium.xyz --method wB97X-D --basis def2-TZVP --charge 1 --spin 1
 ```
 
-(Note: an older input file for this molecule was mislabelled "ethane" —
-check the atom count (7 atoms, C₂H₅) if you inherit it from elsewhere.)
-
 Orbital 4 is the whole story:
 
 ```

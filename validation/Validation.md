@@ -3,8 +3,10 @@
 We checked this plugin against two independent IBO implementations:
 Knizia's [IboView](http://www.iboview.org) and ORCA 6.1.1 (`%loc` /
 `IAOIBO`). Five molecules, one level of theory (wB97X-D/def2-TZVP),
-same geometry in every leg. The full record lives in `NOTES.md`;
-this page states what a user needs to know.
+same geometry in every leg. The full record lives in
+[../NOTES.md](../NOTES.md); this page states what a user needs to know.
+For the method applied to a real mechanistic question, see the
+[phenol-vs-anisole case study](phenol-vs-anisole.md).
 
 ## Charges agree to 0.006
 

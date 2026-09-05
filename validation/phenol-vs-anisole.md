@@ -10,9 +10,8 @@ quantitative.
 
 All ORCA work at wB97X-D3/def2-TZVP (Opt+Freq); IBO analysis by
 IboView (IBBA) with plugin cross-checks (wB97X-D/def2-TZVP — see
-Validation below). Geometries: `validation/phenol_v_anisole/*_opt.xyz`
-(ORCA-optimized last frames). Full campaign history in the Aug-16
-session notes; raw ORCA outputs in `orca_calcs/phenol_v_anisole/`.
+Validation below). Geometries: `phenol_v_anisole/*_opt.xyz`
+(ORCA-optimized last frames, shipped alongside this file).
 
 ## 1. The paradox (ground states)
 
@@ -69,7 +68,8 @@ small to close the gap. Theory confirmed, quantitatively.
 
 All four ORCA-optimized geometries rerun through avo_ibo
 (wB97X-D/def2-TZVP; D3 unavailable in Psi4's env — D2 instead, see
-caveat). Full table in NOTES.md ("IboView cross-validation snapshot"):
+caveat). Full table in [../NOTES.md](../NOTES.md) ("Cross-validation
+against IboView and ORCA"):
 
 - **Trends agree to ±0.01**: ΔO +0.139/+0.137 (phenol), +0.122/+0.119
   (anisole); ΔC1 +0.150/+0.160 both molecules. The 14%-vs-15% verdict
