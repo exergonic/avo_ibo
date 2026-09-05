@@ -110,3 +110,30 @@ donation, far below true bridging.
 | LUMO share on C⁺ | 100% | — (bridged away) | 80.5% (+ tails) |
 | C–C bond order | — | 1.414 | 1.121 |
 | LUMO energy | −0.365 Ha | −0.064 Ha | −0.169 Ha |
+
+## References
+
+The historical debate centred on the 2-norbornyl cation; methyl,
+ethylium, and tert-butyl here are its minimal analogues, showing the
+same bonding vocabulary (3c–2e bridge, empty p, hyperconjugation) in
+systems small enough to compute in seconds.
+
+- H. C. Brown (with commentary by P. v. R. Schleyer), *The
+  Nonclassical Ion Problem*, Plenum Press, New York, **1977** — the
+  classical case against delocalised ions.
+- G. A. Olah, "Stable Carbocations. CXVIII. General Concept and
+  Structure of Carbocations Based on Differentiation of Trivalent
+  (Classical) Carbenium Ions from Three-Center Bound Penta- or
+  Tetracoordinated (Nonclassical) Carbonium Ions," *J. Am. Chem.
+  Soc.* **1972**, *94*, 808–820,
+  DOI:[10.1021/ja00758a020](https://doi.org/10.1021/ja00758a020) —
+  the carbenium/carbonium vocabulary this page uses.
+- G. A. Olah, "My Search for Carbocations and Their Role in Chemistry
+  (Nobel Lecture)," *Angew. Chem. Int. Ed. Engl.* **1995**, *34*,
+  1393–1405 — superacid matrix isolation that made stable
+  carbocations observable (Nobel Prize in Chemistry, 1994).
+- F. Scholz, D. Himmel, F. W. Heinemann, P. v. R. Schleyer,
+  K. Meyer, I. Krossing, "Crystal Structure Determination of the
+  Nonclassical 2-Norbornyl Cation," *Science* **2013**, *341*,
+  62–64, DOI:[10.1126/science.1238849](https://doi.org/10.1126/science.1238849) —
+  the X-ray structure that settled the debate in favour of bridging.
