@@ -8,6 +8,16 @@ as the tert-butyl cation's 6+3 split ([carbocations.md](carbocations.md)),
 now with a π acceptor instead of an empty p. Reproduce with the
 commands shown.
 
+A note on the threshold question this series has been tracking: the
+donor terms here print at −0.0150 (propene) and −0.0128 (isobutene),
+comfortably *above* the 0.01 floor — unlike water-dimer's ~0.0095 and
+tert-butyl's −0.0048, which sat in or under the gray zone. Strong
+donation into a genuine π* acceptor prints cleanly; what lands near
+the cutoff is weak donation into a distant lone pair or a
+symmetrized empty p. The threshold problem correlates with
+donor–acceptor strength, not with hyperconjugation as such — a useful
+negative result, stated up front.
+
 ## Ethene, C₂H₄ — the zero-donor control
 
 ```
@@ -47,8 +57,14 @@ methyl–vinyl single rises to 1.040 carrying genuine π character
 (0.012) — a single bond with a hundredth of a double bond in it. Two
 of the three methyl C–H bonds show σ/π mixing (−0.003 π) from overlap
 with the acceptor; the third, held away from it, stays pure σ at
-0.983. And the through-space contacts print: C3···H4/H6 at 0.022 with
-(+0.010) parentheticals, the hyperconjugative reach made quantitative.
+0.983. And the through-space contacts print:
+
+```
+  C3-H4         0.022   0.012   0.010  (+0.010: σ+0.005, π+0.005)
+  C3-H6         0.022   0.012   0.010  (+0.010: σ+0.005, π+0.005)
+```
+
+the hyperconjugative reach made quantitative.
 
 The detail section fires at full threshold — no probe needed:
 
@@ -76,14 +92,41 @@ Run:   pixi run python -m avogadro_ibo examples/isobutene.xyz --method wB97X-D -
   C1-C4         1.936   0.997   0.939  (-0.041: σ-0.016, π-0.026)
   C1-C2         1.028   1.016   0.012  (+0.008: σ+0.000, π+0.008)
   C1-C3         1.028   1.016   0.012  (+0.008: σ+0.000, π+0.008)
+  C2-H5         0.973   0.976  -0.003  (-0.008: σ-0.005, π-0.003)
+  C2-H6         0.973   0.976  -0.003  (-0.008: σ-0.005, π-0.003)
+  C3-H8         0.973   0.976  -0.003  (-0.008: σ-0.005, π-0.003)
+  C3-H9         0.973   0.976  -0.003  (-0.008: σ-0.005, π-0.003)
+  C2-H7         0.984   0.984   0.000  (-0.006: σ-0.006, π+0.000)
+  C3-H10        0.984   0.984   0.000  (-0.006: σ-0.006, π+0.000)
 ```
 
 The trend continues monotonically: π 1.000 → 0.971 → 0.939, with two
 methyl–vinyl singles each carrying the same 0.012 of π character
-propene showed once. Four donor C–H σ × π pairs print at −0.0128 each
-in the detail section (two aligned donors per methyl), backed by a
-20-term near-miss footnote and four 0.021 (+0.010) vinyl···H contacts.
-Twice the donors, twice the fingerprints, same per-donor magnitude.
+propene showed once. The donor C–H bonds split as before — four mixed
+(0.973, −0.003 π) against two pure-σ spectators (0.984) — and the
+detail section prints four aligned-donor pairs:
+
+```
+  C1-C4: orb13(C-H σ) × orb16(C-C π): -0.0128
+  C1-C4: orb12(C-H σ) × orb16(C-C π): -0.0128
+  C1-C4: orb11(C-H σ) × orb16(C-C π): -0.0128
+  C1-C4: orb10(C-H σ) × orb16(C-C π): -0.0128
+  (20 terms in [0.005, 0.01) omitted; largest: C4-H6: orb13(C-H σ) × orb16(C-C π) = +0.0097)
+```
+
+backed by four 0.021 (+0.010) vinyl···H contacts:
+
+```
+  C4-H6         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
+  C4-H8         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
+  C4-H9         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
+  C4-H5         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
+```
+
+Twice the donors, twice the fingerprints — at ~15% smaller per-donor
+magnitude (−0.0128 vs propene's −0.0150), consistent with two methyls
+sharing one π* acceptor. Total π depletion scales evenly (0.029 →
+0.061); per-donor terms do not, and the page no longer claims they do.
 
 ## The comparison
 
@@ -100,7 +143,7 @@ costs the double bond ~0.03 of π order and parks ~0.012 of π character
 on its single bond. Three visibility regimes in one page, too — ethene
 silent, propene and isobutene firing detail plus footnote — which makes
 this entry the natural companion to the threshold discussion in
-[carbocations.md](carbocations.md#tert-butyl-c4h9--textbook-classical).
+the tert-butyl section of [carbocations.md](carbocations.md).
 
 ## References
 
