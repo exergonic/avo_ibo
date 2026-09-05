@@ -33,6 +33,15 @@ and ORCA) on five molecules. Same minimal basis gives the same numbers
 to **0.006 electrons**; different minimal bases give known, fixed
 offsets. Details: [validation/Validation.md](validation/Validation.md).
 
+## Spotlight: a hydrogen bond, quantified
+
+In the water dimer, the acceptor lone pair spills 2.2% onto the donor
+hydrogen, the donor O–H weakens 0.942 → 0.867, and the H···O contact
+carries bond order 0.075 — LP→σ* donation read straight off the
+analysis table. Full writeup: [examples/water-dimer.md](examples/water-dimer.md).
+
+![Orbital 9 — acceptor lone pair reaching across the hydrogen bond](examples/img/water-dimer_H-bond.png)
+
 
 ## Quick Start
 

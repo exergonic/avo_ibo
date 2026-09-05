@@ -38,6 +38,7 @@ state; orbitals visualised from the matching `ibo.molden`.
 | Allene | Orthogonal π systems, axial chirality | [allene.md](allene.md) |
 | Diborane | 3c–2e bridges, cooperation/competition | [diborane.md](diborane.md) |
 | Methylamine | Amine lone pair | [methylamine.md](methylamine.md) |
+| Water dimer | H-bond covalency: delocalized LP, 0.075 H···O order | [water-dimer.md](water-dimer.md) |
 
 Deferred for later spotlights (data on disk, no writeup yet):
 cyclobutadiene, formaldehyde, ferrocene (wB97X-D geometry, slightly
