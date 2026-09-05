@@ -92,19 +92,21 @@ bridging stabilises ethylium by filling the empty orbital with a 3c–2e
 bond that t-butyl cannot form.
 
 ![tert-Butyl LUMO — empty p on the carbenium carbon](img/tbutyl_lumo_empty_p.png)
-*Orbital 17 (LUMO): the classic empty p — 80.0% on C1, pure 2py —
-with 4.5% tails on each methyl carbon, the hyperconjugative
-delocalization rendered. (Render from the pre-re-opt geometry; the
-minimum's LUMO is the same orbital to 0.5%.)*
+*Orbital 17 (LUMO) at the minimum geometry: the classic empty p —
+80.0% on C1, pure 2py — with 4.5% tails on each methyl carbon, the
+hyperconjugative delocalization rendered.*
 
-Hyperconjugation, quantified — and reshaped by the true minimum. Six
-C–H bonds (orbitals 8–13) carry ~3.4% C1 tails with through-bond C1–H
-Wibergs of ~0.04; three near-perpendicular bonds (orbitals 14–16, no
-C1 tail) sit below the print threshold. An earlier saddle-point
-geometry showed a cleaner axial/equatorial split (0.059 vs 0.012);
-relaxing the methyl registration to the staggered minimum spreads the
-donation across six donors instead of three. The C–C 1.126 orders carry
-the same signature: slight π character from methyl donation, far below
+Hyperconjugation, quantified — and sharpened by the true minimum. The
+nine C–H bonds split 6+3 around the empty p: six in-plane donors
+(orbitals 8–13, ~3.4% C1 tails, through-bond C1–H ~0.04) depleted to
+C–H 0.915–0.920 with their hydrogens at +0.136–0.138, against three
+near-perpendicular bonds (orbitals 14–16, no C1 tail) at full strength
+0.975 with hydrogens at +0.103. Donation reads as depletion — the bonds
+that give carry less order, and their hydrogens carry more positive
+charge. An earlier saddle-point geometry showed the same physics as a
+3+6 axial/equatorial split (0.059 vs 0.012); the staggered minimum
+spreads it across six donors instead. The C–C 1.126 orders carry the
+same signature: slight π character from methyl donation, far below
 true bridging.
 
 ## 2-Norbornyl, C₇H₁₁⁺ — the historical system itself
