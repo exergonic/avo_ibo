@@ -64,5 +64,7 @@ donation into σ* puts density back onto H character. Pure
 electrostatics would polarize it the other way.
 
 ---
-*Computed with Psi4 1.11 (wB97X-D/def2-TZVP, RHF), avo_ibo 0.4.0; IBOs
-by Pipek–Mezey localization (p = 2 → 4) per Knizia 2013.*
+*Geometry optimized in ORCA 6.1.1 (wB97X-D3/def2-TZVP), confirmed
+minimum by frequency calculation (no imaginary modes). IBO analysis
+with Psi4 1.11 (wB97X-D/def2-TZVP, RHF), avo_ibo 0.4.0; Pipek–Mezey
+localization (p = 2 → 4) per Knizia 2013.*
