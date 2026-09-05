@@ -28,25 +28,26 @@ donates into it because there is nothing to donate: three C–H σ bonds
 (0.961 each, no interference to report) and an empty orbital orthogonal
 to all of them. The charge has nowhere to go: C1 +0.406, each H +0.198.
 At −0.365 Ha it is by far the deepest LUMO on this page — the
-bare electrophile against which the other two ions measure their
+bare electrophile against which the other three ions measure their
 stabilization.
 
 ![Methyl LUMO — the bare empty p](img/methyl_lumo_empty_p.png)
 *Orbital 5 (LUMO): pure 2px on C1, 100% — the bare empty p with no
-tails. Compare the tert-butyl LUMO further down (80.5%): the missing
+tails. Compare the tert-butyl LUMO further down (80.0%): the missing
 19.5% there is hyperconjugation made visible.*
 
 ## Ethylium, C₂H₅⁺ — bridged and nonclassical
 
 ```
-Input: ethylium.xyz  (H6 bridges the C–C axis; charge +1)
+Input: ethylium.xyz  (H6 bridges the C–C axis; charge +1;
+        ORCA 6.1.1 wB97X-D3/def2-TZVP opt + freq, no imaginary modes)
 Run:   pixi run python -m avogadro_ibo examples/ethylium.xyz --method wB97X-D --basis def2-TZVP --charge 1 --spin 1
 ```
 
 Orbital 4 is the whole story:
 
 ```
-    4    2.000   -0.890787        C-C-H 2e3c  H6(38.5%) + C3(30.7%) + C1(30.7%)    C: 5% 2s + 95% 2px       11.2     <- HOMO
+    4    2.000   -0.900574        C-C-H 2e3c  H6(38.3%) + C3(30.9%) + C1(30.8%)    C: 5% 2s + 95% 2px       10.8
 ```
 
 The classifier labels it `C-C-H 2e3c` with no special casing — a
@@ -58,16 +59,16 @@ a protonated double bond.
 The Wiberg orders confirm the bridge quantitatively:
 
 ```
-  C1-C3         1.414   1.414   0.000  (+0.011: σ+0.011, π+0.000)
-  C3-H6         0.473   0.473   0.000
-  C1-H6         0.473   0.473   0.000
+  C1-C3         1.417   1.417   0.000  (+0.012: σ+0.012, π+0.000)
+  C3-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)
+  C1-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)
 ```
 
-H6 is half-bonded to each carbon simultaneously (0.473 + 0.473), and the
-C–C bond (1.414) is stronger than a single bond because the bridge
-reinforces it. Charges: C1/C3 +0.078 each (identical — symmetry intact),
-H6 +0.224, carrying the bulk of the positive charge despite being the
-bridge atom. The near-zero LUMOs (−0.064 Ha) flag genuine instability:
+H6 is half-bonded to each carbon simultaneously (0.472 + 0.472), and the
+C–C bond (1.417) is stronger than a single bond because the bridge
+reinforces it. Charges: C1/C3 +0.076 each (identical — symmetry intact),
+H6 +0.228, carrying the bulk of the positive charge despite being the
+bridge atom. The near-zero LUMOs (−0.057 Ha) flag genuine instability:
 the ion is barely holding together.
 
 ![Bridged ethylium HOMO](img/nonclassical_ion.png)
@@ -75,35 +76,36 @@ the ion is barely holding together.
 ## Tert-butyl, C₄H₉⁺ — textbook classical
 
 ```
-Input: tbutyl.xyz  (charge +1)
+Input: tbutyl.xyz  (charge +1;
+        ORCA 6.1.1 wB97X-D3/def2-TZVP opt + freq, no imaginary modes —
+        minimum reached via a second opt following the methyl-torsion
+        imaginary mode downhill, −1.38 kcal/mol)
 Run:   pixi run python -m avogadro_ibo examples/tbutyl.xyz --method wB97X-D --basis def2-TZVP --charge 1 --spin 1
 ```
 
 Everything ethylium wasn't. The LUMO is the classic empty p orbital —
-80.5% on C1, pure 2py — with 4.4% tails on each methyl carbon. The
-charge sits exposed: C1 +0.400, no bridging, C–C orders of only 1.121
-against ethylium's 1.414. The LUMO at −0.169 Ha is *more* negative than
-ethylium's −0.064: t-butyl is the more electron-deficient ion, because
+80.0% on C1, pure 2py — with 4.5% tails on each methyl carbon. The
+charge sits exposed: C1 +0.395, no bridging, C–C orders of only 1.126
+against ethylium's 1.417. The LUMO at −0.166 Ha is *more* negative than
+ethylium's −0.057: t-butyl is the more electron-deficient ion, because
 bridging stabilises ethylium by filling the empty orbital with a 3c–2e
 bond that t-butyl cannot form.
 
 ![tert-Butyl LUMO — empty p on the carbenium carbon](img/tbutyl_lumo_empty_p.png)
-*Orbital 17 (LUMO): the classic empty p — 80.5% on C1, pure 2py —
-with 4.4% tails on each methyl carbon, the hyperconjugative
-delocalization rendered.*
+*Orbital 17 (LUMO): the classic empty p — 80.0% on C1, pure 2py —
+with 4.5% tails on each methyl carbon, the hyperconjugative
+delocalization rendered. (Render from the pre-re-opt geometry; the
+minimum's LUMO is the same orbital to 0.5%.)*
 
-Hyperconjugation, quantified. Two distinct C–H families emerge:
-
-- Orbitals 8–10: `C(52.8%) + H(42.3%) + C1(4.6%)` — axial C–H bonds
-  aligned to donate into the empty p; through-bond C1–H Wiberg **0.059**.
-- Orbitals 11–16: `C(54.6%) + H(44.0%) + C1(1.1%)` — equatorial C–H
-  bonds near-perpendicular to the empty p; C1–H Wiberg **0.012**.
-
-The 5:1 ratio (0.059 vs 0.012) is the dihedral-angle (cos²φ) dependence
-of hyperconjugation made quantitative — axial donors beat equatorial
-ones fivefold, exactly as textbook orbital overlap predicts. The C–C
-1.121 orders carry the same signature: slight π character from methyl
-donation, far below true bridging.
+Hyperconjugation, quantified — and reshaped by the true minimum. Six
+C–H bonds (orbitals 8–13) carry ~3.4% C1 tails with through-bond C1–H
+Wibergs of ~0.04; three near-perpendicular bonds (orbitals 14–16, no
+C1 tail) sit below the print threshold. An earlier saddle-point
+geometry showed a cleaner axial/equatorial split (0.059 vs 0.012);
+relaxing the methyl registration to the staggered minimum spreads the
+donation across six donors instead of three. The C–C 1.126 orders carry
+the same signature: slight π character from methyl donation, far below
+true bridging.
 
 ## 2-Norbornyl, C₇H₁₁⁺ — the historical system itself
 
@@ -121,15 +123,15 @@ Orbital 19 is the Scholz structure in our vocabulary:
 
 The classifier labels it `C-C-C 2e3c` with no special casing — symmetric
 to 0.1% between the bridgeheads, with the bridging carbon carrying the
-largest share, exactly the ethylium pattern (H6 38.5% + C 30.7/30.7).
+largest share, exactly the ethylium pattern (H6 38.3% + C 30.9/30.8).
 The Wiberg orders confirm it quantitatively: C3–C7 = C4–C7 = **0.514 /
-0.514**, against ethylium's 0.473 / 0.473, and the bridgehead pair C3–C4
+0.514**, against ethylium's 0.472 / 0.472, and the bridgehead pair C3–C4
 carries 1.275 with a live −0.092 interference parenthetical — and the
 closing near-miss footnote fires as designed (6 terms in [0.005, 0.01)
 omitted, largest C3–C4 orb19×orb23 = −0.0098), so nothing sits
 unseen just under the print cutoff. Charges:
 C3/C4 +0.097 each (identical — symmetry intact), next to ethylium's
-+0.078 ×2. The two bridges are quantitative siblings; Brown's classical
++0.076 ×2. The two bridges are quantitative siblings; Brown's classical
 alternatives appear nowhere in the table.
 
 The geometry cross-validates the method: the opt retains the SI bridge
@@ -152,11 +154,11 @@ left to stabilize."
 
 | Property | Methyl (bare) | Ethylium (bridged) | tert-Butyl (classical) | Norbornyl (bridged) |
 |----------|---------------|--------------------|------------------------|---------------------|
-| Charge on C⁺ | +0.406 | +0.078 (×2) | +0.400 | +0.097 (×2) |
+| Charge on C⁺ | +0.406 | +0.076 (×2) | +0.395 | +0.097 (×2) |
 | Empty orbital | pure p (LUMO) | filled 3c–2e (HOMO) | empty p (LUMO) | filled 3c–2e (occ) |
-| LUMO share on C⁺ | 100% | — (bridged away) | 80.5% (+ tails) | — (no empty p; LUMO +0.001 π*) |
-| C–C bond order | — | 1.414 | 1.121 | 0.514 ×2 + 1.275 (bridgehead) |
-| LUMO energy | −0.365 Ha | −0.064 Ha | −0.169 Ha | +0.001 Ha |
+| LUMO share on C⁺ | 100% | — (bridged away) | 80.0% (+ tails) | — (no empty p; LUMO +0.001 π*) |
+| C–C bond order | — | 1.417 | 1.126 | 0.514 ×2 + 1.275 (bridgehead) |
+| LUMO energy | −0.365 Ha | −0.057 Ha | −0.166 Ha | +0.001 Ha |
 
 ## References
 
@@ -184,3 +186,11 @@ hyperconjugation) in systems small enough to compute in seconds.
   Nonclassical 2-Norbornyl Cation," *Science* **2013**, *341*,
   62–64, DOI:[10.1126/science.1238849](https://doi.org/10.1126/science.1238849) —
   the X-ray structure that settled the debate in favour of bridging.
+
+---
+*Geometries optimized in ORCA 6.1.1 (wB97X-D3/def2-TZVP), confirmed
+minima by frequency calculation (no imaginary modes) — methyl,
+ethylium, and norbornyl directly; tert-butyl via a second opt following
+a methyl-torsion imaginary mode downhill (−1.38 kcal/mol). IBO analysis
+with Psi4 1.11 (wB97X-D/def2-TZVP, RHF), avo_ibo 0.4.0; Pipek–Mezey
+localization (p = 2 → 4) per Knizia 2013.*
