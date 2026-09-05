@@ -49,7 +49,7 @@ Run:   pixi run python -m avogadro_ibo examples/tbutyl.xyz --method wB97X-D --ba
 ```
 
 Everything ethylium wasn't. The LUMO is the classic empty p orbital —
-86.3% on C1, pure 2p — with tiny 2.9% tails on each methyl carbon. The
+80.5% on C1, pure 2py — with 4.4% tails on each methyl carbon. The
 charge sits exposed: C1 +0.400, no bridging, C–C orders of only 1.121
 against ethylium's 1.414. The LUMO at −0.169 Ha is *more* negative than
 ethylium's −0.064: t-butyl is the more electron-deficient ion, because

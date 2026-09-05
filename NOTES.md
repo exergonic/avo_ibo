@@ -262,7 +262,11 @@ IboView's wall-clock seed.)
   virtual block with the same block-agnostic call, enabled by fixed-count
   VVO hygiene. Distorted ethene: two σ*-mixtures (0.454/0.457, no π* at
   all) resolve to π* 0.163 + σ* 0.748; equilibrium geometries already
-  Fock-diagonal, suite 18/18 unchanged.
+  Fock-diagonal, suite 18/18 unchanged. Gallery re-verified post-change
+  (full 19-molecule regen + dimer + guide reruns, every quoted virtual
+  number re-grepped 2026-09-04): all identical; the sole fix was tbutyl
+  LUMO prose stale since an hf/cc-pVDZ run (86.3→80.5%), predating this
+  work.
 
 ## Examples gallery (2026-09-03; tracked in-repo since 2026-09-04)
 
