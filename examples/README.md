@@ -29,7 +29,8 @@ state; orbitals visualised from the matching `ibo.molden`.
 
 | Molecule | Chemical feature | File |
 |----------|-----------------|------|
-| Ethylium / tert-butyl | Nonclassical 3c–2e vs classical carbocation; hyperconjugation 5:1 | [carbocations.md](carbocations.md) |
+| Methyl → norbornyl | Bare, bridged, classical, and the historical 3c–2e system; hyperconjugation 6+3 | [carbocations.md](carbocations.md) |
+| Ethene → isobutene | Hyperconjugation ladder: π 1.000 → 0.939, methyl–vinyl π character | [alkenes.md](alkenes.md) |
 | Cyclopropenyl ± | Aromatic thirds vs symmetry-broken anion; planar/nonplanar pair | [aromaticity-cyclopropenyl.md](aromaticity-cyclopropenyl.md) |
 | Cyclopropane | Bent bonds, sp4.6 strain hybrids | [cyclopropane.md](cyclopropane.md) |
 | Cyclooctatetraene | Tub hyperconjugation, Karplus-type dihedral dependence | [cot.md](cot.md) |
