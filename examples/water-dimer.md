@@ -1,8 +1,8 @@
 # Water dimer — a hydrogen bond, quantified
 
 ```
-Input: O2H4_001/input.xyz  (water-dimer geometry, O···O ≈ 2.91 Å)
-Run:   pixi run python -m avogadro_ibo <dimer.xyz> --method wB97X-D --basis def2-TZVP
+Input: examples/water-dimer.xyz  (O···O ≈ 2.91 Å; ORCA-optimized geometry)
+Run:   pixi run python -m avogadro_ibo examples/water-dimer.xyz --method wB97X-D --basis def2-TZVP
 ```
 
 Donor O1–H2 points at acceptor O4 (H2···O4 ≈ 1.94 Å). The table reads
