@@ -2,8 +2,10 @@
 
 The nonclassical-vs-classical carbocation debate is one of the most famous
 controversies in organic chemistry. Three molecules below resolve it visually
-and quantitatively in a single ladder: the bare ion, the bridged ion, and
-the hyperconjugatively stabilized ion. A fourth section then runs the
+and quantitatively side by side: the bare ion, the bridged ion, and
+the hyperconjugatively stabilized ion — not a monotonic energy ladder,
+since bridging and hyperconjugation stabilize by different mechanisms,
+as the LUMO energies will show. A fourth section then runs the
 historical system itself — the 2-norbornyl cation — through the same
 pipeline. All run at wB97X-D/def2-TZVP;
 reproduce with the commands shown.
@@ -31,8 +33,8 @@ stabilization.
 
 ![Methyl LUMO — the bare empty p](img/methyl_lumo_empty_p.png)
 *Orbital 5 (LUMO): pure 2px on C1, 100% — the bare empty p with no
-tails. Set against t-butyl's 80.5%, the missing 19.5% is
-hyperconjugation made visible.*
+tails. Compare the tert-butyl LUMO further down (80.5%): the missing
+19.5% there is hyperconjugation made visible.*
 
 ## Ethylium, C₂H₅⁺ — bridged and nonclassical
 
@@ -122,7 +124,10 @@ to 0.1% between the bridgeheads, with the bridging carbon carrying the
 largest share, exactly the ethylium pattern (H6 38.5% + C 30.7/30.7).
 The Wiberg orders confirm it quantitatively: C3–C7 = C4–C7 = **0.514 /
 0.514**, against ethylium's 0.473 / 0.473, and the bridgehead pair C3–C4
-carries 1.275 with a live −0.092 interference parenthetical. Charges:
+carries 1.275 with a live −0.092 interference parenthetical — and the
+closing near-miss footnote fires as designed (6 terms in [0.005, 0.01)
+omitted, largest C3–C4 orb19×orb23 = −0.0098), so nothing sits
+unseen just under the print cutoff. Charges:
 C3/C4 +0.097 each (identical — symmetry intact), next to ethylium's
 +0.078 ×2. The two bridges are quantitative siblings; Brown's classical
 alternatives appear nowhere in the table.
