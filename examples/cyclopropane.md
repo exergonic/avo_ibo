@@ -27,9 +27,9 @@ cyclopropane's electrophilic reactivity at the ring.
 The C–C Wiberg order is 0.998 with a live interference parenthetical —
 and the detail section fires (`C2-C3: orb11(C-C σ) × orb12(C-C σ):
 -0.0171`): neighbouring bent bonds erode each other slightly through
-orthogonalization on the shared carbon. Compare cyclopropenium's
-`bent_sigma_bond.png` alongside: same curved-outside-the-ring
-topology, tighter and more directional there (sp² carbons leave less s
+orthogonalization on the shared carbon. The cyclopropenyl cation shows
+the same curved-outside-the-ring σ topology, tighter and more
+directional there (sp² carbons leave less s
 character for the σ framework than sp³ carbons do).
 
 ![Cyclopropane bent-bond HOMO](img/cyclopropane_bent-bond_homo.png)

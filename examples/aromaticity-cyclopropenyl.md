@@ -32,7 +32,10 @@ the same bond-flat tie-break as the occupied block; the asymmetry above
 is PM localization itself differing between blocks — see
 [../NOTES.md](../NOTES.md).)
 
-![Cyclopropenyl bent σ bond](img/bent_sigma_bond.png)
+![Cyclopropenyl HOMO — aromatic π bond as delocalized thirds](img/cyclopropenyl_homo_perfect_thirds.png)
+*Orbital 10 (HOMO) viewed obliquely: one phase above the ring plane,
+the opposite below, spread evenly over all three carbons — the
+33/33/33 table entry rendered.*
 
 ## Anion planar, C₃H₃⁻ — antiaromaticity refuses to delocalise
 
