@@ -56,6 +56,11 @@ ethylium's −0.064: t-butyl is the more electron-deficient ion, because
 bridging stabilises ethylium by filling the empty orbital with a 3c–2e
 bond that t-butyl cannot form.
 
+![tert-Butyl LUMO — empty p on the carbenium carbon](img/tbutyl_lumo_empty_p.png)
+*Orbital 17 (LUMO): the classic empty p — 80.5% on C1, pure 2py —
+with 4.4% tails on each methyl carbon, the hyperconjugative
+delocalization rendered.*
+
 Hyperconjugation, quantified. Two distinct C–H families emerge:
 
 - Orbitals 8–10: `C(52.8%) + H(42.3%) + C1(4.6%)` — axial C–H bonds
