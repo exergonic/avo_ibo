@@ -141,7 +141,7 @@ near-miss terms in [0.005, 0.01) (count plus largest term), so a
 rounded parenthetical like (+0.010) always names its pair — see the
 water-dimer entry, where O1–O4's +0.0095 earns exactly that footnote.
 
-### How the thresholds were chosen
+### How the thresholds are being calibrated
 
 The 0.01 print floor keeps the section to genuine delocalization
 chemistry; the 0.005 near-miss band (half the floor) catches terms
