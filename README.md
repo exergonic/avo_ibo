@@ -24,8 +24,7 @@ to the virtual block too, so distorted geometries yield σ*+π* deterministicall
 
 New to IBO output? Start with the [guide to reading `ibos.txt`](examples/how-to-read-ibos.md) before anything else.
 
-Project notebooks: [NOTES.md](NOTES.md) (open items, design decisions),
-[AGENTS.md](AGENTS.md) (development context and gotchas).
+Project notebooks: [NOTES.md](NOTES.md) (open items, design decisions).
 Release history: [CHANGELOG.md](CHANGELOG.md).
 
 ## Validation

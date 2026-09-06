@@ -19,8 +19,8 @@ resonance structures but now as numbers. The O–O bonds read 1.443 (σ
 in any Lewis structure — carries **0.511**, nearly half a bond: σ 0.096
 + π 0.415, with the detail section showing `orb9 × orb10: +0.2075`,
 the 3-centre π bond leaking across the terminal pair. For scale:
-benzene's meta C–C is 0.115, SO₃'s O–O 0.241 — ozone's direct bent
-π pathway roughly doubles SO₃'s threefold-symmetric one.
+benzene's meta C–C is 0.116, SO₃'s O–O 0.288 — ozone's direct bent
+π pathway runs at 1.8× SO₃'s threefold-symmetric one.
 
 The frontier picture completes it: LUMO is the symmetric O π* at
 +0.007 Ha — accessible at room temperature, hence the extraordinary
