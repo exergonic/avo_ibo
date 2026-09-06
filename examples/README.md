@@ -18,9 +18,8 @@ wB97X-D/def2-TZVP unless noted.
 
 Small rigid molecules at MMFF94-optimised geometries are adequate inputs
 — the IBO picture is robust to the small geometric differences between
-MMFF94 and DFT minima. Suspect cases are flagged in their entries:
-`ozone.xyz` was recovered from a prior calculation with a short O–O
-distance (re-optimise before production use), and the cyclopropenyl
+MMFF94 and DFT minima. Deliberately non-equilibrium cases are flagged
+in their entries: the cyclopropenyl
 anion pair deliberately contrasts a constrained planar geometry against
 the relaxed nonplanar one. Each entry lists its input file and charge
 state; orbitals visualised from the matching `ibo.molden`.

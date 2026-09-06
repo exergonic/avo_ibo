@@ -1,5 +1,5 @@
 3
-ozone; geometry recovered from prior IBO calculation (pre-protocol: re-optimize before production use)
-O  -0.94640000  0.19330000  0.00000000
-O  0.00000000  -0.38660000  0.00000000
-O  0.94640000  0.19330000  0.00000000
+ozone O3 (ORCA 6.1.1 wB97X-D3/def2-TZVP opt+freq, no imaginary modes)
+O       -1.05923320      0.21215243      0.00000000
+O       -0.00000002     -0.42430486      0.00000000
+O        1.05923322      0.21215244      0.00000000
