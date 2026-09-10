@@ -110,8 +110,3 @@ def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
             lines.append(f"  {j + 1:>4d}  {0.0:16.10f}\n")
 
     path.write_text("".join(lines), encoding="utf-8")
-
-
-# ---------------------------------------------------------------------------
-# Molecule name helpers
-# ---------------------------------------------------------------------------

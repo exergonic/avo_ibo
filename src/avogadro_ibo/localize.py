@@ -283,8 +283,3 @@ def _resolve_flat_degeneracies(C_occ, atom_of, F_IAO, flat_tol=1e-6,
             n_rotated += 1
 
     return n_rotated
-
-
-# ---------------------------------------------------------------------------
-# IBO analysis table
-# ---------------------------------------------------------------------------

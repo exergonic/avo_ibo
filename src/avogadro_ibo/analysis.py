@@ -655,11 +655,3 @@ def _p_frac(c, am_of, atom, atom_of):
     s, p, d = _spd_frac(c, am_of, atom, atom_of)
     total = s + p + d
     return p / total if total > 0 else 0.0
-
-
-# -- (canonical MO deloc analysis removed 2026-06-30; canonical.molden below)--
-
-
-# ---------------------------------------------------------------------------
-# Molden writer using IAO-basis orbitals
-# ---------------------------------------------------------------------------

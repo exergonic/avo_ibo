@@ -142,8 +142,3 @@ def _build_iao_basis(S, S12, S_min, C_occ):
     C_IAO_occ = C_IAO.T @ S @ C_occ  # (n_min, n_occ)
 
     return C_IAO, C_IAO_occ
-
-
-# ---------------------------------------------------------------------------
-# Pipek-Mezey localisation in the IAO basis   (eq 4 and Appendix D)
-# ---------------------------------------------------------------------------
