@@ -3,8 +3,8 @@
 import argparse
 import sys
 from pathlib import Path
-from .calcs import compute_ibo
-from .calcs import _ELEM_SYMBOLS
+from .api import compute_ibo
+from .constants import _ELEM_SYMBOLS
 
 _ELEMENT_NUMBERS = {symbol: Z for Z, symbol in enumerate(_ELEM_SYMBOLS)}
 

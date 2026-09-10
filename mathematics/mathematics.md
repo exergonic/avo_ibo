@@ -1,7 +1,8 @@
 # Mathematics of the avogadro-ibo Plugin
 
 This document walks through every computational step in
-[`calcs.py`](src/avogadro_ibo/calcs.py), connecting each operation to the
+`src/avogadro_ibo/` (`api.py` orchestration; `iao.py`, `localize.py`,
+`analysis.py`, `molden.py` stages), connecting each operation to the
 equations in Knizia, *J. Chem. Theory Comput.* **2013**, *9*, 4834–4843
 ([DOI: 10.1021/ct400687b](https://doi.org/10.1021/ct400687b)).
 

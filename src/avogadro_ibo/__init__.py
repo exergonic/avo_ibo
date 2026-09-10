@@ -51,7 +51,7 @@ def main():
             else:
                 result = update_config(data)
         elif args.feature == "ibo":
-            from .calcs import compute_ibo
+            from .api import compute_ibo
 
             result = compute_ibo(cjson, options, charge, spin, debug=args.debug)
         elif args.feature == "open":
