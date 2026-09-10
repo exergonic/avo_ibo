@@ -55,3 +55,6 @@ _*.md
 
 # Agents instructions
 AGENTS.md
+
+# Hermes working scratch (plans, transcripts); design records live in NOTES.md
+.hermes/

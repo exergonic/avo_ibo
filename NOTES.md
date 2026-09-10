@@ -402,6 +402,26 @@ Psi4 global-state lessons now encoded in the core:
 - Psi4 aux files (`timer.dat`) land in cwd; library callers in read-only
   directories will fail regardless of output routing.
 
+## Module split (2026-09-10; monolith `calcs.py` is gone)
+
+1,798-line `calcs.py` split into stage modules with zero behavior
+change: `constants.py`, `iao.py`, `localize.py`, `analysis.py`,
+`molden.py`, `api.py` (`IBOResult` + `compute_ibo_data` + `compute_ibo`).
+A `calcs.py` re-export shim bridged six commits, then was deleted;
+`__init__.py`/`__main__.py` import from `.api`/`.constants` directly.
+Cross-module functions dropped the leading underscore
+(`build_iao_basis`, `localize_ibos`, `resolve_flat_degeneracies`,
+`analyze_ibos`, `write_iao_molden`, …); module-internal helpers,
+`api.py`'s own small helpers, and `_ELEM_SYMBOLS` kept theirs.
+Inertness proof per move: 20/20 suite plus byte-identical `ibos.txt`
+on reruns of saved inputs (ethylium_007, O3_001). One red en route:
+`_elem_symbol` used the same-file global `_ELEM_SYMBOLS` — now wired
+as a cross-module import; new modules get an AST free-name audit
+before the suite runs. Section-header comments describing "what comes
+next" were stripped from module tails (4 orphans). CI:
+`.github/workflows/test.yml` (windows-latest, pixi 0.66.0 locked,
+`pixi run test`).
+
 ## Bond-flat PM degeneracies: resolved for the occupied block
 
 ### Observation (2026-08-24, ethene_024 vs ethene_025)
