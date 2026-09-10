@@ -37,7 +37,7 @@ def _sanitize_name(name):
 
 
 # ---------------------------------------------------------------------------
-# Top-level entry point
+# Small helpers: options lookup and input-XYZ writer
 # ---------------------------------------------------------------------------
 
 
