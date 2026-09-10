@@ -1,4 +1,4 @@
-"""Shared numeric constants for the IBO pipeline (moved verbatim from calcs.py)."""
+"""Shared numeric constants for the IBO pipeline."""
 
 
 # 1 Hartree in electron-volts (CODATA 2018) and in kcal/mol

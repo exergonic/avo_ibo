@@ -1,10 +1,10 @@
-"""IAO/2014 construction (moved verbatim from calcs.py)."""
+"""IAO/2014 construction."""
 
 
 import numpy as np
 
 
-def _get_basis_maps(basis):
+def get_basis_maps(basis):
     """
     Return arrays mapping each basis function in *basis* to its atom center
     (0-indexed), angular momentum (0=s, 1=p, 2=d, ...), principal quantum
@@ -68,7 +68,7 @@ def _get_basis_maps(basis):
 # ---------------------------------------------------------------------------
 
 
-def _build_iao_basis(S, S12, S_min, C_occ):
+def build_iao_basis(S, S12, S_min, C_occ):
     """
     Construct the Intrinsic Atomic Orbital (IAO) basis following the
     IAO/2014 algorithm (implemented in IboView's MakeIaoBasisNew).

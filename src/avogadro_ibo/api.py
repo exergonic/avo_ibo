@@ -1,4 +1,4 @@
-"""Pipeline API: IBOResult, compute_ibo_data, compute_ibo adapter (moved verbatim from calcs.py)."""
+"""Pipeline API: IBOResult, compute_ibo_data, compute_ibo adapter."""
 
 
 from dataclasses import dataclass
@@ -7,10 +7,10 @@ import numpy as np
 import warnings
 
 from .constants import VVO_MIN_SIGMA, _ELEM_SYMBOLS
-from .iao import _build_iao_basis, _get_basis_maps
-from .localize import _localize_ibos, _resolve_flat_degeneracies, _resolve_on_atom_mixing
-from .analysis import _analyze_ibos, _elem_symbol, _format_wiberg
-from .molden import _write_iao_molden
+from .iao import build_iao_basis, get_basis_maps
+from .localize import localize_ibos, resolve_flat_degeneracies, resolve_on_atom_mixing
+from .analysis import analyze_ibos, elem_symbol, format_wiberg
+from .molden import write_iao_molden
 
 def _mol_formula(numbers):
     """Molecular formula from atomic number list, preserving first-occurrence order."""
@@ -53,7 +53,7 @@ def _write_input_xyz(path, coords, elem, mol_name):
     n_atoms = len(elem)
     lines = [f"{n_atoms}\n", f"{mol_name}\n"]
     for i in range(n_atoms):
-        sym = _elem_symbol(elem[i])
+        sym = elem_symbol(elem[i])
         lines.append(
             f"{sym:<3s}  {coords[3*i]:12.8f}  {coords[3*i+1]:12.8f}  {coords[3*i+2]:12.8f}\n"
         )
@@ -259,12 +259,12 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
     C_occ = Ca.np[:, :nocc].copy()  # (n_AO, n_occ)
 
     # -- Build IAO basis (Appendix C) --------------------------------------
-    C_IAO, C_IAO_occ = _build_iao_basis(S_full, S12, S_min, C_occ)
+    C_IAO, C_IAO_occ = build_iao_basis(S_full, S12, S_min, C_occ)
 
-    atom_of, am_of, func_n, func_dtype = _get_basis_maps(bas_min)
+    atom_of, am_of, func_n, func_dtype = get_basis_maps(bas_min)
 
     # -- Pipek-Mezey localisation in IAO basis (eq 4 / Appendix D) --------
-    _localize_ibos(C_IAO_occ, atom_of, max_iter=2048, conv=1e-12)
+    localize_ibos(C_IAO_occ, atom_of, max_iter=2048, conv=1e-12)
 
     # -- Compute orbital energies from Fock matrix -------------------------
     F_AO = wfn.Fa().np  # (n_AO, n_AO)
@@ -273,12 +273,12 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
     # -- Resolve on-atom degeneracies that PM cannot separate --------------
     # PM cannot separate orbitals on the same atom with DOM ~ 1 (e.g. O 2s
     # vs lone pair); Fock-diagonalise within each such subspace.
-    _resolve_on_atom_mixing(C_IAO_occ, atom_of, F_IAO)
+    resolve_on_atom_mixing(C_IAO_occ, atom_of, F_IAO)
 
     # -- Resolve bond-flat PM degeneracies (sigma/pi vs banana bonds) ------
     # PM cannot distinguish orbitals sharing identical per-atom populations
     # — the {sigma, pi} plane of a symmetric bond.  See NOTES.md.
-    _resolve_flat_degeneracies(C_IAO_occ, atom_of, F_IAO)
+    resolve_flat_degeneracies(C_IAO_occ, atom_of, F_IAO)
 
     occ_energies = np.array(
         [C_IAO_occ[:, i].dot(F_IAO @ C_IAO_occ[:, i]) for i in range(nocc)]
@@ -314,7 +314,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
 
     # -- Localize the virtual block too (IboView localizes ALL case blocks) ---
     if n_val_vir > 1:
-        _localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
+        localize_ibos(U_val, atom_of, max_iter=2048, conv=1e-12)
 
     # -- Resolve bond-flat degeneracies in the virtual block -----------------
     # Same resolver as the occupied block (it is block-agnostic); safe here
@@ -322,7 +322,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
     # columns.  Distorted geometries yield σ*+π* instead of two
     # σ*-mixtures; equilibrium geometries are already Fock-diagonal and
     # stay byte-identical.
-    _resolve_flat_degeneracies(U_val, atom_of, F_IAO)
+    resolve_flat_degeneracies(U_val, atom_of, F_IAO)
 
     vir_energies = np.array(
         [U_val[:, i].dot(F_IAO @ U_val[:, i]) for i in range(n_val_vir)]
@@ -340,7 +340,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
     C_AO_all = C_IAO @ C_IAO_all  # (n_AO, n_orb)
 
     # -- Composition analysis ----------------------------------------------
-    msg, labels, net_charges = _analyze_ibos(
+    msg, labels, net_charges = analyze_ibos(
         C_IAO_all,
         occ_all,
         energies_all,
@@ -355,7 +355,7 @@ def compute_ibo_data(cjson, options, charge=0, spin=1, psi4_output=None):
         ref,
         mol_name,
     )
-    msg += _format_wiberg(C_IAO_all[:, :nocc], atom_of, am_of, elem, labels)
+    msg += format_wiberg(C_IAO_all[:, :nocc], atom_of, am_of, elem, labels)
 
     return IBOResult(
         C_IAO=C_IAO,
@@ -458,7 +458,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
                 "HF/STO-3G (IboView-style rendering) failed. "
                 f"Check {calc_dir.name}/psi4.log for details."
             ) from e
-        _write_iao_molden(
+        write_iao_molden(
             molden_path, wfn_sto, res.C_IAO_all, res.occupations,
             res.energies, res.C_IAO_all.shape[1],
         )
@@ -473,7 +473,7 @@ def compute_ibo(cjson, options, charge, spin, debug=False):
             }
         )
     else:
-        _write_iao_molden(
+        write_iao_molden(
             molden_path, res.wfn, res.C_AO_all, res.occupations,
             res.energies, res.C_IAO_all.shape[1],
         )

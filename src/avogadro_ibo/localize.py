@@ -1,10 +1,10 @@
-"""Pipek-Mezey localization + degeneracy resolvers (moved verbatim from calcs.py)."""
+"""Pipek-Mezey localization + degeneracy resolvers."""
 
 
 import numpy as np
 
 
-def _localize_ibos(
+def localize_ibos(
     C_occ, atom_of, max_iter=2048, conv=1e-12, exponents=(2, 4), cayley_deg=0.0, seed=42
 ):
     """
@@ -133,7 +133,7 @@ def _localize_ibos(
 # ---------------------------------------------------------------------------
 
 
-def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
+def resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
     """
     Diagonalise F_IAO within each group of occupied orbitals that share
     the same dominant atom and have DOM > *dom_threshold*.
@@ -180,7 +180,7 @@ def _resolve_on_atom_mixing(C_occ, atom_of, F_IAO, dom_threshold=0.99):
 # ---------------------------------------------------------------------------
 
 
-def _resolve_flat_degeneracies(C_occ, atom_of, F_IAO, flat_tol=1e-6,
+def resolve_flat_degeneracies(C_occ, atom_of, F_IAO, flat_tol=1e-6,
                                fock_tol=1e-8, pm_exponent=4):
     """
     Rotate PM-functionally-degenerate orbital pairs to their Fock-diagonal
@@ -203,7 +203,7 @@ def _resolve_flat_degeneracies(C_occ, atom_of, F_IAO, flat_tol=1e-6,
     else.  Flat pairs that are already Fock-diagonal yield phi = 0 exactly
     and are left byte-identical.  Non-flat pairs (any real population
     asymmetry) sit in a steep PM bowl, never satisfy the tolerance, and are
-    never modified — the same principle as _resolve_on_atom_mixing, extended
+    never modified — the same principle as resolve_on_atom_mixing, extended
     from one atom to two.
 
     Parameters are modified in place.

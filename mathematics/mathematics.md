@@ -70,7 +70,7 @@ $$
 (\mathbf{P}^{12})_{\mu\alpha} \,\lvert\chi_\mu\rangle .
 $$
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.2 Express occupied MOs in the minimal basis
 
@@ -84,7 +84,7 @@ $$
 = (\mathbf{S}^{12\,T} \mathbf{C}^{\mathrm{occ}})_{\alpha i}.
 $$
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.3 Depolarisation — solve $\mathbf{S}^{\mathrm{min}} \tilde{\mathbf{C}} = \mathbf{C}^{\mathrm{occ},min}$
 
@@ -98,7 +98,7 @@ $$
 $$
 
 $(\mathbf{S}^{\mathrm{min}})^{-1}$ is obtained via Cholesky factorisation.
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.4 Occupied-space metric
 
@@ -110,7 +110,7 @@ $$
   \mathbf{C}^{\mathrm{occ},min}.
 $$
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.5 Inverse metric — $\tilde{\mathbf{C}}^{(2)}$
 
@@ -122,7 +122,7 @@ $$
 \tilde{\mathbf{C}}^{(2)} = \tilde{\mathbf{C}} \tilde{\mathbf{S}}^{-1}.
 $$
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.6 Tight residual — $\mathbf{T}^{(4)}$
 
@@ -134,7 +134,7 @@ $$
    - \mathbf{P}^{12} \tilde{\mathbf{C}}^{(2)}.
 $$
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 The columns of $\mathbf{T}^{(4)}$ are the occupied-space vectors that
 the minimal basis alone cannot describe.
@@ -153,7 +153,7 @@ $$
 In matrix form: $(\mathbf{C}^{\mathrm{IAO}})_{\mu\alpha}$
 is the coefficient of AO function $\lvert\chi_\mu\rangle$ in IAO $\lvert\phi_\alpha\rangle$.
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.8 Symmetric (Löwdin) orthogonalisation
 
@@ -173,7 +173,7 @@ $$
 
 Now $\langle\phi_{\alpha}|\phi_{\beta}\rangle = (\mathbf{C}^{\mathrm{IAO}})^{T} \mathbf{S} \mathbf{C}^{\mathrm{IAO}} = \mathbf{I}$.
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ### 3.9 Express occupied orbitals in the IAO basis
 
@@ -187,7 +187,7 @@ $$
 Because IAOs span the occupied space (by construction), this is a
 unitary rotation and $\mathbf{C}^{\mathrm{IAO}} \mathbf{C}^{\mathrm{IAO},occ} = \mathbf{C}^{\mathrm{occ}}$ is exact.
 
-`_build_iao_basis()`
+`build_iao_basis()`
 
 ---
 
@@ -227,7 +227,7 @@ symmetry breaking, as long as the sweep order is fixed and
 reproducible.  The anchor below therefore covers the whole sweep
 routine; the walk-through of its two passes begins at §4.2.
 
-`_localize_ibos()`
+`localize_ibos()`
 
 ### 4.2 p=2 warm-start
 
@@ -252,7 +252,7 @@ where $n_{ij}(A) = \sum_{\alpha\in A} C^{\mathrm{IAO},occ}_{\alpha i} C^{\mathrm
 The angle is $\frac{1}{4}$ because the leading power in the trigonometric
 expansion is $4\theta$ (i.e. $\tan(4\phi) = B/-A$), the same as for $p=4$.
 
-`_localize_ibos()`
+`localize_ibos()`
 
 ### 4.3 p=4 refine ($L$ from Eq. 4)
 
@@ -276,7 +276,7 @@ $$
 The angle is $\frac{1}{4}$ (not $\frac{1}{2}$) because the leading
 power in the trigonometric expansion is $4\theta$.
 
-`_localize_ibos()`
+`localize_ibos()`
 
 ### 4.4 Jacobi sweep algorithm
 
@@ -300,7 +300,7 @@ improve the energy degeneracy of symmetry-equivalent bonds; it
 merely changes which nearby local maximum is selected, typically
 producing a worse (less symmetric) result.
 
-`_localize_ibos()`
+`localize_ibos()`
 
 ### 4.5 Convergence criterion
 
@@ -313,7 +313,7 @@ After each sweep the gradient norm is:
 where $p$ is the current exponent (2 or 4).  Sweeps continue until
 $\Vert\nabla L\Vert < 10^{-12}$ or 2048 sweeps are reached.
 
-`_localize_ibos()`
+`localize_ibos()`
 
 ---
 
@@ -341,7 +341,7 @@ If $\delta_i > 0.99$, the orbital is essentially mono-atomic.
 Orbitals sharing the same dominant atom $A$ and meeting this threshold
 form a group.
 
-`_resolve_on_atom_mixing()`
+`resolve_on_atom_mixing()`
 
 ### 5.2 Fock diagonalisation
 
@@ -371,7 +371,7 @@ The eigenvalues $\mathbf{\lambda}$ become the new orbital energies
 (aufbau ordering), and the eigenvectors give the cleanly separated
 orbitals (e.g. s-rich lowest, p-rich highest).
 
-`_resolve_on_atom_mixing()`
+`resolve_on_atom_mixing()`
 
 ---
 
@@ -450,7 +450,7 @@ $$
 The pass runs on the **occupied and virtual blocks** — virtuals only
 after the fixed-count hygiene of §7.2 guarantees a junk-free block.
 
-`_resolve_flat_degeneracies()`
+`resolve_flat_degeneracies()`
 
 ---
 
@@ -562,7 +562,7 @@ $$
 A DOM of 1.00 means the orbital is entirely on one atom (core or lone
 pair); 0.50 means a perfectly shared diatomic bond.
 
-`_analyze_ibos()`
+`analyze_ibos()`
 
 ### 9.2 s/p/d character on the dominant atom
 
@@ -658,7 +658,7 @@ is unchanged. Terms in $[0.005, 0.01)$ are counted in a closing
 footnote (count plus largest term) whenever the section prints; the
 footnote never creates a section on its own.
 
-`_format_wiberg()`
+`format_wiberg()`
 
 ---
 

@@ -1,4 +1,4 @@
-"""IBO analysis table + Wiberg formatting (moved verbatim from calcs.py)."""
+"""IBO analysis table + Wiberg formatting."""
 
 
 import numpy as np
@@ -153,19 +153,19 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
         _s_idx = np.where((atom_of == top_A) & (am_of == 0))[0]
         _s_n = int(func_n[_s_idx[np.argmax(c[_s_idx] ** 2)]]) if len(_s_idx) else 0
         if pop[top_A] > 0.99 and s_char > 0.75 and _s_n == 1:
-            return f"{_elem_symbol(elem[top_A])}(Core)"
+            return f"{elem_symbol(elem[top_A])}(Core)"
         elif pop[top_A] > 0.90:
-            return f"{_elem_symbol(elem[top_A])}(LP)"
+            return f"{elem_symbol(elem[top_A])}(LP)"
         elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
             pfrac_A = _p_frac(c, am_of, top_A, atom_of)
             pfrac_B = _p_frac(c, am_of, top_B, atom_of)
             bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
             a, b = sorted([top_A, top_B])
-            symA = _elem_symbol(elem[a])
-            symB = _elem_symbol(elem[b])
+            symA = elem_symbol(elem[a])
+            symB = elem_symbol(elem[b])
             return f"{symA}-{symB} {bond_type}"
         elif pop[top_A] > 0.70:
-            symA = _elem_symbol(elem[top_A])
+            symA = elem_symbol(elem[top_A])
             if s_char > 0.5:
                 return f"{symA}(LP-s)"
             else:
@@ -174,9 +174,9 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
             if len(order) >= 3 and pop[order[2]] > 0.10 and (len(order) < 4 or pop[order[3]] <= 0.03):
                 atoms = sorted(
                     [order[0], order[1], order[2]],
-                    key=lambda i: (_elem_symbol(elem[i]), i),
+                    key=lambda i: (elem_symbol(elem[i]), i),
                 )
-                syms = "-".join(_elem_symbol(elem[a]) for a in atoms)
+                syms = "-".join(elem_symbol(elem[a]) for a in atoms)
                 return f"{syms} 2e3c"
             else:
                 return "Deloc"
@@ -186,25 +186,25 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
             pfrac_B = _p_frac(c, am_of, top_B, atom_of)
             bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
             a, b = sorted([top_A, top_B])
-            symA = _elem_symbol(elem[a])
-            symB = _elem_symbol(elem[b])
+            symA = elem_symbol(elem[a])
+            symB = elem_symbol(elem[b])
             return f"{symA}-{symB} {bond_type}*"
         elif len(order) >= 3 and pop[order[2]] > 0.08:
             pfrac_top = _p_frac(c, am_of, top_A, atom_of)
-            symA = _elem_symbol(elem[top_A])
+            symA = elem_symbol(elem[top_A])
             return f"{symA} π*" if pfrac_top > 0.85 else f"{symA} anti*"
         elif pop[top_A] + pop[top_B] > 0.60 and pop[top_B] > 0.02:
             a, b = sorted([top_A, top_B])
-            symA = _elem_symbol(elem[a])
-            symB = _elem_symbol(elem[b])
+            symA = elem_symbol(elem[a])
+            symB = elem_symbol(elem[b])
             return f"{symA}-{symB} anti*"
         elif pop[top_A] > 0.50:
-            return f"{_elem_symbol(elem[top_A])}(virt)"
+            return f"{elem_symbol(elem[top_A])}(virt)"
         else:
             return "Virt"
 
 
-def _analyze_ibos(
+def analyze_ibos(
     C_IAO_all,
     occ_all,
     energies_all,
@@ -249,7 +249,7 @@ def _analyze_ibos(
         comp_parts = []
         for A in order[:4]:
             if pop[A] > 0.005:
-                sym = f"{_elem_symbol(elem[A])}{A + 1}"
+                sym = f"{elem_symbol(elem[A])}{A + 1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
@@ -317,7 +317,7 @@ def _analyze_ibos(
         comp_parts = []
         for A in order[:4]:
             if pop[A] > 0.005:
-                sym = f"{_elem_symbol(elem[A])}{A + 1}"
+                sym = f"{elem_symbol(elem[A])}{A + 1}"
                 pct = pop[A] * 100.0
                 comp_parts.append(f"{sym}({pct:.1f}%)")
         comp = " + ".join(comp_parts)
@@ -333,7 +333,7 @@ def _analyze_ibos(
             C_IAO_all[:, orb], am_of, atom_of, func_n, func_dtype, hybrid_atom
         )
         if hybrid_atom != top_A:
-            hybrid = f"{_elem_symbol(elem[hybrid_atom])}: {hybrid}"
+            hybrid = f"{elem_symbol(elem[hybrid_atom])}: {hybrid}"
 
         # Per-IBO Wiberg bond order and ionic character (between top_A, top_B)
         w_ab = _wiberg_per_ibo(pop, oc, top_A, top_B)
@@ -402,7 +402,7 @@ def _analyze_ibos(
 
 
 
-def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
+def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     """Single Wiberg table: exact density-matrix totals decomposed σ/π.
 
     The density Wiberg (as originally reported) is
@@ -512,8 +512,8 @@ def _format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     for A in range(n_atoms):
         for B in range(A + 1, n_atoms):
             if total[A, B] > 0.01:
-                symA = _elem_symbol(elem[A])
-                symB = _elem_symbol(elem[B])
+                symA = elem_symbol(elem[A])
+                symB = elem_symbol(elem[B])
                 rows.append(
                     (symA, A, symB, B, total[A, B], sigma[A, B], pi[A, B],
                      int_sigma[A, B], int_pi[A, B])
@@ -619,7 +619,7 @@ def _format_charge_decomposition(atom_pop, elem):
         Z = int(round(elem[A]))
         pop = atom_pop[A]
         net = Z - pop
-        sym = _elem_symbol(Z)
+        sym = elem_symbol(Z)
         lines.append(f"  {sym}{A+1:<3}  {Z:>3d}  {pop:>8.3f}  {net:>+10.3f}")
         total_pop += pop
         total_z += Z
@@ -630,7 +630,7 @@ def _format_charge_decomposition(atom_pop, elem):
     return "\n".join(lines)
 
 
-def _elem_symbol(Z):
+def elem_symbol(Z):
     Z = int(round(Z))
     if Z < len(_ELEM_SYMBOLS):
         return _ELEM_SYMBOLS[Z]

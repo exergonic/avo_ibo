@@ -1,10 +1,10 @@
-"""IAO-basis Molden writer (moved verbatim from calcs.py)."""
+"""IAO-basis Molden writer."""
 
 
 import numpy as np
 
 
-def _write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
+def write_iao_molden(path, wfn, C_AO, occ, energies, n_orb):
     """
     Write a Molden file whose [MO] section contains IAO-basis orbitals.
 
