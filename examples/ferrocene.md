@@ -21,6 +21,7 @@ so no constrained rerun was needed).
 **The density totals respect D5h perfectly, in both legs:**
 
 ```
+  Bond         Total       σ       π              (interference)
   Fe1-C18        0.534   0.533   0.001  (-0.012: σ-0.008, π-0.004)
   Fe1-C6         0.534   0.239   0.295  (-0.041: σ-0.024, π-0.018)
   Fe1-C20        0.534   0.459   0.075  (-0.047: σ-0.068, π+0.022)

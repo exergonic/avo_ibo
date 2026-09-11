@@ -79,6 +79,7 @@ O–H 0.939 all-σ, gap 22.8 eV.
 ### Methane (CH₄) — sp³ hybridisation
 
 ```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
     2    2.000   -0.560401           C-H σ †  C1(52.9%) + H5(47.1%)    24% 2s + 76% 2p           5.8
 ```
 
@@ -88,6 +89,7 @@ Charges C −0.230 / H +0.058; C–H Wiberg 0.997; gap 29.6 eV.
 ### Ethene (C₂H₄) — σ/π separation
 
 ```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
     3    2.000   -0.729415             C-C σ  C1(50.0%) + C2(50.0%)    37% 2s + 63% 2pz          0.0
 ```
 

@@ -21,6 +21,7 @@ Run:   pixi run python -m avogadro_ibo examples/ethene.xyz --method wB97X-D --ba
 The baseline, and deliberately boring:
 
 ```
+  Bond         Total       σ       π              (interference)
   C1-C2         2.034   1.034   1.000  (+0.017: σ+0.017, π+0.000)
   C1-H3         0.978   0.978   0.000  (-0.009: σ-0.009, π+0.000)   (×4)
 ```
@@ -38,6 +39,7 @@ Run:   pixi run python -m avogadro_ibo examples/propene.xyz --method wB97X-D --b
 ```
 
 ```
+  Bond         Total       σ       π              (interference)
   C2-C3         1.984   1.013   0.971  (-0.017: σ-0.002, π-0.015)
   C1-C2         1.040   1.028   0.012  (+0.016: σ+0.007, π+0.009)
   C1-H4         0.973   0.976  -0.003  (-0.007: σ-0.004, π-0.003)
@@ -53,6 +55,7 @@ with the acceptor; the third, held away from it, stays pure σ at
 0.983. And the through-space contacts print:
 
 ```
+  Bond         Total       σ       π              (interference)
   C3-H4         0.022   0.012   0.010  (+0.010: σ+0.005, π+0.005)
   C3-H6         0.022   0.012   0.010  (+0.010: σ+0.005, π+0.005)
 ```
@@ -82,6 +85,7 @@ Run:   pixi run python -m avogadro_ibo examples/isobutene.xyz --method wB97X-D -
 ```
 
 ```
+  Bond         Total       σ       π              (interference)
   C1-C4         1.936   0.997   0.939  (-0.041: σ-0.016, π-0.026)
   C1-C2         1.028   1.016   0.012  (+0.008: σ+0.000, π+0.008)
   C1-C3         1.028   1.016   0.012  (+0.008: σ+0.000, π+0.008)
@@ -110,6 +114,7 @@ detail section prints four aligned-donor pairs:
 backed by four 0.021 (+0.010) vinyl···H contacts:
 
 ```
+  Bond         Total       σ       π              (interference)
   C4-H6         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
   C4-H8         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
   C4-H9         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)

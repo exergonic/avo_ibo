@@ -12,6 +12,7 @@ Run:   pixi run python -m avogadro_ibo examples/formaldehyde.xyz --method wB97X-
 ```
 
 ```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
     8    2.000   -0.411669             O(LP)  O2(93.5%) + C1(3.1%) + H3(1.7%) + H4(1.7%)    100% 2py                 93.6    <- HOMO
 ```
 
@@ -19,6 +20,7 @@ Run:   pixi run python -m avogadro_ibo examples/formaldehyde.xyz --method wB97X-
 carbon and 1.7% on each hydrogen. The C–H bonds pay for the visit:
 
 ```
+  Bond         Total       σ       π              (interference)
   C1-H3         0.925   0.955  -0.030  (-0.072: σ-0.040, π-0.033)
   C1-H4         0.925   0.955  -0.030  (-0.072: σ-0.040, π-0.033)
   O2-H3         0.062   0.000   0.062  (-0.004: σ-0.002, π-0.002)

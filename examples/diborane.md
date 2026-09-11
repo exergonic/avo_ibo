@@ -11,6 +11,7 @@ B(27.3%) + B(27.3%), nearly degenerate (−0.6103/−0.6103 Ha), against
 four ordinary terminal B–H σ bonds (0.984 each):
 
 ```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
     3    2.000   -0.610304      B-B-H 2e3c †  H5(45.1%) + B1(27.3%) + B6(27.3%)               B: 22% 2s + 78% 2pz      24.6           
     4    2.000   -0.610275      B-B-H 2e3c †  H3(45.1%) + B1(27.3%) + B6(27.3%)               B: 22% 2s + 78% 2pz      24.7           
 ```

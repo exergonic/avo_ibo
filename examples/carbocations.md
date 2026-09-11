@@ -20,6 +20,7 @@ Run:   pixi run python -m avogadro_ibo examples/methyl.xyz --method wB97X-D --ba
 Orbital 5 is the whole story:
 
 ```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
     5    0.000   -0.365417           C(virt)  C1(100.0%)               100% 2px                  ---    <- LUMO
 ```
 
@@ -47,6 +48,7 @@ Run:   pixi run python -m avogadro_ibo examples/ethylium.xyz --method wB97X-D --
 Orbital 4 is the whole story:
 
 ```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
     4    2.000   -0.900574        C-C-H 2e3c  H6(38.3%) + C3(30.9%) + C1(30.8%)    C: 5% 2s + 95% 2px       10.8
 ```
 
@@ -59,6 +61,7 @@ a protonated double bond.
 The Wiberg orders confirm the bridge quantitatively:
 
 ```
+  Bond         Total       σ       π              (interference)
   C1-C3         1.417   1.417   0.000  (+0.012: σ+0.012, π+0.000)
   C3-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)
   C1-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)

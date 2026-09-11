@@ -12,6 +12,7 @@ Run:   pixi run python -m avogadro_ibo examples/cyclobutadiene.xyz --method wB97
 ```
 
 ```
+  Bond         Total       σ       π              (interference)
   C1-C2         2.010   1.010   1.000  (+0.008: σ+0.008, π+0.000)
   C3-C4         2.010   1.010   1.000  (+0.008: σ+0.008, π+0.000)
   C1-C4         0.972   0.972   0.000  (-0.003: σ-0.003, π+0.000)

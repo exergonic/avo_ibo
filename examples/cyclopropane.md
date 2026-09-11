@@ -33,4 +33,3 @@ directional there (sp² carbons leave less s
 character for the σ framework than sp³ carbons do).
 
 ![Cyclopropane bent-bond HOMO](img/cyclopropane_bent-bond_homo.png)
-![Cyclopropane ring](img/cyclopropane_ring.png)
