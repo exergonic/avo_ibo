@@ -34,6 +34,10 @@ charges to match (Fe −0.238, every carbon −0.055, every hydrogen
 98.6%) sitting apart exactly where ligand-field theory puts it, and
 the HOMO/LUMO as an Fe–C σ/σ* pair (−0.292/+0.163 Ha).
 
+![Ferrocene dz² — nonbonding a1g orbital](img/ferrocene_dz2.png)
+*Orbital 46: the nonbonding dz², 98.6% Fe — the a1g orbital
+ligand-field theory predicts, untouched by either ring.*
+
 **But the σ/π partition does not respect D5h — and that is the
 finding.** Same-total bonds decompose incompatibly: one contact reads
 σ 0.533/π 0.001, another σ 0.239/π 0.295. Worse, the assignment
