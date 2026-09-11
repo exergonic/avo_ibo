@@ -22,7 +22,14 @@ No compromise values anywhere: the π column reads 1.000, 1.000, 0.000,
 0.000 — two full double bonds and two pure singles, where benzene
 reads 1.444 six times over. The classifier agrees, labelling orbs
 13–14 `C-C π` at exactly 50/50 and parking the HOMO (−0.359 Ha) on
-them. Antiaromaticity doesn't smear here; it sorts. The diagonal
+them:
+
+![Cyclobutadiene HOMO — two isolated π bonds](img/cyclobutadiene_homo.png)
+*Orbitals 13–14 (HOMO): the two localized C–C π bonds on the short
+(1.326 Å) edges — the D2h rectangle rendered, delocalization
+visibly absent.*
+
+Antiaromaticity doesn't smear here; it sorts. The diagonal
 C···C contacts (0.012) confirm nothing leaks across the ring.
 
 The one subtlety is in the C–H bonds: each carries a −0.023
