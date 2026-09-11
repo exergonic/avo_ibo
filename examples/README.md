@@ -41,12 +41,8 @@ state; orbitals visualised from the matching `ibo.molden`.
 | Water dimer | H-bond covalency: delocalized LP, 0.075 H···O order | [water-dimer.md](water-dimer.md) |
 | Cyclobutadiene | D2h escape from antiaromaticity: π 1.000/0.000 alternation | [cyclobutadiene.md](cyclobutadiene.md) |
 | Formaldehyde | Lone-pair → C–H donation, −0.0625 detail pair | [formaldehyde.md](formaldehyde.md) |
+| Ferrocene | Ten equivalent Fe–C half-bonds; σ/π partition caveat | [ferrocene.md](ferrocene.md) |
 
-Deferred for later spotlights (data on disk, no writeup yet):
-ferrocene (wB97X-D geometry, slightly
-desymmetrised from D5h — the angle is symmetry-broken IBOs from
-near-symmetric input; existing table at MN15-L/def2-SVP needs a
-wB97X-D/def2-TZVP rerun first).
 Separate mechanistic study (own writeup, now alongside the validation
 record): [phenol-vs-anisole.md](../validation/phenol-vs-anisole.md)
 — why phenol out-activates
