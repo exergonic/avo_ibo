@@ -39,9 +39,11 @@ state; orbitals visualised from the matching `ibo.molden`.
 | Diborane | 3c–2e bridges, cooperation/competition | [diborane.md](diborane.md) |
 | Methylamine | Amine lone pair | [methylamine.md](methylamine.md) |
 | Water dimer | H-bond covalency: delocalized LP, 0.075 H···O order | [water-dimer.md](water-dimer.md) |
+| Cyclobutadiene | D2h escape from antiaromaticity: π 1.000/0.000 alternation | [cyclobutadiene.md](cyclobutadiene.md) |
+| Formaldehyde | Lone-pair → C–H donation, −0.0625 detail pair | [formaldehyde.md](formaldehyde.md) |
 
 Deferred for later spotlights (data on disk, no writeup yet):
-cyclobutadiene, formaldehyde, ferrocene (wB97X-D geometry, slightly
+ferrocene (wB97X-D geometry, slightly
 desymmetrised from D5h — the angle is symmetry-broken IBOs from
 near-symmetric input; existing table at MN15-L/def2-SVP needs a
 wB97X-D/def2-TZVP rerun first).
