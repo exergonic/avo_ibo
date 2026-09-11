@@ -1,6 +1,6 @@
 # Cyclobutadiene — antiaromaticity escaping through distortion
 
-The square D4h cyclobutadiene is a transition state, not a molecule:
+The square D4h cyclobutadiene is a transition state, not a ground state minimum:
 Jahn–Teller distortion drops it to a rectangular D2h minimum with
 alternating bond lengths (1.326 / 1.566 Å at wB97X-D/def2-TZVP). The
 IBO table shows what that escape costs and buys — delocalization
