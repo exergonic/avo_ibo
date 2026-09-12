@@ -97,6 +97,10 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   config loading removed from the CLI entry point.
 
 ### Fixed
+- NOTES.md `calcs.py:<line>` leftovers retargeted to the current
+  modules (`api.py` Fock diagonals, `constants.py` pair threshold and
+  element table, `analyze_ibos` / `format_wiberg`). The module-split
+  section still names the deleted monolith as history.
 - Remaining `max(..., key=d.get)` in `_hybrid_str` (d-subtype weights)
   switched to `lambda k: d[k]`, matching the two sites already fixed.
 - NOTES.md no longer links `AGENTS.md` or `tutorial.md`; both are

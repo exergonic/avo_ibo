@@ -222,7 +222,7 @@ basicity.)
 `orca_2mkl` on a `.loc` file carries the localized vectors but leaves
 the CANONICAL eigenvalues in the Molden `[MO]` block — verified
 bit-for-bit against ORCA's own ORBITAL ENERGIES table. Ours are
-localized expectations (`calcs.py:1536`: C_i·F_IAO·C_i). Comparing the
+localized expectations (`api.py`: C_i·F_IAO·C_i). Comparing the
 two is apples-to-oranges; one apparent σ-degeneracy breaking dissolved
 into canonical 3a1 vs 1b1. LMO energies are therefore NOT validation
 targets (basin-, seed-, and definition-dependent; ORCA doesn't print
@@ -334,7 +334,7 @@ extension.
   interference (|term| ≥ 0.01)" lists individual (k,l) interference
   terms grouped by bond in table order, e.g. diborane's bridge×bridge
   pair at -0.0145 on every B-H leg and +0.0145 across B-B.  Threshold
-  PAIR_DETAIL_THRESH = 0.01 in calcs.py: fires only on delocalization
+  PAIR_DETAIL_THRESH = 0.01 in constants.py: fires only on delocalization
   chemistry, silent on ordinary molecules (ethene's largest pair terms
   are ±0.0053 — correctly excluded).  Truth-in-labelling rules agreed
   2026-08-26: positive pair terms *add to* the bond order, negative
@@ -553,10 +553,10 @@ relevant to parity claims and future work:
 
 - 15 pytest CLI integration tests (`pixi run test`); counts parametrized over
   water/methane/ethene/ammonia/benzene/zncl2/cyclooctatetraene.
-- Element tables extend through iodine (Z=53) in both `calcs.py`
+- Element tables extend through iodine (Z=53) in both `constants.py`
   (`_ELEM_SYMBOLS`) and `__main__.py` (`_ELEMENT_NUMBERS`).
 - Charge decomposition and total Wiberg bond orders are implemented
-  (`_analyze_ibos`, `_format_total_wiberg`) — they shipped in v0.4 despite
+  (`analyze_ibos`, `format_wiberg`) — they shipped in v0.4 despite
   being written up as "future" work in older planning docs.
 - Defaults live in `calcs/config.json` via `config.py`:
   wB97X-D/def2-TZVP, `iboview_style=True`; the Avogadro Options dialog
