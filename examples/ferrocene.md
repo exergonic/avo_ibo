@@ -40,8 +40,9 @@ textbook orbital. And the e₂′ δ set prints as δ, not σ:
 
 ```
     #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
-   47    2.000   -0.292187            Fe-C δ  Fe1(84.2%) + C10(3.9%) + C20(3.9%) + C18(1.8%)      100% 3dx2y2              9
-   48    2.000   -0.291770            Fe-C δ  Fe1(84.3%) + C14(3.1%) + C4(3.1%) + C6(3.0%)        100% 3dx2y2              9
+   47    2.000   -0.292187            Fe-C δ  Fe1(84.2%) + C10(3.9%) + C20(3.9%) + C18(1.8%)      100% 3dx2y2              91.2           
+   48    2.000   -0.291770            Fe-C δ  Fe1(84.3%) + C14(3.1%) + C4(3.1%) + C6(3.0%)        100% 3dx2y2              92.8    <- HOMO
+   49    0.000    0.162575         Fe-C π* †  Fe1(73.8%) + C18(5.4%) + C8(4.9%) + C4(4.5%)        100% 3dxz                 ---    <- LUMO
 ```
 
 The classifier keys δ off the dominant spherical d on a 3d metal
