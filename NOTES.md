@@ -434,8 +434,16 @@ the existing `_d_spherical_weights` spherical projection: dz2 → σ,
 dxz/dyz → π, dxy/dx2y2 → δ (and the matching antibond). High-DOM
 metal orbitals still take the LP branch first (ferrocene dz²
 nonbonding, 98.6%). Organic gallery inert by construction (no 3d
-atom). Wiberg σ/π partition is unchanged — δ density still folds as
-σ there; quote totals, not per-bond splits, as before.
+atom). Wiberg table gained a δ column (`82a0124`): same-class pairs
+stay home, cross-class split 50/50, σ+π+δ = total exactly; organics
+print δ 0.000 throughout.
+
+PM failure shape on ferrocene (2026-09-12): ten Fe–C contacts group
+4+4+2 by decomposition fingerprint, and the groups close under
+reflection through the 108°/288° plane with top/bottom pairs
+identical — D5h → ~Cs (σh exact, one approximate vertical mirror,
+partners differ at the third decimal). The localizer keeps what the
+density enforces and spends the rest on trajectory luck.
 
 ## Bond-flat PM degeneracies: resolved for the occupied block
 

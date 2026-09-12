@@ -69,6 +69,17 @@ localization-trajectory-dependent. This is the gallery's standing PM
 caveat (benzene C–H split, SO₃ d-asymmetry) in a new place: not
 energies or coefficients, but the decomposition itself.
 
+The ten contacts even fall into a telling pattern. Grouped by
+decomposition fingerprint — σ-heavy (C2/C8/C12/C18), π-heavy
+(C4/C6/C14/C16), mixed (C10/C20) — and mapped onto ring angles,
+every group closes under reflection through the 108°/288° plane
+(0+216 = 72+144 = 288+288 = 216°), with top/bottom pairs identical
+throughout. The landslide stopped at a subgroup: σh exactly
+preserved, C5 broken to one approximate vertical mirror (partners
+differ at the third decimal), D5h → ~Cs. PM does not scramble
+symmetry randomly; it keeps what the density enforces and spends
+the rest on trajectory luck.
+
 The reading rule that follows: quote totals and compositions for
 ferrocene, never per-bond σ/π splits. Switching functionals would
 not help. Boys localization cannot separate σ from π by construction
