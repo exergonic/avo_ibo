@@ -71,6 +71,11 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   (repo `calcs/` verified untouched).
 
 ### Changed
+- Classification thresholds are now in the student-facing docs.
+  `examples/how-to-read-ibos.md` lists the occupied Type cut-offs
+  (DOM, 0.85 p-fraction, 2e3c 10%/3%); `mathematics.md` §9.3 is the
+  full ordered table, including 2e3c / Deloc / n=1 Core. Quoted
+  example numbers are unchanged.
 - README Quick Start is Windows-first throughout: `pixi.lock` is
   `win-64` only, CI is `windows-latest` / pixi 0.66.0, and the
   Development Setup no longer uses a POSIX fence that implied Linux/mac

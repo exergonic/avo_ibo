@@ -36,10 +36,21 @@ Results land in `calcs/water_NNN/` (numbered per run).
 - **`Energy`** — the orbital's Fock expectation value in Hartree, not a
   canonical eigenvalue. Ordering is aufbau: core deep, lone pairs and
   bonds in the middle, antibonds positive.
-- **`Type`** — the classifier's verdict: `Core`, `(LP)`, `σ`/`π` bonds
-  (e.g. `O-H σ`), `anti*`/`π*` virtuals, `2e3c` for three-centre bonds,
-  `Deloc` for anything spread over more than two centres. A `†` marks
-  membership in a degenerate manifold (see §2).
+- **`Type`** — the classifier's verdict, applied in this order to
+  occupied orbitals. These cut-offs are how diborane bridges, norbornyl,
+  and cyclopropenyl get `2e3c` rather than `Deloc`:
+  - **Core** — one atom >99% and s-character >75% on *n*=1 (1s only;
+    2s/3s stay valence)
+  - **LP** — one atom >90%
+  - **σ / π** — two atoms share >75% and the second carries >2%; **π**
+    if both atoms are >85% p-character, otherwise **σ**
+  - **LP-s** — one atom >70% and s-character >50% (transitional)
+  - **2e3c** — a third atom carries >10% and a fourth ≤3%
+  - **Deloc** — anything else (more than three centres, or a third
+    atom that misses the 10%/3% gate)
+  Virtuals use the same 0.85 p-fraction for σ*/π* with a looser
+  two-centre share (60%). A `†` marks a degenerate manifold (see §2).
+  Full table: [`mathematics.md` §9.3](../mathematics/mathematics.md).
 - **`Composition`** — per-atom populations as percentages: orbital 2 is
   62.3% on O1, 37.7% on H2. Atoms below 0.5% are omitted, so a lone
   pair reads `O1(100.0%)` even though orthogonalization tails exist.

@@ -606,13 +606,26 @@ The hybridisation label is "${s}\%$ s + ${p}\%$ p + ${d}\%$ d".
 
 ### 9.3 Bond-type classification
 
+Checked in this order (`_classify_orbital`). Populations $n_A(i)$ are
+IAO-basis Mulliken fractions for orbital $i$; $p_A$ is the p-fraction
+on atom $A$. Occupied (occupancy $2.0$):
+
 | Condition | Label |
 |-----------|-------|
-| $n_A(i) > 0.99$ and $s > 0.75$ | `A(Core)` |
+| $n_A(i) > 0.99$, $s > 0.75$, dominant $n=1$ | `A(Core)` |
 | $n_A(i) > 0.90$ | `A(LP)` |
-| $n_A(i) + n_B(i) > 0.75$, $p_A > 0.85$ and $p_B > 0.85$ | `A-B pi` |
-| $n_A(i) + n_B(i) > 0.75$, otherwise | `A-B sigma` |
-| Virtual and $n_A(i)+n_B(i) > 0.60$ | `A-B anti*` |
+| $n_A(i)+n_B(i) > 0.75$, $n_B(i) > 0.02$, $p_A>0.85$ and $p_B>0.85$ | `A-B π` |
+| $n_A(i)+n_B(i) > 0.75$, $n_B(i) > 0.02$, otherwise | `A-B σ` |
+| $n_A(i) > 0.70$, $s > 0.5$ | `A(LP-s)` |
+| $n_A(i) > 0.70$ | `A(LP)` |
+| third atom $>0.10$ and fourth $\le 0.03$ | `A-B-C 2e3c` |
+| else | `Deloc` |
+
+Only $n=1$ (1s) counts as Core; 2s/3s stay valence. The 2e3c gate is
+why diborane bridges, norbornyl, and cyclopropenyl label `2e3c` rather
+than `Deloc`: the third atom carries more than 10% and a fourth does
+not exceed 3%. Virtuals use the same 0.85 p-fraction for σ*/π*, a
+looser two-centre share (0.60), and a third-atom cut of 0.08.
 
 `_classify_orbital()`
 
