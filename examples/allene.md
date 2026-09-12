@@ -15,15 +15,18 @@ The two π bonds resolve by symmetry into perpendicular planes:
 ```
 
 100% 2pz vs 100% 2py, degenerate to 1e-6 Ha, with π* mirroring π.
-The two ends of the molecule are electronically isolated. That is the
-quantum basis of allene's axial chirality. Each C–C order is 1.989:
-two independent, unconjugated double bonds. The central carbon sits
-nearly neutral (+0.026) at the intersection of the two π systems.
-The terminals carry −0.189 from C–H donation.
+Those two hybrid labels are the lesson: the π systems are
+perpendicular, so they cannot mix. The two ends of the molecule are
+electronically isolated. That is the quantum basis of allene's
+axial chirality — not a steric argument, an orbital one. Each C–C
+order is 1.989: two independent, unconjugated double bonds. The
+central carbon sits nearly neutral (+0.026) at the intersection of
+the two π systems. The terminals carry −0.189 from C–H donation.
 
 The detail section fires genuine σπ mixing lines —
 `C2-C3: orb6(C-H σ) × orb10(C-C π): -0.0247` alongside `+0.0123`
-partners. That is the bent-bond early warning working as designed:
-here σ and π manifolds legitimately interpenetrate off-axis.
-Ethene's σπ channel reads exactly zero. Planarity protects it there;
-D2d exposes it here.
+partners. That is not a bug. In a planar alkene, σ and π are
+different symmetry species and the σπ channel is exactly zero
+(ethene). In D2d allene they interpenetrate off-axis, so the
+bent-bond early warning *should* fire. A σπ parenthetical means
+"these manifolds share space," not "the classifier failed."

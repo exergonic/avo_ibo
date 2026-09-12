@@ -17,8 +17,7 @@ Run:   pixi run python -m avogadro_ibo examples/formaldehyde.xyz --method wB97X-
 ```
 
 Unmistakably the in-plane LP: almost all on oxygen, pure 2py, with
-small tails on carbon and each hydrogen. The C–H bonds pay for the
-visit:
+small tails on carbon and each hydrogen.
 
 ```
   Bond         Total       σ       π              (interference)
@@ -29,17 +28,22 @@ visit:
   O2-H4         0.062   0.000   0.062  (-0.004: σ-0.002, π-0.002)
 ```
 
-The C–H rows are the surprise: a σ bond carrying π character, in a
-molecule with no C–H π business. The parenthetical is the largest in
-the gallery. The detail section names the pair — `C-H σ × O(LP)` at
-−0.0625 on each leg, all subtractive. The through-space O···H
-contacts are the same donation read from the other end. Donation
-reads as depletion: the donors give, the donors weaken.
+The C–H bonds pay for the visit. Each drops to 0.925 — the largest
+depletion anywhere in the gallery — and picks up a trace of π
+character a plain single bond has no business having. The detail
+section names the source directly: `C-H σ × O(LP): −0.0625` on each
+leg, all subtractive — the lone pair donating straight into the C–H
+σ* framework. The through-space O···H contacts (0.062, pure π) are
+the same donation read from the other end. Donation reads as
+depletion, once more: the donors give, the donors weaken.
 
-The C=O over-delivers: more than a full π bond, fed by the same
-oxygen that donates sideways. The charges understate the textbook
-picture (C +0.207, O −0.280). Density stays shared even as the
-orbitals tell a donor story.
+The C=O bond, meanwhile, over-delivers — π character above 1.0, more
+than a textbook full double bond, fed by the same oxygen that's
+donating sideways into the C–H bonds. The charges undersell it:
+C +0.207, O −0.280 is a modest split for the canonical polar double
+bond. The orbitals tell a more active story than the charges do —
+the density stays shared even while the lone pair is visibly
+reaching into three different places at once.
 
 ![Formaldehyde HOMO — in-plane lone pair](img/formaldehyde_homo.png)
 *Orbital 8 (HOMO): the oxygen in-plane lone pair, 93.5% O with 3.1%

@@ -17,12 +17,15 @@ Run:   pixi run python -m avogadro_ibo examples/cyclopropenium.xyz --method wB97
    10    2.000   -0.762202        C-C-C 2e3c  C1(33.3%) + C3(33.3%) + C4(33.3%)              100% 2pz                  0.0    <- HOMO
 ```
 
-The classifier invents exactly the right label: `C-C-C 2e3c`, perfect
-thirds, zero ionicity, pure 2pz — the aromatic π bond as a single
-number. PM had no gradient to break the symmetry and converged to the
-mathematically perfect result. Wiberg C–C is 1.429 on all three sides
-(σ 0.984 + π 0.444). That is less than the naive 1 + 2/3 ≈ 1.667,
-because the σ framework pulls density from the π system.
+The classifier invents exactly the right label: `C-C-C 2e3c`.
+Perfect thirds, zero ionicity, pure 2pz — the aromatic π bond as a
+single occupied orbital, not three two-centre π bonds. Hückel
+"4n+2" here is that 33/33/33 row. PM had no gradient to break the
+symmetry and converged to the mathematically perfect result.
+Wiberg C–C is 1.429 on all three sides (σ 0.984 + π 0.444). That is
+less than the naive 1 + 2/3 ≈ 1.667, because the σ framework pulls
+density from the π system — aromaticity is not "1.667 on every
+side."
 
 The virtuals break the pattern instructively. Orb 11 is two-centre
 (`C3(51%) + C4(49%)`); orb 12 is asymmetric three-centre
@@ -48,14 +51,17 @@ Run:   ... --charge -1 --spin 1
    11    2.000    0.028577             C(LP)  C4(100.0%)                                     100% 2pz                  ---    <- HOMO
 ```
 
-The positive HOMO (above vacuum) is the headline. The extra electron
-is thermodynamically unstable toward autodetachment — why this anion
+The positive HOMO (above vacuum) is the headline. A bound occupied
+orbital is negative; this one is not. The extra electron is
+thermodynamically unstable toward autodetachment — why this anion
 is barely observable. The 4π system avoids itself completely. C4
-carries essentially the whole charge (−0.865). C1–C3 is a full double
-bond, π localised on C1/C3 only; C4 is excluded. The other two sides
-are singles. A vinyl carbanion, exactly as Lewis structures predict.
-Compare the cation's 33/33/33 against this total localisation: the
-pair is Hückel's rule with nothing left to the imagination.
+carries essentially the whole charge (−0.865). C1–C3 is a full
+double bond, π localised on C1/C3 only; C4 is excluded. The other
+two sides are singles. A vinyl carbanion, exactly as Lewis
+structures predict — antiaromaticity as localization, not as a
+smear. Compare the cation's 33/33/33 against this total
+localisation: the pair is Hückel's rule with nothing left to the
+imagination.
 
 ![Cyclopropenyl anion HOMO](img/cyclopropenyl_anion_homo.png)
 
@@ -70,8 +76,10 @@ drops to −0.090 Ha — bound again. The carbanion LP rehybridises to
 53% 2s + 47% 2p, and the charge spreads (−0.626 on the carbanion
 carbon). One C=C double persists, but the system is now an ordinary
 localised alkene-plus-lone-pair: nonaromatic, unremarkable, stable.
-The planar→nonplanar pair is the antiaromaticity penalty rendered as
-two `ibos.txt` files: +0.029 vs −0.090 Ha for the same electron.
+The planar→nonplanar pair is the antiaromaticity penalty as two
+`ibos.txt` files: +0.029 vs −0.090 Ha for the same electron. Planar
+4n is unbound; puckering buys a lone pair and a future. That is
+what "escape into nonaromaticity" looks like in this output.
 
 The nonplanar geometry's detail section fires genuine σπ mixing
 lines (e.g. `C3-C4: orb7(C-C π) × orb10(C-C σ): -0.0225`). That is

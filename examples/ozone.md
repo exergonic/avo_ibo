@@ -5,23 +5,26 @@ Input: ozone.xyz  (ORCA 6.1.1 wB97X-D3/def2-TZVP opt + freq, no imaginary modes)
 Run:   pixi run python -m avogadro_ibo examples/ozone.xyz --method wB97X-D --basis def2-TZVP
 ```
 
-The table tells ozone's reactivity story at a glance. The central
-oxygen is positive (+0.376), the terminals negative (−0.188 each) —
-the famous charge separation behind its electrophilicity, now as
-numbers.
+Read the charges first. The central oxygen is positive (+0.376), the
+terminals negative (−0.188 each). That is the textbook resonance
+picture — ⁺O−O−O⁻ ↔ ⁻O−O−O⁺ — as numbers, and it is why ozone is
+electrophilic at the middle atom.
 
-The O–O bonds are mixed σ and π (total 1.420). The surprise is the
-terminal O···O contact: two atoms not bonded in any Lewis structure,
-yet carrying over half a bond (**0.550**), essentially pure π. The
-detail section names the leak — `orb9 × orb10: +0.2174` — the
-3-centre π bond reaching across the terminal pair. For scale,
-benzene's meta C–C is 0.116 and SO₃'s O–O is 0.288. Ozone's bent
-π pathway nearly doubles SO₃'s threefold-symmetric one.
+Then look for a contact Lewis structures omit. The O–O bonds themselves
+are mixed σ and π (total 1.420). The terminal O···O pair is not a
+Lewis bond at all, yet it carries over half a bond (**0.550**),
+essentially pure π. The detail section names the source:
+`orb9 × orb10: +0.2174` — the 3-centre π system leaking across the
+bent terminals. For scale, benzene's meta C–C is 0.116 and SO₃'s O–O
+is 0.288. Ozone's bent π pathway nearly doubles SO₃'s
+threefold-symmetric one. A large Wiberg between atoms that are not
+drawn bonded is through-bond coupling, not a missing line in the
+Lewis structure.
 
-The LUMO is a bound, low-lying O π* (−0.056 Ha), hence the
-extraordinary reactivity. The terminal-oxygen lone pairs are the
-nucleophilic sites for 1,3-dipolar cycloaddition. Electrophile and
-nucleophile in one table.
+The frontier orbitals finish the 1,3-dipole. The LUMO is a bound,
+low-lying O π* (−0.056 Ha): that is the electrophilic end. The
+terminal-oxygen lone pairs are the nucleophilic end. Electrophile
+and nucleophile, HOMO and LUMO, in one table.
 
 ![Ozone LUMO](img/ozone_lumo.png)
 

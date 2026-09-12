@@ -14,15 +14,19 @@ cannot accommodate tetrahedral orbitals, so the bonds bend outward:
    12    2.000   -0.564521           C-C σ †  C3(49.6%) + C2(49.6%) + C1(0.6%)    18% 2s + 82% 2px          0.0    <- HOMO
 ```
 
-Three things to read here. First, the hybrid: 18% s + 82% p ≈ sp4.6 —
-far beyond sp³ (25% s). Ring strain forces the bonding orbitals into
-almost pure p character. That p-rich density bulging outside the ring
-is nucleophilic, which is why cyclopropane undergoes homoconjugation
+Three things to read here, in the order the columns teach them.
+First, the hybrid: 18% s + 82% p ≈ sp4.6 — far beyond sp³ (25% s).
+Ring strain forces the bonding orbitals into almost pure p
+character. That p-rich density bulging outside the ring is
+nucleophilic, which is why cyclopropane undergoes homoconjugation
 with adjacent π systems and reacts at the ring face with
-electrophiles. Second, the 0.6% third-carbon tail on each bond: tiny
-through-ring coupling, resolved quantitatively. Third, the HOMO (orb
-12) is a bent C–C σ bond, not a π bond. Unusual, and the reason for
-cyclopropane's electrophilic reactivity at the ring.
+electrophiles. The hybrid column is the strain. Second, the 0.6%
+third-carbon tail on each bond: tiny through-ring coupling, resolved
+quantitatively — not a 2e3c (the third atom misses 10%), but not
+zero either. Third, the HOMO (orb 12) is a bent C–C σ bond, not a
+π bond. Unusual, and the reason for cyclopropane's electrophilic
+reactivity at the ring: the highest occupied orbital *is* the bent
+bond.
 
 The C–C Wiberg order is 0.998 with a live interference parenthetical.
 The detail section fires (`C2-C3: orb11(C-C σ) × orb12(C-C σ):

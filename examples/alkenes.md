@@ -28,9 +28,11 @@ The baseline, and deliberately boring:
 ```
 
 A full double bond, π exactly 1.000, with four equivalent C–H bonds
-and no interference detail section at all. Nothing donates because
-there is nothing to donate. Every deviation below is measured against
-this page.
+and no interference detail section at all. Silence here is the
+control: nothing donates because there is nothing to donate. Every
+π drop, every methyl–vinyl π sliver, every through-space C···H
+contact below is measured against this page. If those features
+appear, they are chemistry, not table noise.
 
 ## Propene, C₃H₆ — one methyl donor
 
@@ -48,10 +50,15 @@ Run:   pixi run python -m avogadro_ibo examples/propene.xyz --method wB97X-D --b
   C1-H5         0.983   0.983   0.000  (-0.007: σ-0.007, π+0.000)
 ```
 
-Donation reads on both ends. The π order drops, and the methyl–vinyl
-single picks up a hundredth of a double bond. Two of the three methyl
-C–H bonds mix σ and π from overlap with the acceptor; the third, held
-away from it, stays pure σ. The through-space contacts print:
+Hyperconjugation has two ends, and both print. The π order drops
+below ethene's 1.000: the double bond is the acceptor, so it
+weakens. The methyl–vinyl single picks up a hundredth of a double
+bond (π 0.012) — donation parked on the single that used to be
+pure σ. Two of the three methyl C–H bonds mix σ and π from overlap
+with the acceptor; the third, held away from it, stays pure σ. That
+alignment test is the geometric signature: only the C–H bonds that
+can reach π* donate. The through-space contacts print next — the
+same donation seen as a bond that Lewis structures do not draw:
 
 ```
   Bond         Total       σ       π              (interference)
@@ -71,10 +78,11 @@ The detail section fires at full threshold — no probe needed:
   (11 terms in [0.005, 0.01) omitted; largest: C1-C2: orb10(C-H σ) × orb12(C-C π) = +0.0087)
 ```
 
-The familiar compete/cooperate signature: the donor pairs erode the
-double bond while building the contacts. The same sign pattern as
-diborane's three-sign story, now written by a methyl group and a
-π bond.
+Read the signs as in diborane. Negative on C2–C3: the donor C–H
+pairs erode the double bond. Positive on C3–H4/H6: the same pairs
+build the through-space contacts. Compete on the acceptor, cooperate
+on the new interaction — a methyl group and a π bond writing
+diborane's three-sign story.
 
 ## Isobutene, C₄H₈ — two methyl donors
 
@@ -96,10 +104,12 @@ Run:   pixi run python -m avogadro_ibo examples/isobutene.xyz --method wB97X-D -
   C3-H10        0.984   0.984   0.000  (-0.006: σ-0.006, π+0.000)
 ```
 
-The trend continues monotonically: π falls another step, and each
-methyl–vinyl single carries the same π character propene showed once.
-The donor C–H bonds split as before — four mixed against two pure-σ
-spectators — and the detail section prints four aligned-donor pairs:
+A second methyl does the same thing again, not something new. π
+falls another step, and each methyl–vinyl single carries the same
+0.012 of π character propene showed once — one donor's fingerprint,
+printed twice. The donor C–H bonds split as before: four aligned
+(mixed) against two spectators (pure σ). The detail section prints
+four aligned-donor pairs:
 
 ```
   C1-C4: orb13(C-H σ) × orb16(C-C π): -0.0128
@@ -120,10 +130,12 @@ by symmetry:
   C4-H5         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
 ```
 
-Twice the donors, twice the fingerprints — at a smaller per-donor
-magnitude than propene, consistent with two methyls sharing one π*
-acceptor. Total π depletion scales evenly; per-donor terms do not,
-and the page no longer claims they do.
+Twice the donors, twice the fingerprints. Per-donor magnitude is a
+little smaller than propene's, which is what you expect when two
+methyls share one π* acceptor. Total π depletion scales evenly
+(one methyl, then two); the individual pair terms do not, and the
+page no longer claims they do. Count methyls in the π column; do
+not expect each donor to pay the same pair-term bill.
 
 ## The comparison
 
@@ -135,9 +147,11 @@ and the page no longer claims they do.
 | Max detail term | — (silent) | −0.0150 | −0.0128 ×4 |
 | Near-miss footnote | — | 11 terms | 20 terms |
 
-The stability ordering falls out of the π column directly. Each
+The stability ordering is the π column read left to right. Each
 methyl costs the double bond a slice of π order and parks a
-hundredth of a double bond on its single.
+hundredth of a double bond on its single. Textbook
+"hyperconjugation stabilizes more-substituted alkenes" is that
+trend, not a separate argument.
 
 ## References
 

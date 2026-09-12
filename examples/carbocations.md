@@ -24,13 +24,15 @@ Orbital 5 is the whole story:
     5    0.000   -0.365417           C(virt)  C1(100.0%)               100% 2px                  ---    <- LUMO
 ```
 
-The LUMO is a pure 2p on carbon — 100.0%, no tails anywhere. Nothing
-donates into it because there is nothing to donate: three C–H σ bonds
-(0.961 each, no interference to report) and an empty orbital
-orthogonal to all of them. The charge has nowhere to go: C1 +0.406,
-each H +0.198. At −0.365 Ha it is by far the deepest LUMO on this
-page — the bare electrophile against which the other three ions
-measure their stabilization.
+The LUMO is a pure 2p on carbon — 100.0%, no tails anywhere. That
+emptiness is the teaching point. Nothing donates into it because
+there is nothing to donate: three C–H σ bonds (0.961 each, no
+interference to report) and an empty orbital orthogonal to all of
+them. The charge has nowhere to go: C1 +0.406, each H +0.198. At
+−0.365 Ha it is by far the deepest LUMO on this page. Every later
+ion on this page is "how much did we fill or raise that hole?"
+Methyl is the bare electrophile those three answers are measured
+against.
 
 ![Methyl LUMO — the bare empty p](img/methyl_lumo_empty_p.png)
 *Orbital 5 (LUMO): pure 2px on C1, 100% — the bare empty p with no
@@ -52,11 +54,14 @@ Orbital 4 is the whole story:
     4    2.000   -0.900574        C-C-H 2e3c  H6(38.3%) + C3(30.9%) + C1(30.8%)    C: 5% 2s + 95% 2px       10.8
 ```
 
-The classifier labels it `C-C-H 2e3c` with no special casing. It is
-a three-centre two-electron bond, perfectly symmetric between the
-carbons, with hydrogen carrying the largest single share. In
+The classifier labels it `C-C-H 2e3c` with no special casing — the
+same 10%/3% gate that labelled diborane, not a carbocation rule.
+It is a three-centre two-electron bond, perfectly symmetric between
+the carbons, with hydrogen carrying the largest single share. In
 `ibo.molden` it renders as a dome spanning both carbons with H6
-symmetric above the axis: a protonated double bond.
+symmetric above the axis: a protonated double bond. If you were
+expecting an empty p on carbon, look again — the empty p has been
+filled and promoted into an occupied bridge.
 
 The Wiberg orders confirm the bridge quantitatively:
 
@@ -67,12 +72,15 @@ The Wiberg orders confirm the bridge quantitatively:
   C1-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)
 ```
 
-H6 is half-bonded to each carbon simultaneously. The C–C bond is
-stronger than a single bond because the bridge reinforces it.
-Charges: C1/C3 +0.076 each (identical — symmetry intact). H6
-(+0.228) carries the bulk of the positive charge despite being the
-bridge atom. The near-zero LUMOs (−0.057 Ha) flag genuine
-instability: the ion is barely holding together.
+H6 is half-bonded to each carbon simultaneously — that is what
+"bridged" means in this table, not a dotted line in a textbook.
+The C–C bond is stronger than a single bond because the bridge
+reinforces it. Charges: C1/C3 +0.076 each (identical — symmetry
+intact). H6 (+0.228) carries the bulk of the positive charge
+despite being the bridge atom: the cation has moved onto the
+bridging hydrogen. The near-zero LUMOs (−0.057 Ha) flag genuine
+instability. Bridging filled the hole; it did not make a
+comfortable ion.
 
 ![Bridged ethylium HOMO](img/nonclassical_ion.png)
 
@@ -86,13 +94,18 @@ Input: tbutyl.xyz  (charge +1;
 Run:   pixi run python -m avogadro_ibo examples/tbutyl.xyz --method wB97X-D --basis def2-TZVP --charge 1 --spin 1
 ```
 
-Everything ethylium wasn't. The LUMO is the classic empty p orbital —
-80.0% on C1, pure 2py — with 4.5% tails on each methyl carbon. The
-charge sits exposed: C1 +0.395, no bridging. The C–C orders (1.126)
-are far below ethylium's bridge-reinforced 1.417. The LUMO at
-−0.166 Ha is *more* negative than ethylium's −0.057. tert-Butyl is
-the more electron-deficient ion, because bridging fills ethylium's
-empty orbital with a 3c–2e bond that tert-butyl cannot form.
+Everything ethylium wasn't — and that is how you tell classical from
+bridged in this output. The LUMO is still an empty p (80.0% on C1,
+pure 2py), with 4.5% tails on each methyl carbon. Those tails *are*
+hyperconjugation: methyl density leaking into the hole, not a
+bridge. The charge sits exposed: C1 +0.395, no bridging. The C–C
+orders (1.126) are far below ethylium's bridge-reinforced 1.417.
+The LUMO at −0.166 Ha is *more* negative than ethylium's −0.057.
+tert-Butyl is the more electron-deficient ion. Bridging fills
+ethylium's empty orbital with a 3c–2e bond that tert-butyl cannot
+form; hyperconjugation only nicks the hole. A less-negative LUMO
+here means more stabilization, not a "higher" orbital in the
+textbook sense.
 
 ![tert-Butyl LUMO — empty p on the carbenium carbon](img/tbutyl_lumo_empty_p.png)
 *Orbital 17 (LUMO) at the minimum geometry: the classic empty p —
@@ -100,13 +113,15 @@ empty orbital with a 3c–2e bond that tert-butyl cannot form.
 hyperconjugative delocalization rendered.*
 
 Hyperconjugation, quantified — and sharpened by the true minimum.
-The nine C–H bonds split 6+3 around the empty p. Six in-plane donors
-(orbitals 8–13, ~3.4% C1 tails, through-bond C1–H ~0.04) are depleted
-to 0.915–0.920, their hydrogens at +0.136–0.138. Three
-near-perpendicular bonds (orbitals 14–16, no C1 tail) stay at full
-strength (0.975), hydrogens at +0.103. Donation reads as depletion:
-the bonds that give carry less order, and their hydrogens carry more
-positive charge.
+The nine C–H bonds split 6+3 around the empty p, which is the
+alignment test from the alkene page applied to an empty acceptor.
+Six in-plane donors (orbitals 8–13, ~3.4% C1 tails, through-bond
+C1–H ~0.04) are depleted to 0.915–0.920, their hydrogens at
++0.136–0.138. Three near-perpendicular bonds (orbitals 14–16, no
+C1 tail) stay at full strength (0.975), hydrogens at +0.103.
+Donation reads as depletion, as in formaldehyde: the bonds that
+give carry less order, and their hydrogens carry more positive
+charge. The bonds that cannot reach the empty p look like methane.
 
 An earlier saddle-point geometry showed the same physics as a 3+6
 axial/equatorial split (0.059 vs 0.012). The staggered minimum
@@ -132,18 +147,20 @@ Orbital 19 is the Scholz structure in our vocabulary:
    19    2.000   -0.772446        C-C-C 2e3c  C7(39.3%) + C3(29.9%) + C4(29.9%)               16% 2s + 84% 2py         13.6
 ```
 
-The classifier labels it `C-C-C 2e3c` with no special casing.
-Symmetric to 0.1% between the bridgeheads, with the bridging carbon
-carrying the largest share — exactly the ethylium pattern. The
-Wiberg orders confirm it: C3–C7 = C4–C7 = **0.514 / 0.514**, against
-ethylium's 0.472 / 0.472. The bridgehead pair C3–C4 carries 1.275
-with a live −0.092 interference parenthetical. The closing
-near-miss footnote fires as designed (6 terms in [0.005, 0.01)
-omitted, largest C3–C4 orb19×orb23 = −0.0098), so nothing sits
-unseen just under the print cutoff. Charges: C3/C4 +0.097 each
-(identical — symmetry intact), next to ethylium's +0.076 ×2. The
-two bridges are quantitative siblings. Brown's classical
-alternatives appear nowhere in the table.
+The classifier labels it `C-C-C 2e3c` with no special casing —
+ethylium's vocabulary on the historical molecule. Symmetric to
+0.1% between the bridgeheads, with the bridging carbon carrying
+the largest share. If Brown's classical 2-norbornyl were here, you
+would see an empty p on one carbon and a normal C–C σ on the
+other; you do not. The Wiberg orders confirm the bridge: C3–C7 =
+C4–C7 = **0.514 / 0.514**, against ethylium's 0.472 / 0.472. The
+bridgehead pair C3–C4 carries 1.275 with a live −0.092
+interference parenthetical. The closing near-miss footnote fires
+as designed (6 terms in [0.005, 0.01) omitted, largest C3–C4
+orb19×orb23 = −0.0098), so nothing sits unseen just under the
+print cutoff. Charges: C3/C4 +0.097 each (identical — symmetry
+intact), next to ethylium's +0.076 ×2. The two bridges are
+quantitative siblings.
 
 The geometry cross-validates the method. The opt retains the SI
 bridge at 1.8183/1.8183 against Scholz's 1.8250 (Δ0.007), with the

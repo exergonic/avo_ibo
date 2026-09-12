@@ -29,12 +29,15 @@ was needed.
   Fe1-C2         0.534   0.533   0.001  (-0.012: σ-0.008, π-0.004)
 ```
 
-Ten contacts, identical to three decimals — half-bonds. The charges
-match: Fe −0.238, every carbon −0.055, every hydrogen +0.080. The
-donation pairs read cleanly too. Six "Deloc" orbitals at ~22% Fe
-bridge ring π and metal d. The nonbonding dz² (orb 46, 98.6%) sits
-apart exactly where ligand-field theory puts it. The HOMO/LUMO is an
-Fe–C σ/σ* pair (−0.292/+0.163 Ha).
+Ten contacts, identical to three decimals — half-bonds. When every
+symmetry-equivalent total matches, the density is telling you the
+metal–ring donation is even. The charges match that picture: Fe
+−0.238, every carbon −0.055, every hydrogen +0.080. Six "Deloc"
+orbitals at ~22% Fe are the ring-π / metal-d bridges. The
+nonbonding dz² (orb 46, 98.6%) sits apart exactly where ligand-field
+theory puts it — a check that localization did not scramble a
+textbook orbital. The HOMO/LUMO is an Fe–C σ/σ* pair
+(−0.292/+0.163 Ha).
 
 ![Ferrocene dz² — nonbonding a1g orbital](img/ferrocene_dz2.png)
 *Orbital 46: the nonbonding dz², 98.6% Fe — the a1g orbital
@@ -42,21 +45,27 @@ ligand-field theory predicts, untouched by either ring.*
 
 **But the σ/π partition does not respect D5h — and that is the
 finding.** Same-total bonds decompose incompatibly: the table's first
-row is almost pure σ, the second is mixed. Worse, the assignment
-*permutes between legs*. Leg 1 puts the π-heavy character on Fe1–C20;
-Leg 2 moves it to Fe1–C6. Totals are density-protected and
-reproducible. The partition is localization-trajectory-dependent
-wherever symmetry-equivalent bonds share overlapping Fe-d/C-p
-subspaces. This is the PM symmetry limitation (benzene C–H split,
-SO₃ d-asymmetry — the gallery's standing caveat) in a new place: not
+row is almost pure σ, the second is mixed. That is not a chemical
+difference between those two Fe–C contacts; it is the localizer
+picking an arbitrary plane in a degenerate subspace. Worse, the
+assignment *permutes between legs*. Leg 1 puts the π-heavy character
+on Fe1–C20; Leg 2 moves it to Fe1–C6. Totals are density-protected
+and reproducible. The partition is not: Pipek–Mezey only sees atomic
+populations, so it cannot choose among rotations that keep every
+atom's population the same. Wherever symmetry-equivalent bonds share
+overlapping Fe-d/C-p subspaces, the σ/π split is
+localization-trajectory-dependent. This is the gallery's standing PM
+caveat (benzene C–H split, SO₃ d-asymmetry) in a new place: not
 energies or coefficients, but the decomposition itself.
 
-The writeup rule that follows: quote totals and compositions for
-ferrocene, never per-bond σ/π splits. Switching functionals would not
-help. Boys localization cannot separate σ from π by construction — it
-returns banana bonds for multiples — so it would abolish the
-distinction rather than symmetrize it. A documented limitation with a
-characterized failure mode beats a hidden one.
+The reading rule that follows: quote totals and compositions for
+ferrocene, never per-bond σ/π splits. Switching functionals would
+not help. Boys localization cannot separate σ from π by construction
+— it returns banana bonds for multiples — so it would abolish the
+distinction rather than symmetrize it. A documented limitation with
+a characterized failure mode beats a hidden one. Use the tool where
+it is exact; do not ask the σ/π columns for a symmetry they cannot
+give.
 
 ---
 *Leg-1 geometry: exact D5h from experimental parameters (Fe–C 2.064,

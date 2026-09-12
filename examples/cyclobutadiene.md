@@ -22,9 +22,10 @@ Run:   pixi run python -m avogadro_ibo examples/cyclobutadiene.xyz --method wB97
 ```
 
 No compromise values anywhere. The π column is two full double bonds
-and two pure singles, where benzene reads 1.444 six times over. The
-classifier agrees, labelling orbs 13–14 `C-C π` at exactly 50/50 and
-parking the HOMO (−0.359 Ha) on them:
+and two pure singles, where benzene reads 1.444 six times over.
+Antiaromaticity here does not average; it sorts. The classifier
+agrees, labelling orbs 13–14 `C-C π` at exactly 50/50 and parking
+the HOMO (−0.359 Ha) on them:
 
 ![Cyclobutadiene HOMO — two isolated π bonds](img/cyclobutadiene_homo.png)
 *Orbitals 13–14 (HOMO): the two localized C–C π bonds on the short
@@ -43,9 +44,13 @@ sub-threshold ledger stays complete.
 
 Set against the cyclopropenyl anion's refusal to delocalize
 ([aromaticity-cyclopropenyl.md](aromaticity-cyclopropenyl.md)),
-cyclobutadiene is the other answer to the same 4n problem: localize
-by geometry instead. Both molecules agree on the verdict. No
-delocalized 4n π system survives contact with a real minimum.
+cyclobutadiene is the other answer to the same 4n problem. The
+anion localizes by putting the extra electron on one carbon; this
+molecule localizes by distorting the ring into two double bonds
+and two singles. Both agree on the verdict. No delocalized 4n π
+system survives contact with a real minimum. Read the π column:
+1.000 / 0.000 is the escape, 0.444 six times would have been the
+aromatic trap.
 
 ---
 *Geometry optimized in ORCA 6.1.1 (wB97X-D3/def2-TZVP), confirmed
