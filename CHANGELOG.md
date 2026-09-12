@@ -71,6 +71,13 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   (repo `calcs/` verified untouched).
 
 ### Changed
+- `mathematics.md` §2: the two SCF defaults are now explicit. Library
+  core (`compute_ibo_data`) is HF / cc-pVDZ when `options` omit
+  method/basis; plugin and CLI adapter (`compute_ibo`) are wB97X-D /
+  def2-TZVP from Options config. Closed-shell, $C_1$, and Cartesian
+  `puream=0` are named as pipeline/Molden constraints, not as a
+  method default. Tests quote the library level; the examples gallery
+  quotes the plugin level.
 - `mathematics.md`: new §6 (bond-flat derivation); §§6–9 renumbered to
   §§7–10; all `calcs.py:<line>` anchors replaced with stable
   function-name anchors.

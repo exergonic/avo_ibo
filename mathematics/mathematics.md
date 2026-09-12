@@ -38,16 +38,36 @@ Indices run over:
 ## 2 The SCF wavefunction
 
 Psi4 solves the Hartree–Fock (or DFT) equations for the molecular geometry
-from Avogadro:
+from Avogadro (or from an XYZ file on the CLI):
 
 $$
 \mathbf{F}^{\mathrm{AO}} \mathbf{C} = \mathbf{S} \mathbf{C} \mathbf{\varepsilon}
 $$
 
-The default method is HF with the cc-pVDZ basis and Cartesian
-($\mathtt{puream}=0$) functions.  The occupied block
-$\mathbf{C}^{\mathrm{occ}} \in \mathbb{R}^{n_{\mathrm{AO}} \times n_{\mathrm{occ}}}$ is
-extracted from the converged solution (`compute_ibo_data()`).
+The calculation is always closed-shell (RHF, or RKS for DFT), in $C_1$,
+with Cartesian Gaussians (`puream=0`).  Closed-shell is a pipeline
+limit; $C_1$ keeps AO ordering identical across the SCF and the IAO
+build; Cartesian is required by Avogadro's Molden reader.  None of
+those three is a method/basis default.
+
+Method and basis have **two** defaults, on two different call surfaces:
+
+- **Library core** (`compute_ibo_data`): HF / cc-pVDZ, used when
+  `options` does not supply `method` / `basis`.  The pytest CLI fixtures
+  pass these flags explicitly, so the integration tests sit at this
+  level.
+- **Plugin and CLI adapter** (`compute_ibo`): wB97X-D / def2-TZVP,
+  from the persistent Options config.  **Compute IBOs** in Avogadro and
+  a bare `python -m avogadro_ibo file.xyz` both go through this adapter.
+
+The IAO/IBO construction below does not depend on which SCF produced
+$\mathbf{C}^{\mathrm{occ}}$.  Numerical checks in this document that
+name a level (water/cc-pVDZ in §10.4) are at that level.  The examples
+gallery is wB97X-D/def2-TZVP unless an entry says otherwise.
+
+The occupied block
+$\mathbf{C}^{\mathrm{occ}} \in \mathbb{R}^{n_{\mathrm{AO}} \times n_{\mathrm{occ}}}$
+is extracted from the converged solution (`compute_ibo_data()`).
 
 ---
 
