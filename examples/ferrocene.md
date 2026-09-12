@@ -36,8 +36,18 @@ metal–ring donation is even. The charges match that picture: Fe
 orbitals at ~22% Fe are the ring-π / metal-d bridges. The
 nonbonding dz² (orb 46, 98.6%) sits apart exactly where ligand-field
 theory puts it — a check that localization did not scramble a
-textbook orbital. The HOMO/LUMO is an Fe–C σ/σ* pair
-(−0.292/+0.163 Ha).
+textbook orbital. And the e₂′ δ set prints as δ, not σ:
+
+```
+    #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
+   47    2.000   -0.292187            Fe-C δ  Fe1(84.2%) + C10(3.9%) + C20(3.9%) + C18(1.8%)      100% 3dx2y2              9
+   48    2.000   -0.291770            Fe-C δ  Fe1(84.3%) + C14(3.1%) + C4(3.1%) + C6(3.0%)        100% 3dx2y2              9
+```
+
+The classifier keys δ off the dominant spherical d on a 3d metal
+(dxy/dx2y2 → δ; dxz/dyz → π; dz2 → σ), so the HOMO/LUMO is an Fe–C
+δ/π* pair (−0.292/+0.163 Ha) — the correct ligand-field reading,
+where the old table said σ/σ*.
 
 ![Ferrocene dz² — nonbonding a1g orbital](img/ferrocene_dz2.png)
 *Orbital 46: the nonbonding dz², 98.6% Fe — the a1g orbital
