@@ -368,7 +368,8 @@ extension.
   occupancy, not rank (energies_all ascending is not guaranteed to be a
   strict occ-then-vir prefix); gap in Ha, eV and kcal/mol (CODATA 2018
   HA_TO_EV / HA_TO_KCAL).  Ethene test: π-HOMO / π*-LUMO,
-  gap = LUMO − HOMO.
+  gap = LUMO − HOMO.  Table H/L arrows use the same occupancy indices
+  (was rank `nocc-1` / `nocc`; 2026-09-12).
 - **Aromaticity index (multi-centre bond order)** e.g. 6-centre index for
   benzene: research-flavoured, medium cost; probably not worth it for a
   student audience.

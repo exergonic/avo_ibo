@@ -288,6 +288,19 @@ def analyze_ibos(
         for j in range(group_start, n_orb):
             is_degen[j] = True
 
+    # HOMO/LUMO by occupancy, not energy-sort rank.  energies_all is
+    # ascending but not a guaranteed occupied-then-virtual prefix
+    # (see IBOResult.n_occ).  Rank markers (orb == nocc-1 / nocc) would
+    # lie if a valence virtual drops below an occupied IBO energy.
+    occ_idx = np.where(occ_all > 1.5)[0]
+    vir_idx = np.where(occ_all < 0.5)[0]
+    homo_i = None
+    lumo_i = None
+    if len(occ_idx):
+        homo_i = int(occ_idx[np.argmax(energies_all[occ_idx])])
+    if len(vir_idx):
+        lumo_i = int(vir_idx[np.argmin(energies_all[vir_idx])])
+
     for orb in range(n_orb):
         oc = occ_all[orb]
         sq = C_IAO_all[:, orb] ** 2
@@ -343,9 +356,9 @@ def analyze_ibos(
             ion_str = "---"
 
         hl = ""
-        if orb == nocc - 1:
+        if homo_i is not None and orb == homo_i:
             hl = "<- HOMO"
-        elif orb == nocc:
+        elif lumo_i is not None and orb == lumo_i:
             hl = "<- LUMO"
         degen_tag = " †" if is_degen[orb] else ""
         lines.append(
@@ -370,14 +383,9 @@ def analyze_ibos(
     # unreachable — closed-shell guard prevents open-shell in compute_ibo.
     lines.append(f"Total electrons: {int(2 * nocc) if ref == 'rhf' else nocc}")
 
-    # Frontier-orbital summary.  HOMO/LUMO are found by occupancy, not by
-    # rank position: energies_all is ascending but not guaranteed to be a
-    # strict occupied-then-virtual prefix after sorting (see IBOResult).
-    occ_idx = np.where(occ_all > 1.5)[0]
-    vir_idx = np.where(occ_all < 0.5)[0]
-    if len(occ_idx) and len(vir_idx):
-        homo_i = int(occ_idx[np.argmax(energies_all[occ_idx])])
-        lumo_i = int(vir_idx[np.argmin(energies_all[vir_idx])])
+    # Frontier block uses the same occupancy-based indices as the table H/L
+    # markers above, so the arrows and the summary cannot disagree.
+    if homo_i is not None and lumo_i is not None:
         gap_ha = energies_all[lumo_i] - energies_all[homo_i]
         gap_ev = gap_ha * HA_TO_EV
         gap_kcal = gap_ha * HA_TO_KCAL

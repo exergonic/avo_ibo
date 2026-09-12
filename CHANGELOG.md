@@ -82,6 +82,12 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   config loading removed from the CLI entry point.
 
 ### Fixed
+- Table H/L markers in `ibos.txt` now follow occupancy (highest occupied
+  / lowest virtual), matching the Frontier Orbital Energies block. Rank
+  after energy sort (`orb == nocc-1` / `orb == nocc`) could mark the
+  wrong rows if a valence virtual drops below an occupied IBO energy
+  (`IBOResult.n_occ`). Quoted example tables are unchanged: those
+  molecules keep an occupied-then-virtual energy prefix.
 - `max(d, key=d.get)` → `max(d, key=lambda k: d[k])` at two sites:
   identical semantics, silences Pylance/ty overload complaints
   (`dict.get`'s `value | None` stub return).
