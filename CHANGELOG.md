@@ -71,6 +71,11 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   (repo `calcs/` verified untouched).
 
 ### Changed
+- README Quick Start is Windows-first throughout: `pixi.lock` is
+  `win-64` only, CI is `windows-latest` / pixi 0.66.0, and the
+  Development Setup no longer uses a POSIX fence that implied Linux/mac
+  pixi would consume the lock. pip remains the non-Windows library/CLI
+  path (Psi4 via conda).
 - `mathematics.md` §2: the two SCF defaults are now explicit. Library
   core (`compute_ibo_data`) is HF / cc-pVDZ when `options` omit
   method/basis; plugin and CLI adapter (`compute_ibo`) are wB97X-D /

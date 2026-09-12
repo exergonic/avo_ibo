@@ -46,8 +46,15 @@ analysis table. Full writeup: [examples/water-dimer.md](examples/water-dimer.md)
 
 ## Quick Start
 
-### Avogadro Plugin (easiest)
+This plugin is developed and CI-tested on **Windows**. `pixi.lock` is
+`win-64` only (`platforms = ["win-64"]` in `pyproject.toml`); GitHub
+Actions runs `windows-latest` with pixi 0.66.0, matching Avogadro 2's
+bundled pixi. `pixi install` will not consume this lock on Linux or
+macOS.
+
 Requires [pixi](https://pixi.sh).
+
+### Avogadro plugin
 
 ```powershell
 git clone https://github.com/exergonic/avo_ibo.git
@@ -55,41 +62,42 @@ cd avo_ibo
 pixi install
 ```
 
-Then create a symlink so Avogadro finds the plugin (run PowerShell as Administrator):
+Then symlink so Avogadro finds the plugin (PowerShell as Administrator;
+replace the target with your clone path):
 
 ```powershell
 New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\OpenChemistry\Avogadro\plugins\avo_ibo" -Target "C:\path\to\avo_ibo"
 ```
 
-Restart Avogadro. Go to **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
-
+Restart Avogadro. **Extensions → Intrinsic Bond Orbitals → Compute IBOs**.
 Orbitals appear in the **Molecular Orbitals** panel.
 
-### Development Setup
-Requires [pixi](https://pixi.sh).
+### Tests
 
-```shell
-git clone https://github.com/exergonic/avo_ibo.git
-cd avo_ibo
-pixi install
+```powershell
 pixi run test
 ```
 
-
 ### Standalone CLI
-```shell
+
+```powershell
 pixi run python -m avogadro_ibo molecule.xyz
 ```
 
-Writes to `calcs/` (ibo.molden, canonical.molden, ibos.txt, psi4.log).
+Writes to `calcs/` (`ibo.molden`, `canonical.molden`, `ibos.txt`,
+`psi4.log`). A bare CLI run uses the plugin defaults (wB97X-D /
+def2-TZVP from Options config). Tests pass `--method hf --basis cc-pVDZ`
+explicitly.
 
-### pip (no pixi)
+### pip (no pixi lock)
 
-```shell
+On Linux or macOS, or if you already have Psi4, install the package
+with pip. Psi4 must come from conda separately. This is the library/CLI
+path; the Avogadro symlink above is the Windows plugin location.
+
+```
 pip install git+https://github.com/exergonic/avo_ibo.git
 ```
-
-Psi4 must be installed separately via conda.
 
 ## Data location
 
