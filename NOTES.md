@@ -4,9 +4,10 @@ Engineering notebook for avo_ibo: open items, design decisions, and the
 reasoning behind them. Claims here are checked against the code; when the
 code changes, update the note or delete it.
 
-Status docs live in [AGENTS.md](AGENTS.md); derivations in
-[mathematics/mathematics.md](mathematics/mathematics.md); a hands-on
-plugin-development guide in [tutorial.md](tutorial.md).
+Derivations live in
+[mathematics/mathematics.md](mathematics/mathematics.md).
+`AGENTS.md` and `tutorial.md` are local maintainer notes (gitignored;
+not in the published tree).
 
 ## Cross-validation against IboView and ORCA (2026-09-03 to 09-04; record, not gate)
 
@@ -237,8 +238,8 @@ IboView's wall-clock seed.)
 
 - **pixi-pack distribution**: deliberately deferred (2026-08-26).  The
   ~1 GB self-extracting environment archive isn't justified at current
-  adoption; revisit only if usage grows.  The working recipe stays in
-  [tutorial.md §17](tutorial.md).
+  adoption; revisit only if usage grows.  The working recipe is in
+  the local untracked `tutorial.md` (§17), not in the published tree.
 - **Virtual-block junk-column hygiene** (see IboView audit below): either
   adopt their overlap-weighted energy scheme or exclude weak SVD columns
   from ordering-sensitive paths; unlocks a σ*/π* tie-break later.

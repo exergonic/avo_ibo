@@ -236,9 +236,9 @@ perturbation is applied before localisation.**
 
 IboView applies an 18° Cayley rotation (`RotateVectorsRandomly`) to
 break accidental near-degeneracies, but in our testing this **increased**
-the benzene C-H σ split from $2\times10^{-5}$ Ha to $1.2\times10^{-4}$ Ha
-(Gotcha 20 in AGENTS.md).  The symmetric converged solution is the
-nearest local maximum for the fixed sequential sweep order
+the benzene C-H σ split from $2\times10^{-5}$ Ha to $1.2\times10^{-4}$ Ha.
+The symmetric converged solution is the nearest local maximum for the
+fixed sequential sweep order
 ($i=1..n_\mathrm{occ}, j&lt;i$) — no perturbation improves it.
 
 All PAO-like methods that use the PM functional on an orthogonal

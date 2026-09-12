@@ -76,6 +76,9 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   Development Setup no longer uses a POSIX fence that implied Linux/mac
   pixi would consume the lock. pip remains the non-Windows library/CLI
   path (Psi4 via conda).
+- `mathematics.md` §4.1: dropped the "(Gotcha 20 in AGENTS.md)"
+  parenthetical. That document is the derivation of the pipeline, not
+  the engineering notebook.
 - `mathematics.md` §2: the two SCF defaults are now explicit. Library
   core (`compute_ibo_data`) is HF / cc-pVDZ when `options` omit
   method/basis; plugin and CLI adapter (`compute_ibo`) are wB97X-D /
@@ -94,6 +97,9 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   config loading removed from the CLI entry point.
 
 ### Fixed
+- NOTES.md no longer links `AGENTS.md` or `tutorial.md`; both are
+  gitignored and 404 in the published tree. Pointers now say they are
+  local maintainer notes.
 - CLI no longer reads leftover `charge`/`spin` keys from `config.json`.
   Those keys were already dropped from the persistent schema; an old
   config file would have silently applied them to every run without
