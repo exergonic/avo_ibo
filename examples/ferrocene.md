@@ -23,10 +23,16 @@ was needed.
 
 ```
   Bond         Total       σ       π       δ              (interference)
+  Fe1-C8         0.534   0.442   0.001   0.091  (-0.012: σ-0.015, π-0.004, δ+0.007)
   Fe1-C18        0.534   0.442   0.001   0.091  (-0.012: σ-0.015, π-0.004, δ+0.007)
   Fe1-C6         0.534   0.129   0.295   0.110  (-0.041: σ-0.020, π-0.018, δ-0.003)
+  Fe1-C16        0.534   0.129   0.296   0.110  (-0.041: σ-0.020, π-0.018, δ-0.003)
+  Fe1-C4         0.534   0.130   0.295   0.110  (-0.042: σ-0.020, π-0.018, δ-0.003)
+  Fe1-C14        0.534   0.130   0.295   0.110  (-0.042: σ-0.020, π-0.018, δ-0.003)
+  Fe1-C10        0.534   0.338   0.075   0.121  (-0.047: σ-0.057, π+0.022, δ-0.011)
   Fe1-C20        0.534   0.338   0.075   0.121  (-0.047: σ-0.057, π+0.022, δ-0.011)
   Fe1-C2         0.534   0.442   0.001   0.091  (-0.012: σ-0.015, π-0.004, δ+0.007)
+  Fe1-C12        0.534   0.442   0.001   0.091  (-0.012: σ-0.015, π-0.004, δ+0.007)
 ```
 
 Ten contacts, identical to three decimals — half-bonds. When every
@@ -76,9 +82,13 @@ every group closes under reflection through the 108°/288° plane
 (0+216 = 72+144 = 288+288 = 216°), with top/bottom pairs identical
 throughout. The landslide stopped at a subgroup: σh exactly
 preserved, C5 broken to one approximate vertical mirror (partners
-differ at the third decimal), D5h → ~Cs. PM does not scramble
-symmetry randomly; it keeps what the density enforces and spends
-the rest on trajectory luck.
+differ at the third decimal), D5h → ~Cs. The mixed pair sharpens
+the picture further: C10/C20 sits at 288°, exactly on the mirror
+plane — reflection fixes those carbons in place rather than pairing
+them, so they cannot resolve cleanly into either family and read
+mixed. That is a mechanistic reason, not an empirical label. PM
+does not scramble symmetry randomly; it keeps what the density
+enforces and spends the rest on trajectory luck.
 
 The reading rule that follows: quote totals and compositions for
 ferrocene, never per-bond σ/π splits. Switching functionals would
