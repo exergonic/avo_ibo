@@ -82,7 +82,7 @@ def _hybrid_str(c, am_of, atom_of, func_n, func_dtype, top_atom):
         elif am_val == 2:  # d-orbitals: dxy, dxz, dyz, dz2, dx2y2
             d_weights = _d_spherical_weights(c, top_atom, atom_of, am_of)
             if d_weights:
-                top_st = max(d_weights, key=d_weights.get)
+                top_st = max(d_weights, key=lambda k: d_weights[k])
                 if d_weights[top_st] > 0.5 * max(d_weights.values()):
                     subtype = top_st  # e.g. "dz2"
 

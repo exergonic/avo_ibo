@@ -97,6 +97,8 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   config loading removed from the CLI entry point.
 
 ### Fixed
+- Remaining `max(..., key=d.get)` in `_hybrid_str` (d-subtype weights)
+  switched to `lambda k: d[k]`, matching the two sites already fixed.
 - NOTES.md no longer links `AGENTS.md` or `tutorial.md`; both are
   gitignored and 404 in the published tree. Pointers now say they are
   local maintainer notes.
