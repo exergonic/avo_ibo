@@ -304,8 +304,8 @@ def test_zncl2_bond_order():
     calc_dir = _find_calc_dir("zncl2")
     text = (calc_dir / "ibos.txt").read_text(encoding="utf-8")
     assert "Ion%" in text, "Table should contain Ion% column header"
-    assert "Wiberg Bond Orders (σ/π, density)" in text, (
-        "Should contain consolidated σ/π Wiberg section"
+    assert "Wiberg Bond Orders (σ/π/δ, density)" in text, (
+        "Should contain consolidated σ/π/δ Wiberg section"
     )
     assert "Zn-Cl" in text, "Wiberg section should show Zn-Cl pairs"
 
@@ -345,43 +345,46 @@ def test_ethene_sig_pi_wiberg_split():
     assert result.returncode == 0
 
     text = (_find_calc_dir("ethene") / "ibos.txt").read_text(encoding="utf-8")
-    assert "Wiberg Bond Orders (σ/π, density)" in text
+    assert "Wiberg Bond Orders (σ/π/δ, density)" in text
 
-    # Rows: "  C1-C2         2.028   1.028   1.000  (+0.013: σ+0.013, π+0.000)"
-    #       "  C5-C6         1.444   1.000   0.444"   (no interference -> no parens)
+    # Rows: "  C1-C2         2.028   1.028   1.000   0.000  (+0.013: σ+0.013, π+0.000, δ+0.000)"
+    #       "  C5-C6         1.444   1.000   0.444   0.000"   (no interference -> no parens)
     sec = text.split("--- Wiberg Bond Orders")[1]
     rows = {}
     for line in sec.splitlines():
         m = re.match(
-            r"^\s*([A-Za-z]+\d+)-([A-Za-z]+\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)"
-            r"(?:\s+\(([-+\d.]+): σ([-+\d.]+), π([-+\d.]+)\))?",
+            r"^\s*([A-Za-z]+\d+)-([A-Za-z]+\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)"
+            r"(?:\s+\(([-+\d.]+): σ([-+\d.]+), π([-+\d.]+), δ([-+\d.]+)\))?",
             line,
         )
         if m:
-            tot, sig, pi = float(m.group(3)), float(m.group(4)), float(m.group(5))
-            if m.group(6) is not None:
-                rows[(m.group(1), m.group(2))] = (tot, sig, pi,
-                                                  float(m.group(6)),
+            tot, sig, pi, delta = (float(m.group(i)) for i in (3, 4, 5, 6))
+            if m.group(7) is not None:
+                rows[(m.group(1), m.group(2))] = (tot, sig, pi, delta,
                                                   float(m.group(7)),
-                                                  float(m.group(8)))
+                                                  float(m.group(8)),
+                                                  float(m.group(9)),
+                                                  float(m.group(10)))
             else:
-                rows[(m.group(1), m.group(2))] = (tot, sig, pi, 0.0, 0.0, 0.0)
+                rows[(m.group(1), m.group(2))] = (tot, sig, pi, delta,
+                                                  0.0, 0.0, 0.0, 0.0)
 
     cc = [v for k, v in rows.items() if k[0].startswith("C") and k[1].startswith("C")]
     assert cc, f"expected a C-C row in Wiberg section, got rows {list(rows)}"
-    tot, sig, pi, interf, is_, ip = cc[0]
-    assert abs(sig + pi - tot) < 1e-4, f"σ + π = {sig + pi} ≠ total {tot}"
+    tot, sig, pi, delta, interf, is_, ip, id_ = cc[0]
+    assert abs(sig + pi + delta - tot) < 1e-4, f"σ + π + δ = {sig + pi + delta} ≠ total {tot}"
     assert 0.9 < sig < 1.1, f"C-C σ Wiberg expected ≈1.0, got {sig}"
     assert 0.9 < pi < 1.1, f"C-C π Wiberg expected ≈1.0, got {pi}"
     # Interference parts must sum to the reported interference total
-    assert abs((is_ + ip) - interf) < 1e-4, (
-        f"σ-part {is_} + π-part {ip} ≠ reported interference {interf}"
+    assert abs((is_ + ip + id_) - interf) < 1e-4, (
+        f"σ-part {is_} + π-part {ip} + δ-part {id_} ≠ reported interference {interf}"
     )
 
-    # Every C-H row must be σ-only (no π, no compression of π into total)
-    for k, (tot, sig, pi, interf, is_, ip) in rows.items():
+    # Every C-H row must be σ-only (no π, no δ, no compression into total)
+    for k, (tot, sig, pi, delta, interf, is_, ip, id_) in rows.items():
         if (k[0].startswith("C") and k[1].startswith("H")) or (k[0].startswith("H") and k[1].startswith("C")):
             assert pi < 0.01, f"C-H row {k} has spurious π contribution {pi}"
+            assert delta < 0.01, f"C-H row {k} has spurious δ contribution {delta}"
 
     # Ethene's largest pair terms (±0.0053) fall below the 0.01 detail
     # bar, so no detail section should appear: quiet molecules gain

@@ -458,11 +458,12 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
 
     with diagonal terms (k=l) the per-IBO shares occ²·P_A·P_B and
     off-diagonal terms the inter-orbital interference.  Orbitals are
-    classed σ or π purely by p-fraction (p > 0.85 on both dominant
-    atoms → π, no population gate), and the interference is folded
-    into its class: (σ,σ) → σ, (π,π) → π, (σ,π) → split 50/50.
-    Total = σ + π exactly; the folded interference is echoed in a
-    parenthesised column for transparency.
+    classed σ, π, or δ by _two_center_bond_type (organic p-fraction
+    rule, with a spherical-d override on 3d metals), and the
+    interference is folded into its class: same-class pairs stay
+    home, cross-class pairs split 50/50.
+    Total = σ + π + δ exactly; the folded interference is echoed in
+    a parenthesised column for transparency.
 
     A follow-on detail section lists individual orbital-pair
     interference terms with |term| >= PAIR_DETAIL_THRESH, grouped by
@@ -476,8 +477,10 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     n_occ = C_IAO_occ.shape[1]
     n_atoms = len(elem)
 
-    # Classify each occupied orbital σ/π (p-fraction rule only).
-    is_pi = np.zeros(n_occ, dtype=bool)
+    # Classify each occupied orbital σ/π/δ (shared rule with the
+    # Type column).  0 = σ, 1 = π, 2 = δ.
+    CLS = {'σ': 0, 'π': 1, 'δ': 2}
+    cls = np.zeros(n_occ, dtype=int)
     for k in range(n_occ):
         c = C_IAO_occ[:, k]
         sq = c**2
@@ -485,9 +488,7 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
         np.add.at(pop, atom_of, sq)
         order = np.argsort(-pop)
         A, B = int(order[0]), int(order[1])
-        pa = _p_frac(c, am_of, A, atom_of)
-        pb = _p_frac(c, am_of, B, atom_of)
-        is_pi[k] = pa > 0.85 and pb > 0.85
+        cls[k] = CLS[_two_center_bond_type(c, am_of, atom_of, elem, A, B)]
 
     # Per-atom orbital-pair overlap blocks G^A_kl.
     G = np.zeros((n_atoms, n_occ, n_occ))
@@ -495,13 +496,11 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
         Ca = C_IAO_occ[atom_of == a, :]
         G[a] = Ca.T @ Ca
 
-    sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
-    pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
-    # Folded interference, tracked per class: int_sigma = σσ + ½σπ,
-    # int_pi = ππ + ½σπ.  These are what the σ/π columns actually
-    # contain beyond their diagonal shares (4·P_A·P_B).
-    int_sigma = np.zeros((n_atoms, n_atoms), dtype=np.float64)
-    int_pi = np.zeros((n_atoms, n_atoms), dtype=np.float64)
+    buckets = [np.zeros((n_atoms, n_atoms), dtype=np.float64) for _ in range(3)]
+    # Folded interference, tracked per class: same-class pairs stay
+    # home, cross-class pairs split 50/50.  ints[i] is what column i
+    # actually contains beyond its diagonal shares (4·P_A·P_B).
+    ints = [np.zeros((n_atoms, n_atoms), dtype=np.float64) for _ in range(3)]
     # Significant off-diagonal terms, kept for the detail section:
     # (A, B) with A < B -> [(k, l, value)] with |value| >= threshold.
     pair_detail = {}
@@ -510,26 +509,21 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     for k in range(n_occ):
         # Diagonal (per-orbital share): 4·P_A·P_B
         contrib = 4.0 * np.einsum("a,b->ab", G[:, k, k], G[:, k, k])
-        if is_pi[k]:
-            pi += contrib
-        else:
-            sigma += contrib
+        buckets[cls[k]] += contrib
         for l in range(k + 1, n_occ):
-            # Off-diagonal (interference): 8·G^A_kl·G^B_kl
+            # Off-diagonal (interference): 8·G^A_kl·G^B_kl.
+            # Same-class pairs stay home; cross-class pairs split
+            # evenly (contribution is symmetric).
             contrib = 8.0 * np.einsum("a,b->ab", G[:, k, l], G[:, k, l])
-            if is_pi[k] and is_pi[l]:
-                pi += contrib
-                int_pi += contrib
-            elif is_pi[k] or is_pi[l]:
-                # σ-π cross term: split evenly (contribution is symmetric)
-                half = 0.5 * contrib
-                sigma += half
-                pi += half
-                int_sigma += half
-                int_pi += half
+            if cls[k] == cls[l]:
+                buckets[cls[k]] += contrib
+                ints[cls[k]] += contrib
             else:
-                sigma += contrib
-                int_sigma += contrib
+                half = 0.5 * contrib
+                buckets[cls[k]] += half
+                buckets[cls[l]] += half
+                ints[cls[k]] += half
+                ints[cls[l]] += half
             # Record significant pair terms for the detail section, plus
             # near-miss terms for the closing footnote.
             big = np.abs(contrib) >= PAIR_DETAIL_THRESH
@@ -550,7 +544,9 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
                             )
 
     rows = []
-    total = sigma + pi
+    sigma, pi, delta = buckets
+    int_sigma, int_pi, int_delta = ints
+    total = sigma + pi + delta
     for A in range(n_atoms):
         for B in range(A + 1, n_atoms):
             if total[A, B] > 0.01:
@@ -558,7 +554,8 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
                 symB = elem_symbol(elem[B])
                 rows.append(
                     (symA, A, symB, B, total[A, B], sigma[A, B], pi[A, B],
-                     int_sigma[A, B], int_pi[A, B])
+                     delta[A, B], int_sigma[A, B], int_pi[A, B],
+                     int_delta[A, B])
                 )
 
     if not rows:
@@ -567,29 +564,31 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
     lines = [
         "",
         "",
-        "--- Wiberg Bond Orders (σ/π, density) ---",
-        "  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π = total exactly.",
-        "  σ, π columns include their class's folded interference; the",
-        "  parenthetical reports the same interference as (σ-part, π-part).",
-        f"  {'Bond':<10}{'Total':>8}{'σ':>8}{'π':>8}{'  (interference)':>28}",
+        "--- Wiberg Bond Orders (σ/π/δ, density) ---",
+        "  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π + δ = total exactly.",
+        "  Each column includes its class's folded interference (cross-class",
+        "  pairs split 50/50); the parenthetical echoes it per class.",
+        f"  {'Bond':<10}{'Total':>8}{'σ':>8}{'π':>8}{'δ':>8}{'  (interference)':>28}",
     ]
-    for symA, a, symB, b, t, s, p, is_, ip in sorted(rows, key=lambda x: -x[4]):
-        # Kill floating-point -0.000 noise in the σ/π columns (the
+    for symA, a, symB, b, t, s, p, d, is_, ip, id_ in sorted(rows, key=lambda x: -x[4]):
+        # Kill floating-point -0.000 noise in the columns (the
         # interference parts keep their genuine sign).
         s_disp = 0.0 if abs(s) < 5e-4 else s
         p_disp = 0.0 if abs(p) < 5e-4 else p
-        if abs(is_) + abs(ip) >= 5e-4:
-            # Both parts below the noise floor -> omit the parenthetical
+        d_disp = 0.0 if abs(d) < 5e-4 else d
+        if abs(is_) + abs(ip) + abs(id_) >= 5e-4:
+            # All parts below the noise floor -> omit the parenthetical
             # entirely; the row is pure diagonal shares.
             is_disp = 0.0 if abs(is_) < 5e-4 else is_
             ip_disp = 0.0 if abs(ip) < 5e-4 else ip
+            id_disp = 0.0 if abs(id_) < 5e-4 else id_
             lines.append(
-                f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
-                f"  ({is_disp+ip_disp:+.3f}: σ{is_disp:+.3f}, π{ip_disp:+.3f})"
+                f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}{d_disp:>8.3f}"
+                f"  ({is_disp+ip_disp+id_disp:+.3f}: σ{is_disp:+.3f}, π{ip_disp:+.3f}, δ{id_disp:+.3f})"
             )
         else:
             lines.append(
-                f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}"
+                f"  {symA}{a+1}-{symB}{b+1:<7}{t:>8.3f}{s_disp:>8.3f}{p_disp:>8.3f}{d_disp:>8.3f}"
             )
 
     # Detail section: significant orbital-pair interference terms, grouped
@@ -601,7 +600,7 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
         return f"orb{k+1}"
 
     detail = []
-    for symA, a, symB, b, t, s, p, is_, ip in sorted(rows, key=lambda x: -x[4]):
+    for symA, a, symB, b, t, s, p, d, is_, ip, id_ in sorted(rows, key=lambda x: -x[4]):
         terms = pair_detail.get((a, b))
         if not terms:
             continue
@@ -622,7 +621,7 @@ def format_wiberg(C_IAO_occ, atom_of, am_of, elem, labels=None):
         lines.extend(detail)
         near_all = [
             (symA, a, symB, b, k, l, v)
-            for symA, a, symB, b, t, s, p, is_, ip
+            for symA, a, symB, b, t, s, p, d, is_, ip, id_
             in sorted(rows, key=lambda x: -x[4])
             for k, l, v in pair_near.get((a, b), [])
         ]

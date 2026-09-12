@@ -39,10 +39,10 @@ carries a real bond order, all σ — donation building a bridge while
 it weakens the donor:
 
 ```
-  Bond         Total       σ       π              (interference)
-  O1-H2         0.867   0.867   0.000  (-0.052: σ-0.052, π+0.000)
-  H2-O4         0.075   0.075   0.000  (-0.012: σ-0.012, π+0.000)
-  O1-O4         0.042   0.042   0.000  (+0.010: σ+0.010, π+0.000)
+  Bond         Total       σ       π       δ              (interference)
+  O1-H2         0.867   0.867   0.000   0.000  (-0.052: σ-0.052, π+0.000, δ+0.000)
+  H2-O4         0.075   0.075   0.000   0.000  (-0.012: σ-0.012, π+0.000, δ+0.000)
+  O1-O4         0.042   0.042   0.000   0.000  (+0.010: σ+0.010, π+0.000, δ+0.000)
 ```
 
 And the interference detail names the mechanism — one orbital pair,

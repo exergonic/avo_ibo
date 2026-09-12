@@ -113,24 +113,26 @@ sanity check: populations must sum to the electron count (10 here) and
 the net to the molecular charge (0). If it doesn't, something failed
 upstream — do not trust the rest of the file.
 
-## 5. Wiberg Bond Orders (σ/π, density)
+## 5. Wiberg Bond Orders (σ/π/δ, density)
 
 ```
---- Wiberg Bond Orders (σ/π, density) ---
-  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π = total exactly.
-  σ, π columns include their class's folded interference; the
-  parenthetical reports the same interference as (σ-part, π-part).
-  Bond         Total       σ       π              (interference)
-  O1-H3         0.939   0.939   0.000
-  O1-H2         0.939   0.939   0.000
+--- Wiberg Bond Orders (σ/π/δ, density) ---
+  W_AB = Σ_{i∈A,j∈B} D²_ij (density Wiberg); σ + π + δ = total exactly.
+  Each column includes its class's folded interference (cross-class
+  pairs split 50/50); the parenthetical echoes it per class.
+  Bond         Total       σ       π       δ              (interference)
+  O1-H3         0.939   0.939   0.000   0.000
+  O1-H2         0.939   0.939   0.000   0.000
 ```
 
-Each bond's total order decomposed into σ and π shares that sum exactly
+Each bond's total order decomposed into σ, π, and δ shares that sum exactly
 to the total. The parenthetical shows the folded-in inter-orbital
 interference split by class — water's rows have none (pure diagonal
 shares), so no parenthetical appears. See ethene (`C1-C2: 2.028, σ
-1.028, π 1.000 (+0.013: σ+0.013, π+0.000)`) for a row where it does, and
-the diborane entry for what it means chemically.
+1.028, π 1.000 (+0.013: σ+0.013, π+0.000, δ+0.000)`) for a row where it does, and
+the diborane entry for what it means chemically. The δ column reads
+0.000 on molecules without δ-classed orbitals (everything organic);
+see ferrocene for the transition-metal case.
 
 ## 6. Significant orbital-pair interference (when present)
 

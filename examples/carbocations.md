@@ -66,10 +66,10 @@ filled and promoted into an occupied bridge.
 The Wiberg orders confirm the bridge quantitatively:
 
 ```
-  Bond         Total       σ       π              (interference)
-  C1-C3         1.417   1.417   0.000  (+0.012: σ+0.012, π+0.000)
-  C3-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)
-  C1-H6         0.472   0.472   0.000  (-0.004: σ-0.004, π+0.000)
+  Bond         Total       σ       π       δ              (interference)
+  C1-C3         1.417   1.417   0.000   0.000  (+0.012: σ+0.012, π+0.000, δ+0.000)
+  C3-H6         0.472   0.472   0.000   0.000  (-0.004: σ-0.004, π+0.000, δ+0.000)
+  C1-H6         0.472   0.472   0.000   0.000  (-0.004: σ-0.004, π+0.000, δ+0.000)
 ```
 
 H6 is half-bonded to each carbon simultaneously — that is what

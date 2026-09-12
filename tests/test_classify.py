@@ -96,3 +96,27 @@ def test_metal_lp_stays_lp():
     """High-DOM metal (ferrocene dz² nonbonding) never reaches the two-center branch."""
     kw = _two_center([_ZZ], fe_pop=0.986, c_pop=0.014)
     assert _label(**kw) == "Fe(LP)"
+
+
+def _fe_c_system():
+    """One-orbital Fe(dxy)+C(s) system for the Wiberg folding test."""
+    from avogadro_ibo.analysis import format_wiberg
+
+    C = np.zeros((7, 1), dtype=np.float64)
+    C[1, 0] = np.sqrt(0.84)  # Fe dxy
+    C[6, 0] = np.sqrt(0.16)  # C s
+    atom_of = np.array([0, 0, 0, 0, 0, 0, 1])
+    am_of = np.array([2, 2, 2, 2, 2, 2, 0])
+    return format_wiberg(C, atom_of, am_of, np.array([26, 6]))
+
+
+def test_wiberg_has_delta_column():
+    """Wiberg table carries σ + π + δ exactly; δ-labeled shares fold as δ."""
+    out = _fe_c_system()
+    header = next(ln for ln in out.splitlines() if "Bond" in ln and "Total" in ln)
+    assert "δ" in header
+    row = next(ln for ln in out.splitlines() if ln.strip().startswith("Fe1-C"))
+    nums = [float(t) for t in row.split()[1:5]]
+    total, s, p, d = nums
+    assert d > 0.0
+    assert abs(total - (s + p + d)) < 1e-9

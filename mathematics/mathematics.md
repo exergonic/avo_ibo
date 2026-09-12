@@ -626,7 +626,7 @@ on atom $A$. Occupied (occupancy $2.0$):
 Only $n=1$ (1s) counts as Core; 2s/3s stay valence. The 2e3c gate is
 why diborane bridges, norbornyl, and cyclopropenyl label `2e3c` rather
 than `Deloc`: the third atom carries more than 10% and a fourth does
-not exceed 3%. Virtuals use the same 0.85 p-fraction for σ*/π*, a
+not exceed 3%. Virtuals use the same 0.85 p-fraction for σ* / π*, a
 looser two-centre share (0.60), and a third-atom cut of 0.08. On a
 3d metal (Sc–Zn) with majority d character the organic p-fraction
 test is replaced by the dominant spherical d (`_d_spherical_weights`):
@@ -661,24 +661,26 @@ populations).  The off-diagonal terms ($k \neq l$) are inter-orbital
 interference: contributions to $W_{AB}$ that no single orbital owns,
 arising from the square of the density sum.
 
-Each orbital is classed σ or π by the p-fraction of the dominant
-atom pair ($p > 0.85$ on both atoms → π, else σ — the classifier's
-own rule, without its two-centre population gate).  Interference is
-folded back into its class:
+Each orbital is classed σ, π, or δ by the shared classifier rule
+(`_two_center_bond_type`: organic p-fraction test, with a spherical-d
+override on 3d metals — dz2 → σ, dxz/dyz → π, dxy/dx2y2 → δ).
+Interference is folded back into its class:
 
-- $(k,l)$ both σ → σ part; both π → π part;
-- mixed σ/π pair → split equally between the two parts.
+- $(k,l)$ same class → that class's part;
+- mixed-class pair → split equally between the two parts.
 
-With $\sigma_{AB}, \pi_{AB}$ the folded sums, the identity
+With $\sigma_{AB}, \pi_{AB}, \delta_{AB}$ the folded sums, the identity
 
 $$
-W_{AB} = \sigma_{AB} + \pi_{AB}
+W_{AB} = \sigma_{AB} + \pi_{AB} + \delta_{AB}
 $$
 
 holds exactly for every atom pair, and the folded interference is
-reported parenthesised as $(\sigma\text{-part}, \pi\text{-part})$ —
-the same-class terms that entered $\sigma$, the same-class terms
-that entered $\pi$, and half of any mixed-class cross term in each.
+reported parenthesised per class (σ-part, π-part, δ-part) — the
+same-class terms that entered each column, and half of any
+mixed-class cross term in each. On molecules without δ-classed
+orbitals the δ column reads 0.000 throughout.
+
 In practice the σ/π cross term vanishes: the on-atom and bond-flat
 Fock resolutions (Section 5, 6) restore orbitals to Fock-eigenframe
 form, so different-symmetry orbitals are already decoupled before the
