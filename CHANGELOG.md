@@ -89,6 +89,10 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   config loading removed from the CLI entry point.
 
 ### Fixed
+- CLI no longer reads leftover `charge`/`spin` keys from `config.json`.
+  Those keys were already dropped from the persistent schema; an old
+  config file would have silently applied them to every run without
+  `--charge`/`--spin`. Flags now default to 0 and 1.
 - Table H/L markers in `ibos.txt` now follow occupancy (highest occupied
   / lowest virtual), matching the Frontier Orbital Energies block. Rank
   after energy sort (`orb == nocc-1` / `orb == nocc`) could mark the
