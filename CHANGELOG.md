@@ -71,6 +71,12 @@ track `pyproject.toml` (`avogadro-ibo`) and `CITATION.cff`.
   (repo `calcs/` verified untouched).
 
 ### Changed
+- Examples gallery prose pass: tables own the numbers, prose owns the
+  interpretation; one idea per sentence; four-decimal pair terms stay
+  in code blocks unless the sentence is about that term. Geometry
+  caveats (ozone O–O vs experiment; ferrocene D5h to 1e-4) kept.
+  Voice leans toward `how-to-read-ibos.md`. Quoted table blocks are
+  unchanged.
 - Classification thresholds are now in the student-facing docs.
   `examples/how-to-read-ibos.md` lists the occupied Type cut-offs
   (DOM, 0.85 p-fraction, 2e3c 10%/3%); `mathematics.md` §9.3 is the

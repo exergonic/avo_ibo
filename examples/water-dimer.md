@@ -19,21 +19,21 @@ Column guide for newcomers: `Occ` is occupancy, `Ion%` percent ionic
 character from the population split, `H/L` HOMO/LUMO markers — all
 defined in the [reading guide](how-to-read-ibos.md).
 
-Orbital 9 is the smoking gun: the acceptor lone pair is not on O4
-alone — 2.2% of it lives on the *donor's hydrogen*, with a tail
-reaching the donor oxygen (0.8%). The back-channel shows too: the
-donor σ* (orb 14) carries 3.0% acceptor character. 2.2% of a
-lone pair across the contact is covalency you can point at:
+Orbital 9 is the smoking gun. The acceptor lone pair is not on O4
+alone: a slice of it lives on the *donor's hydrogen*, with a tail
+reaching the donor oxygen. The back-channel shows too: the donor σ*
+(orb 14) carries acceptor character. That is covalency you can point
+at:
 
 ![Orbital 9 — acceptor lone pair reaching across the H-bond](img/water-dimer_H-bond.png)
 *Orbital 9: the acceptor (O4) lone pair. The major lobe spans the H···O
 contact toward the donor; the minor lobe (opposite phase) sits on the
 donor oxygen — 97.0% / 2.2% / 0.8%, as tabulated above.*
 
-The donor O–H pays for it. O1–H2 drops to Wiberg 0.867 against
-0.932–0.942 for the three free O–H bonds, and polarizes up (64.2/35.8,
-ionicity 28.4 vs ~24–26) — the red-shift signature. Meanwhile the
-H···O contact itself carries a real bond order, H2–O4 = 0.075, all σ:
+The donor O–H pays for it. O1–H2 drops to 0.867 against 0.932–0.942
+for the three free O–H bonds, and polarizes up (ionicity 28.4 vs
+~24–26) — the red-shift signature. The H···O contact itself carries
+a real bond order, all σ:
 
 ```
   Bond         Total       σ       π              (interference)
@@ -51,16 +51,16 @@ both directions:
   (1 term in [0.005, 0.01) omitted; largest: O1-O4: orb6(O-H σ) × orb9(O(LP)) = +0.0095)
 ```
 
-LP→σ* donation weakening the donor while building the bridge. The same
-pair signs a third bond, too: O1–O4's parenthetical (+0.010) folds from
-orb6×orb9 at +0.0095 — just under the detail section's |term| ≥ 0.01
-print threshold, so it earns the closing footnote quoted above instead
-of its own line. One orbital pair, three bonds, three signs (−0.051,
-−0.012, +0.010): competition on both legs, cooperation across the
-O···O contact. Charges
-agree: donor O1 goes more negative (−0.540 vs monomer −0.494),
-acceptor O4 less (−0.459) — and the bonded hydrogen H2 (+0.239) is
-*less* positive than the free hydrogens (+0.259/+0.260), because
+LP→σ* donation weakening the donor while building the bridge. The
+same pair signs a third bond, too. O1–O4's parenthetical folds from
+orb6×orb9 at +0.0095 — just under the detail section's print
+threshold — so it earns the closing footnote instead of its own
+line. One orbital pair, three bonds, three signs: competition on
+both legs, cooperation across the O···O contact.
+
+Charges agree. Donor O1 goes more negative (−0.540 vs monomer
+−0.494), acceptor O4 less (−0.459). The bonded hydrogen H2 (+0.239)
+is *less* positive than the free hydrogens (+0.259/+0.260), because
 donation into σ* puts density back onto H character. Pure
 electrostatics would polarize it the other way.
 

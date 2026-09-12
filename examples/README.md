@@ -61,14 +61,14 @@ Input: SO3.xyz  (4 atoms, D3h)
 ```
 
 S–O σ bonds (17.5% ionic) vs S–O π bonds (63.4% ionic) vs O 2s lone
-pairs (99.4% ionic): the σ framework is relatively covalent while the π
+pairs (99.4% ionic). The σ framework is relatively covalent; the π
 system is highly polar, density overwhelmingly on oxygen. Charges
 S +2.047 / O −0.682 each — the resonance picture (two S=O plus one
-coordinate S→O) as numbers. The σ/π Wiberg split reads S–O 1.310 (σ
-0.825 + π 0.485) with heavy folded interference (−0.508, mostly π):
+coordinate S→O) as numbers. The S–O Wiberg split is 1.310 (σ 0.825 +
+π 0.485) with heavy folded interference (−0.508, mostly π):
 three-centre π sharing spread over three equivalent bonds. O–O 0.288
-(σ 0.051 + π 0.237) — oxygens communicating through the delocalised π
-system, more than double benzene's meta coupling (0.116).
+is oxygens communicating through the delocalised π system, more than
+double benzene's meta coupling (0.116).
 
 ### Water (H₂O) — on-atom degeneracy resolution
 
@@ -93,31 +93,31 @@ Charges C −0.230 / H +0.058; C–H Wiberg 0.997; gap 29.6 eV.
     3    2.000   -0.729415             C-C σ  C1(50.0%) + C2(50.0%)    37% 2s + 63% 2pz          0.0
 ```
 
-C–C σ (37% 2s, sp²-like) at −0.73 Ha; C–C π (100% 2p) is the HOMO; four
-degenerate C–H σ (32% 2s, 6.6% ionic). Wiberg C=C 2.033 (σ 1.033 + π
-1.000); gap 14.0 eV. See [carbocations.md](carbocations.md) for what
-happens when this double bond gets protonated.
+C–C σ is sp²-like (37% 2s); C–C π (100% 2p) is the HOMO. Four
+degenerate C–H σ (32% 2s, 6.6% ionic). Wiberg C=C 2.033 (σ 1.033 +
+π 1.000); gap 14.0 eV. See [carbocations.md](carbocations.md) for
+what happens when this double bond gets protonated.
 
 ### Ammonia (NH₃) — lone pair character
 
-N LP (orb 5, HOMO): 100% on N, 17% 2s + 83% 2pz — predominantly p-type,
-consistent with the pyramidal geometry. N–H σ: 28% 2s, 17.7% ionic
-(ΔEN ≈ 0.8). Charges N −0.530 / H +0.177; N–H Wiberg 0.969; gap
-24.1 eV.
+N LP (orb 5, HOMO): 100% on N, 17% 2s + 83% 2pz — predominantly
+p-type, consistent with the pyramidal geometry. N–H σ: 28% 2s, 17.7%
+ionic (ΔEN ≈ 0.8). Charges N −0.530 / H +0.177; N–H Wiberg 0.969;
+gap 24.1 eV.
 
 ### Benzene (C₆H₆) — delocalised π system
 
 Three occupied π orbitals (100% pz, "Deloc" type, 50/22.2/22.2/5.6
-composition — annealing-mode superpositions of ethylenic π bonds),
-HOMO at −0.374 Ha. C–C Wiberg 1.444 (σ 1.000 + π 0.444): the aromatic
-third of the π system per bond, landing in the π column with no gate
-tricks. Meta C–C 0.116 — almost pure π (0.111) through-bond coupling.
-Gap 15.2 eV.
+composition — annealing-mode superpositions of ethylenic π bonds).
+HOMO at −0.374 Ha. C–C Wiberg 1.444 (σ 1.000 + π 0.444): the
+aromatic third of the π system per bond, landing in the π column
+with no gate tricks. Meta C–C 0.116 — almost pure π (0.111)
+through-bond coupling. Gap 15.2 eV.
 
 ### ZnCl₂ — 3d¹⁰ transition metal
 
-Zn d¹⁰ shell intact as pure-atom `Zn(LP)` orbitals (the lowest mixes 8%
-4s into 3dz² by axial symmetry). Zn–Cl σ: Cl 68.6% / Zn 31.3%, 37.4%
-ionic; Cl 3p LPs 91–99% ionic. Charges Zn +0.386 / Cl −0.193. Wiberg
-Zn–Cl 1.172 (σ 0.852 + π 0.319) — above 1 from Cl→Zn σ-donation,
-consistent with formal Zn²⁺. Gap 13.2 eV.
+Zn d¹⁰ shell intact as pure-atom `Zn(LP)` orbitals. The lowest mixes
+8% 4s into 3dz² by axial symmetry. Zn–Cl σ: Cl 68.6% / Zn 31.3%,
+37.4% ionic; Cl 3p LPs 91–99% ionic. Charges Zn +0.386 / Cl −0.193.
+Wiberg Zn–Cl 1.172 (σ 0.852 + π 0.319) — above 1 from Cl→Zn
+σ-donation, consistent with formal Zn²⁺. Gap 13.2 eV.

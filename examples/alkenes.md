@@ -2,14 +2,15 @@
 
 Textbook organic chemistry ranks alkene stability ethene < propene <
 isobutene and credits hyperconjugation: methyl C–H σ bonds donating
-into the C=C π* acceptor. These three molecules render that ranking as
-IBO numbers at uniform wB97X-D/def2-TZVP — the same donation physics
-as the tert-butyl cation's 6+3 split ([carbocations.md](carbocations.md)),
-now with a π acceptor instead of an empty p. Reproduce with the
-commands shown. (Ethene's section stays silent throughout — no bond
-reaches the interference floor — while propene and isobutene fire
-detail lines plus footnotes; [how-to-read-ibos.md](how-to-read-ibos.md#6-significant-orbital-pair-interference-when-present)
-explains the display convention.)
+into the C=C π* acceptor. These three molecules render that ranking
+as IBO numbers at uniform wB97X-D/def2-TZVP. It is the same donation
+physics as the tert-butyl cation's 6+3 split
+([carbocations.md](carbocations.md)), now with a π acceptor instead
+of an empty p. Reproduce with the commands shown. Ethene's section
+stays silent throughout — no bond reaches the interference floor —
+while propene and isobutene fire detail lines plus footnotes.
+[how-to-read-ibos.md](how-to-read-ibos.md#6-significant-orbital-pair-interference-when-present)
+explains the display convention.
 
 ## Ethene, C₂H₄ — the zero-donor control
 
@@ -26,10 +27,10 @@ The baseline, and deliberately boring:
   C1-H3         0.978   0.978   0.000  (-0.009: σ-0.009, π+0.000)   (×4)
 ```
 
-A full double bond — σ 1.034, π exactly 1.000 — with four equivalent
-C–H bonds and no interference detail section at all. Nothing donates
-because there is nothing to donate. Every deviation below is measured
-against this page.
+A full double bond, π exactly 1.000, with four equivalent C–H bonds
+and no interference detail section at all. Nothing donates because
+there is nothing to donate. Every deviation below is measured against
+this page.
 
 ## Propene, C₃H₆ — one methyl donor
 
@@ -47,12 +48,10 @@ Run:   pixi run python -m avogadro_ibo examples/propene.xyz --method wB97X-D --b
   C1-H5         0.983   0.983   0.000  (-0.007: σ-0.007, π+0.000)
 ```
 
-Donation reads on both ends: the π order drops 1.000 → 0.971 while the
-methyl–vinyl single rises to 1.040 carrying genuine π character
-(0.012) — a single bond with a hundredth of a double bond in it. Two
-of the three methyl C–H bonds show σ/π mixing (−0.003 π) from overlap
-with the acceptor; the third, held away from it, stays pure σ at
-0.983. And the through-space contacts print:
+Donation reads on both ends. The π order drops, and the methyl–vinyl
+single picks up a hundredth of a double bond. Two of the three methyl
+C–H bonds mix σ and π from overlap with the acceptor; the third, held
+away from it, stays pure σ. The through-space contacts print:
 
 ```
   Bond         Total       σ       π              (interference)
@@ -73,9 +72,9 @@ The detail section fires at full threshold — no probe needed:
 ```
 
 The familiar compete/cooperate signature: the donor pairs erode the
-double bond (−0.0150) while building the contacts (+0.0100) — the same
-sign pattern as diborane's three-sign story, now written by a methyl
-group and a π bond.
+double bond while building the contacts. The same sign pattern as
+diborane's three-sign story, now written by a methyl group and a
+π bond.
 
 ## Isobutene, C₄H₈ — two methyl donors
 
@@ -97,11 +96,10 @@ Run:   pixi run python -m avogadro_ibo examples/isobutene.xyz --method wB97X-D -
   C3-H10        0.984   0.984   0.000  (-0.006: σ-0.006, π+0.000)
 ```
 
-The trend continues monotonically: π 1.000 → 0.971 → 0.939, with two
-methyl–vinyl singles each carrying the same 0.012 of π character
-propene showed once. The donor C–H bonds split as before — four mixed
-(0.973, −0.003 π) against two pure-σ spectators (0.984) — and the
-detail section prints four aligned-donor pairs:
+The trend continues monotonically: π falls another step, and each
+methyl–vinyl single carries the same π character propene showed once.
+The donor C–H bonds split as before — four mixed against two pure-σ
+spectators — and the detail section prints four aligned-donor pairs:
 
 ```
   C1-C4: orb13(C-H σ) × orb16(C-C π): -0.0128
@@ -111,7 +109,8 @@ detail section prints four aligned-donor pairs:
   (20 terms in [0.005, 0.01) omitted; largest: C4-H6: orb13(C-H σ) × orb16(C-C π) = +0.0097)
 ```
 
-backed by four 0.021 (+0.010) vinyl···H contacts:
+backed by four vinyl···H contacts, each the same 0.021 you'd expect
+by symmetry:
 
 ```
   Bond         Total       σ       π              (interference)
@@ -121,10 +120,10 @@ backed by four 0.021 (+0.010) vinyl···H contacts:
   C4-H5         0.021   0.010   0.011  (+0.010: σ+0.005, π+0.005)
 ```
 
-Twice the donors, twice the fingerprints — at ~15% smaller per-donor
-magnitude (−0.0128 vs propene's −0.0150), consistent with two methyls
-sharing one π* acceptor. Total π depletion scales evenly (0.029 →
-0.061); per-donor terms do not, and the page no longer claims they do.
+Twice the donors, twice the fingerprints — at a smaller per-donor
+magnitude than propene, consistent with two methyls sharing one π*
+acceptor. Total π depletion scales evenly; per-donor terms do not,
+and the page no longer claims they do.
 
 ## The comparison
 
@@ -136,9 +135,9 @@ sharing one π* acceptor. Total π depletion scales evenly (0.029 →
 | Max detail term | — (silent) | −0.0150 | −0.0128 ×4 |
 | Near-miss footnote | — | 11 terms | 20 terms |
 
-The stability ordering falls out of the π column directly: each methyl
-costs the double bond ~0.03 of π order and parks ~0.012 of π character
-on its single bond.
+The stability ordering falls out of the π column directly. Each
+methyl costs the double bond a slice of π order and parks a
+hundredth of a double bond on its single.
 
 ## References
 

@@ -6,9 +6,10 @@ Run:   pixi run python -m avogadro_ibo examples/diborane.xyz --method wB97X-D --
 ```
 
 The two bridging hydrogens refuse the two-centre picture. Orbitals 3
-and 4 are labelled `B-B-H 2e3c` with no special casing — H(45.1%) +
-B(27.3%) + B(27.3%), nearly degenerate (−0.6103/−0.6103 Ha), against
-four ordinary terminal B–H σ bonds (0.984 each):
+and 4 are labelled `B-B-H 2e3c` with no special casing — nearly equal
+shares on the two borons, hydrogen carrying the largest piece,
+nearly degenerate — against four ordinary terminal B–H σ bonds
+(0.984 each):
 
 ```
     #      Occ      Energy              Type  Composition              Hybrid                   Ion%        H/L
@@ -16,9 +17,10 @@ four ordinary terminal B–H σ bonds (0.984 each):
     4    2.000   -0.610275      B-B-H 2e3c †  H3(45.1%) + B1(27.3%) + B6(27.3%)               B: 22% 2s + 78% 2pz      24.7           
 ```
 
-The Wiberg table then shows what "three-centre" costs in pair terms:
-each bridge leg reads 0.482, the B–B contact 0.634 — and the detail
-section attributes the interference to a single pair, both directions:
+The Wiberg table then shows what "three-centre" costs in pair terms.
+Each bridge leg reads 0.482, the B–B contact 0.634. The detail
+section attributes the interference to a single pair, both
+directions:
 
 ```
   B1-B6: orb3(B-B-H 2e3c) × orb4(B-B-H 2e3c): +0.0134
@@ -27,11 +29,11 @@ section attributes the interference to a single pair, both directions:
   H3-H5: orb3(B-B-H 2e3c) × orb4(B-B-H 2e3c): +0.0134
 ```
 
-The two bridge bonds compete on every shared leg (−0.0134: orthogonalization
-against each other) while cooperating across the B–B contact (+0.0134) —
-and even across the H···H contact between the bridges (+0.0134 on H3–H5).
-One orbital pair, three signs, each chemically legible. This is the
-pair-interference detail section at its best: the aggregate column only
-says "−0.015 here, +0.016 there"; the detail says why.
+The two bridge bonds compete on every shared leg (orthogonalization
+against each other) while cooperating across the B–B contact — and
+even across the H···H contact between the bridges. One orbital pair,
+three signs, each chemically legible. This is the pair-interference
+detail section at its best: the aggregate column only says "minus
+here, plus there"; the detail says why.
 
 ![Diborane 3c-2e bridge](img/diborane_2e3c_bond.png)

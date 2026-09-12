@@ -5,24 +5,23 @@ Input: ozone.xyz  (ORCA 6.1.1 wB97X-D3/def2-TZVP opt + freq, no imaginary modes)
 Run:   pixi run python -m avogadro_ibo examples/ozone.xyz --method wB97X-D --basis def2-TZVP
 ```
 
-The table tells ozone's whole reactivity story at a
-glance. Charges: central O +0.376, terminals −0.188 each — the famous
-charge separation behind its electrophilicity, straight out of the
-resonance structures but now as numbers. The O–O bonds read 1.420 (σ
-0.954 + π 0.466), and the terminal O···O contact — two atoms not bonded
-in any Lewis structure — carries **0.550**, over half a bond: σ 0.002
-+ π 0.548, essentially pure π, with the detail section showing
-`orb9 × orb10: +0.2174`,
-the 3-centre π bond leaking across the terminal pair. For scale:
-benzene's meta C–C is 0.116, SO₃'s O–O 0.288 — ozone's direct bent
+The table tells ozone's reactivity story at a glance. The central
+oxygen is positive (+0.376), the terminals negative (−0.188 each) —
+the famous charge separation behind its electrophilicity, now as
+numbers.
+
+The O–O bonds are mixed σ and π (total 1.420). The surprise is the
+terminal O···O contact: two atoms not bonded in any Lewis structure,
+yet carrying over half a bond (**0.550**), essentially pure π. The
+detail section names the leak — `orb9 × orb10: +0.2174` — the
+3-centre π bond reaching across the terminal pair. For scale,
+benzene's meta C–C is 0.116 and SO₃'s O–O is 0.288. Ozone's bent
 π pathway nearly doubles SO₃'s threefold-symmetric one.
 
-The frontier picture completes it: LUMO is the symmetric O π* at
-−0.056 Ha — bound and low-lying, hence the extraordinary
-reactivity — while the terminal-oxygen lone pairs (−0.488 Ha, 97.5%
-2p)
-are the nucleophilic sites for 1,3-dipolar cycloaddition. Electrophile
-and nucleophile, HOMO and LUMO, in one table.
+The LUMO is a bound, low-lying O π* (−0.056 Ha), hence the
+extraordinary reactivity. The terminal-oxygen lone pairs are the
+nucleophilic sites for 1,3-dipolar cycloaddition. Electrophile and
+nucleophile in one table.
 
 ![Ozone LUMO](img/ozone_lumo.png)
 

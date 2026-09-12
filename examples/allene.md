@@ -14,16 +14,16 @@ The two π bonds resolve by symmetry into perpendicular planes:
    13    0.000    0.196557          C-C π* †  C2(52.8%) + C3(44.4%) + C1(2.1%)    100% 2pz                  ---           
 ```
 
-100% 2pz vs 100% 2py, degenerate to 1e-6 Ha, π* mirroring π — the two
-ends of the molecule are electronically isolated, which is the quantum
-basis of allene's axial chirality. C–C orders are 1.989 each: two
-independent, unconjugated double bonds. The central carbon sits nearly
-neutral (+0.026) at the intersection of the two π systems while the
-terminals carry −0.189 from C–H donation.
+100% 2pz vs 100% 2py, degenerate to 1e-6 Ha, with π* mirroring π.
+The two ends of the molecule are electronically isolated. That is the
+quantum basis of allene's axial chirality. Each C–C order is 1.989:
+two independent, unconjugated double bonds. The central carbon sits
+nearly neutral (+0.026) at the intersection of the two π systems.
+The terminals carry −0.189 from C–H donation.
 
-Notably, allene's detail section fires genuine σπ mixing lines —
+The detail section fires genuine σπ mixing lines —
 `C2-C3: orb6(C-H σ) × orb10(C-C π): -0.0247` alongside `+0.0123`
-partners — the bent-bond early warning working as designed in a
-molecule where σ and π manifolds legitimately interpenetrate off-axis.
-Compare ethene, whose σπ channel reads exactly zero: planarity protects
-it there; D2d exposes it here.
+partners. That is the bent-bond early warning working as designed:
+here σ and π manifolds legitimately interpenetrate off-axis.
+Ethene's σπ channel reads exactly zero. Planarity protects it there;
+D2d exposes it here.

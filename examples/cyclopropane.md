@@ -16,20 +16,20 @@ cannot accommodate tetrahedral orbitals, so the bonds bend outward:
 
 Three things to read here. First, the hybrid: 18% s + 82% p ≈ sp4.6 —
 far beyond sp³ (25% s). Ring strain forces the bonding orbitals into
-almost pure p character; that p-rich density bulging outside the ring
+almost pure p character. That p-rich density bulging outside the ring
 is nucleophilic, which is why cyclopropane undergoes homoconjugation
 with adjacent π systems and reacts at the ring face with
 electrophiles. Second, the 0.6% third-carbon tail on each bond: tiny
 through-ring coupling, resolved quantitatively. Third, the HOMO (orb
-12) is a bent C–C σ bond, not a π bond — unusual, and the reason for
+12) is a bent C–C σ bond, not a π bond. Unusual, and the reason for
 cyclopropane's electrophilic reactivity at the ring.
 
-The C–C Wiberg order is 0.998 with a live interference parenthetical —
-and the detail section fires (`C2-C3: orb11(C-C σ) × orb12(C-C σ):
+The C–C Wiberg order is 0.998 with a live interference parenthetical.
+The detail section fires (`C2-C3: orb11(C-C σ) × orb12(C-C σ):
 -0.0171`): neighbouring bent bonds erode each other slightly through
-orthogonalization on the shared carbon. The cyclopropenyl cation shows
-the same curved-outside-the-ring σ topology, tighter and more
-directional there (sp² carbons leave less s
-character for the σ framework than sp³ carbons do).
+orthogonalization on the shared carbon. The cyclopropenyl cation
+shows the same curved-outside-the-ring σ topology, tighter and more
+directional there — sp² carbons leave less s character for the σ
+framework than sp³ carbons do.
 
 ![Cyclopropane bent-bond HOMO](img/cyclopropane_bent-bond_homo.png)
