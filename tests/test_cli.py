@@ -74,7 +74,9 @@ def parse_ibos(path):
                 "ene": float(cols[2]),
                 "ion_pct": ion_raw if ion_raw == "---" else float(ion_raw),
             }
-            if len(middle) >= 2 and middle[1] in ("σ", "σ*", "π", "π*", "anti*"):
+            if len(middle) >= 2 and middle[1] in (
+                "σ", "σ*", "π", "π*", "δ", "δ*", "anti*",
+            ):
                 entry["label"] = " ".join(middle[:2])
             else:
                 entry["label"] = middle[0] if middle else ""

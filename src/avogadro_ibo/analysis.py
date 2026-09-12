@@ -129,6 +129,37 @@ def _ionic_pct(pop, A, B):
     return num / den * 100.0 if den > 1e-12 else 0.0
 
 
+def _two_center_bond_type(c, am_of, atom_of, elem, top_A, top_B):
+    """Return σ / π / δ for a two-center IBO.
+
+    Organic default: π if p-fraction > 0.85 on both atoms, else σ.
+    When a 3d metal (Sc–Zn) carries majority d character, the
+    dominant spherical d in the molecular frame overrides:
+      dz2 → σ,  dxz/dyz → π,  dxy/dx2y2 → δ.
+    """
+    pfrac_A = _p_frac(c, am_of, top_A, atom_of)
+    pfrac_B = _p_frac(c, am_of, top_B, atom_of)
+    metal = None
+    for A in (top_A, top_B):
+        z = int(round(elem[A]))
+        if 21 <= z <= 30:
+            s, p, d = _spd_frac(c, am_of, A, atom_of)
+            tot = s + p + d
+            if tot > 0.0 and d / tot > 0.5:
+                metal = A
+                break
+    if metal is not None:
+        weights = _d_spherical_weights(c, metal, atom_of, am_of)
+        if weights:
+            top_d = max(weights, key=lambda k: weights[k])
+            if top_d in ("dxy", "dx2y2"):
+                return "δ"
+            if top_d in ("dxz", "dyz"):
+                return "π"
+            return "σ"
+    return "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
+
+
 def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
                       elem, am_of, atom_of, func_n, c):
     """Return a classification label string for one IAO-basis orbital.
@@ -139,8 +170,11 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
     Thresholds (DOM-based, matching IboView defaults):
       Core:  DOM > 0.99 + s-character > 0.75 on n=1 (1s only; 2s/3s are valence)
       LP:    DOM > 0.90 on one atom
-      σ/π:   DOM_shared > 0.75, both atoms carry density (>0.02);
-             π if p-fraction > 0.85 on both atoms
+      σ/π/δ: DOM_shared > 0.75, both atoms carry density (>0.02);
+             organic default π if p-fraction > 0.85 on both atoms,
+             else σ.  On a 3d metal (Z 21–30) with majority d
+             character, the dominant spherical d in the molecular
+             frame overrides: dz2 → σ, dxz/dyz → π, dxy/dx2y2 → δ.
       LP-s:  DOM > 0.70, s-character > 0.5 (transitional)
       2e3c:  3rd atom carries >10% density, 4th atom <3%
       Deloc: everything else (multi-atom delocalisation)
@@ -157,9 +191,9 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
         elif pop[top_A] > 0.90:
             return f"{elem_symbol(elem[top_A])}(LP)"
         elif pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
-            pfrac_A = _p_frac(c, am_of, top_A, atom_of)
-            pfrac_B = _p_frac(c, am_of, top_B, atom_of)
-            bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
+            bond_type = _two_center_bond_type(
+                c, am_of, atom_of, elem, top_A, top_B
+            )
             a, b = sorted([top_A, top_B])
             symA = elem_symbol(elem[a])
             symB = elem_symbol(elem[b])
@@ -182,9 +216,9 @@ def _classify_orbital(oc, pop, order, top_A, top_B, s_char, p_char, d_char,
                 return "Deloc"
     else:
         if pop[top_A] + pop[top_B] > 0.75 and pop[top_B] > 0.02:
-            pfrac_A = _p_frac(c, am_of, top_A, atom_of)
-            pfrac_B = _p_frac(c, am_of, top_B, atom_of)
-            bond_type = "π" if (pfrac_A > 0.85 and pfrac_B > 0.85) else "σ"
+            bond_type = _two_center_bond_type(
+                c, am_of, atom_of, elem, top_A, top_B
+            )
             a, b = sorted([top_A, top_B])
             symA = elem_symbol(elem[a])
             symB = elem_symbol(elem[b])

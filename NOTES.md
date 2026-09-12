@@ -424,6 +424,19 @@ next" were stripped from module tails (4 orphans). CI:
 `.github/workflows/test.yml` (windows-latest, pixi 0.66.0 locked,
 `pixi run test`).
 
+## δ classification (Type column, 2026-09-11)
+
+Two-center metal–ligand IBOs were labelled σ whenever p-fraction
+failed the 0.85-both-atoms π test — so ferrocene's e₂′ set
+(dxy / dx²−y², orbs 47/48) printed `Fe-C σ`. `_two_center_bond_type`
+now overrides on a 3d metal (Sc–Zn) with majority d character using
+the existing `_d_spherical_weights` spherical projection: dz2 → σ,
+dxz/dyz → π, dxy/dx2y2 → δ (and the matching antibond). High-DOM
+metal orbitals still take the LP branch first (ferrocene dz²
+nonbonding, 98.6%). Organic gallery inert by construction (no 3d
+atom). Wiberg σ/π partition is unchanged — δ density still folds as
+σ there; quote totals, not per-bond splits, as before.
+
 ## Bond-flat PM degeneracies: resolved for the occupied block
 
 ### Observation (2026-08-24, ethene_024 vs ethene_025)

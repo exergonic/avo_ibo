@@ -615,6 +615,8 @@ on atom $A$. Occupied (occupancy $2.0$):
 | $n_A(i) > 0.99$, $s > 0.75$, dominant $n=1$ | `A(Core)` |
 | $n_A(i) > 0.90$ | `A(LP)` |
 | $n_A(i)+n_B(i) > 0.75$, $n_B(i) > 0.02$, $p_A>0.85$ and $p_B>0.85$ | `A-B π` |
+| $n_A(i)+n_B(i) > 0.75$, $n_B(i) > 0.02$, 3d metal majority-d: dxy/dx2y2 | `A-B δ` |
+| $n_A(i)+n_B(i) > 0.75$, $n_B(i) > 0.02$, 3d metal majority-d: dxz/dyz | `A-B π` |
 | $n_A(i)+n_B(i) > 0.75$, $n_B(i) > 0.02$, otherwise | `A-B σ` |
 | $n_A(i) > 0.70$, $s > 0.5$ | `A(LP-s)` |
 | $n_A(i) > 0.70$ | `A(LP)` |
@@ -625,7 +627,10 @@ Only $n=1$ (1s) counts as Core; 2s/3s stay valence. The 2e3c gate is
 why diborane bridges, norbornyl, and cyclopropenyl label `2e3c` rather
 than `Deloc`: the third atom carries more than 10% and a fourth does
 not exceed 3%. Virtuals use the same 0.85 p-fraction for σ*/π*, a
-looser two-centre share (0.60), and a third-atom cut of 0.08.
+looser two-centre share (0.60), and a third-atom cut of 0.08. On a
+3d metal (Sc–Zn) with majority d character the organic p-fraction
+test is replaced by the dominant spherical d (`_d_spherical_weights`):
+dz2 → σ, dxz/dyz → π, dxy/dx2y2 → δ (and the matching antibond).
 
 `_classify_orbital()`
 
